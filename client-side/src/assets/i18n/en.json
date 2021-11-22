@@ -1,11 +1,26 @@
 {
+    "TITLE": "Assets Manager",
+    
+    "UPLOAD_ASSET": {
+        "TITLE": "Upload an asset",
+        "SUB_TITLE": "By clicking or darging & droping",
+        "UPLOAD_FILE": "Upload File",
+        "UPLOAD_URL": "Or by typing a URL",
+        "INSERT_URL": "Insert URL"
+    },
 
-    "Ok": "Ok",
-    "Select_Label": "Select Label",
-    "Title_Addon": "Hello Addon",
-    "Title_Sub_Addon": "Hello Sub Addon",
-    "Open_Dialog": "Open Dialog",
-    "Dialog_Body": "Dialog from sub addon",
-    "Dialog_Title": "Dialog"
+    "TOP_BAR":{
+        "ADD_FOLDER": "Add Folder",
+        "FILTERS": "Filters"
+    },
 
+    "GRID": {
+        "DEFAULT_TITLE": "Main",
+        "COLUMN": {
+            "THUMBNAIL": "Thumbnail",
+            "FILENAME": "File Name",
+            "TYPE": "Type",
+            "DESCRIPTION": "Description"
+        }
+    }
 }

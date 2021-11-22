@@ -12,9 +12,21 @@ import { PepSelectModule } from '@pepperi-addons/ngx-lib/select';
 import { PepButtonModule } from '@pepperi-addons/ngx-lib/button';
 import { PepHttpService, PepFileService, PepNgxLibModule, PepAddonService, PepCustomizationService } from '@pepperi-addons/ngx-lib';
 import { AddonComponent } from './index';
-import {PepperiTableComponent} from './pepperi-table.component'
+import {PepperiTableComponent} from '../addon/pepperi-table.component'
 import { MatDialogModule } from '@angular/material/dialog';
 import { PepDialogService } from '@pepperi-addons/ngx-lib/dialog';
+
+import { GenericListModule } from '../generic-list/generic-list.module';
+import { PepIconModule, PepIconRegistry, pepIconViewCardMd, pepIconViewCardSm, pepIconViewLine, pepIconViewTable } from '@pepperi-addons/ngx-lib/icon';
+import { PepTextboxModule } from '@pepperi-addons/ngx-lib/textbox';
+import { PepMenuModule } from '@pepperi-addons/ngx-lib/menu';
+import { PepBreadCrumbsModule } from '@pepperi-addons/ngx-lib/bread-crumbs';
+import { PepSearchModule } from '@pepperi-addons/ngx-lib/search';
+import { AddFolderModule } from '../add-folder/add-folder.module';
+const pepIcons = [
+    pepIconViewTable,
+    pepIconViewCardMd
+];
 
 export function createTranslateLoader(http: HttpClient, fileService: PepFileService, addonService: PepAddonService) {
     const translationsPath: string = fileService.getAssetsTranslationsPath();
@@ -62,7 +74,15 @@ export function createTranslateLoader(http: HttpClient, fileService: PepFileServ
         PepButtonModule,
         PepSelectModule,
         PepTopBarModule,
-        PepListModule
+        PepListModule,
+
+        GenericListModule,
+        PepIconModule,
+        PepTextboxModule,
+        PepMenuModule,
+        PepBreadCrumbsModule,
+        PepSearchModule,
+        AddFolderModule
 
 
     ],
@@ -80,8 +100,11 @@ export function createTranslateLoader(http: HttpClient, fileService: PepFileServ
 })
 export class AddonModule {
     constructor(
+        private pepperiIconRegistry: PepIconRegistry,
           translate: TranslateService
       ) {
+
+        this.pepperiIconRegistry.registerIcons(pepIcons);
 
         let userLang = 'en';
         translate.setDefaultLang(userLang);

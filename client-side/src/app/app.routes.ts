@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { Component } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
-import { AddonComponent } from './components/addon/addon.component';
+import { AddonComponent } from './components/assets-manager/addon.component';
 
 // Important for single spa
 @Component({

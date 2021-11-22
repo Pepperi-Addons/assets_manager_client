@@ -31,8 +31,8 @@ module.exports = (config, options, env) => {
                 name: "addon",
                 filename: "addon.js",
                 exposes: {
-                  './AddonComponent': './src/app/components/addon/index.ts',
-                  './AddonModule': './src/app/components/addon/index.ts'
+                  './AddonComponent': './src/app/components/assets-manager/index.ts',
+                  './AddonModule': './src/app/components/assets-manager/index.ts'
 
                 },
                 shared: {

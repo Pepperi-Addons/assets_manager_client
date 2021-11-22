@@ -1,0 +1,60 @@
+<div id="pageContainer">
+    <div>
+    <div class="uploader-content" [ngClass]="isOnPopUp === true ? 'popUpView' : ''">
+        <div class="upload-asset">
+            <div class="file-section">
+                <label class="body-md ellipsis">{{'UPLOAD_ASSET.TITLE' | translate}}</label>
+                <span class="body-xs ellipsis">{{'UPLOAD_ASSET.SUB_TITLE' | translate}}</span>
+
+                <div class="fileupload" (click)="fileField.click()">
+                                <pep-icon name="system_file_upload_cloud"></pep-icon>
+                                <span class="body-sm ellipsis">{{'UPLOAD_ASSET.UPLOAD_FILE' | translate}}</span> 
+                                <input type="file" name="avatars" #fileField (change)="upload($event.target.files)">
+                </div>
+            </div>
+            <div class="url-section">
+                <pep-textbox [label]="'UPLOAD_ASSET.UPLOAD_URL' | translate" type="link" [value]="''" sizeType="xs"  (valueChange)="assetURLChange($event)"></pep-textbox>
+                <pep-button [value]="'UPLOAD_ASSET.INSERT_URL' | translate" [styleType]="'regular'" sizeType="md"  (buttonClick)="assetURLChange($event);"></pep-button>
+            </div>
+        </div>
+        <div *ngIf="isOnPopUp" class="link-asset">
+                <label class="body-md">{{'UPLOAD_ASSET.TITLE' | translate}}</label>
+                <pep-textbox [label]="'UPLOAD_ASSET.UPLOAD_URL' | translate" type="link" [value]="''" sizeType="md"  (valueChange)="assetURLChange($event)"></pep-textbox>
+                <pep-button [value]="'UPLOAD_ASSET.INSERT_URL' | translate" [styleType]="'regular'" sizeType="md"  (buttonClick)="assetURLChange($event);"></pep-button>
+        </div>
+    </div>
+
+    <pep-top-bar class="main-top-header" [inline]="true" [title]="assetsHeaderTitle">
+        <div header-end-content>
+            <ng-container *ngTemplateOutlet="topBarEnd"></ng-container>
+        </div>
+    </pep-top-bar>
+    <pep-bread-crumbs class="pep-spacing-element" [items]="breadCrumbsItems" [displayType]="'items'"
+                    (itemClick)="onBreadCrumbItemClick($event)">
+
+    </pep-bread-crumbs>
+    </div>
+    <div>
+    <generic-list [dataSource]="assetsDataSource" [inline]="true" [showTopBar]="false" [title]="assetsHeaderTitle">
+        <ng-container right-buttons>
+            <ng-container *ngTemplateOutlet="topBarEnd"></ng-container>
+        </ng-container>
+    </generic-list>
+</div>
+
+
+<ng-template #topBarEnd>
+    <pep-button class="pep-spacing-element" value="{{'TOP_BAR.ADD_FOLDER' | translate}}" styleType="weak"
+    styleStateType="system" sizeType="sm" iconName="number_plus" iconPosition="end"
+        (buttonClick)="onAddFolderClick($event)"></pep-button>
+    <pep-menu class="pep-spacing-element" [items]="[]" sizeType="sm" (menuItemClick)="onMenuItemClicked($event)">
+    </pep-menu>
+    <pep-search sizeType="sm" class="pep-spacing-element" [autoCompleteValues]="searchAutoCompleteValues" [value]="searchString"
+        (search)="onSearchChanged($event)" (autocompleteChange)="onSearchAutocompleteChanged($event)"
+        (stateChange)="onSearchStateChanged($event)">
+    </pep-search>
+    <pep-list-sorting sizeType="sm" class="pep-spacing-element" [options]="sortingOptions" (change)="onSortingChanged($event)">
+    </pep-list-sorting> 
+    <pep-list-views sizeType="sm" class="pep-spacing-element" [views]="views" [displayType]="'menu'" [currentView]="currentPepViewType" (change)="onViewChanged($event)">
+    </pep-list-views>
+</ng-template>
