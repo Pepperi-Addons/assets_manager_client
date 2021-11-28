@@ -1,4 +1,5 @@
-import { Component, OnInit, Injectable, Input, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Injectable, Input, Output, EventEmitter, Optional, Inject } from '@angular/core';
+import { MatDialogRef } from '@angular/material/dialog';
 
 @Component({
     selector: 'add-folder',
@@ -7,10 +8,22 @@ import { Component, OnInit, Injectable, Input, Output, EventEmitter } from '@ang
 })
 
 @Injectable()
-export class AddFolderComponent  {
+export class AddFolderComponent implements OnInit {
+    
+    public folderName: string = '';
+    constructor(private dialogRef: MatDialogRef<AddFolderComponent>) {
+       
+    }
+    ngOnInit(): void {
+ 
+    }
 
-    constructor() {
+    close(event){
+        this.dialogRef?.close();
+    }
 
+    addFolder(event){
+        this.dialogRef?.close(this.folderName);
     }
 
 }

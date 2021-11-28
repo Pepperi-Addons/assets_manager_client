@@ -5,25 +5,36 @@ import { HttpClient } from '@angular/common/http';
 import { PepFileService, PepAddonService, PepNgxLibModule } from '@pepperi-addons/ngx-lib';
 import { config } from '../../addon.config';
 import { MultiTranslateHttpLoader } from 'ngx-translate-multi-http-loader';
-import { AddFolderComponent } from './add-folder.component';
+import { EditFileComponent } from './edit-file.component';
+import { PepBreadCrumbsModule } from '@pepperi-addons/ngx-lib/bread-crumbs';
 import { PepTextboxModule } from '@pepperi-addons/ngx-lib/textbox';
 import { PepTopBarModule } from '@pepperi-addons/ngx-lib/top-bar';
 import { PepDialogModule } from '@pepperi-addons/ngx-lib/dialog';
 import { PepButtonModule } from '@pepperi-addons/ngx-lib/button';
+import { PepTextareaModule } from '@pepperi-addons/ngx-lib/textarea';
+import { PepCheckboxModule } from '@pepperi-addons/ngx-lib/checkbox';
+import { PepSeparatorModule } from '@pepperi-addons/ngx-lib/separator';
+import { PepAttachmentModule } from '@pepperi-addons/ngx-lib/attachment';
 
 
 
 
 @NgModule({
     declarations: [
-        AddFolderComponent
+        EditFileComponent
     ],
     imports: [
         CommonModule,
         PepTopBarModule,
         PepTextboxModule,
         PepButtonModule,
+        PepBreadCrumbsModule,
         PepDialogModule,
+        PepCheckboxModule,
+        PepSeparatorModule,
+        PepAttachmentModule,
+        PepTextareaModule,
+        
         TranslateModule.forChild({
             loader: {
                 provide: TranslateLoader,
@@ -33,6 +44,6 @@ import { PepButtonModule } from '@pepperi-addons/ngx-lib/button';
             }, isolate: false
         }),
     ],
-    exports: [AddFolderComponent]
+    exports: [EditFileComponent]
 })
-export class AddFolderModule { }
+export class EditFileModule { }

@@ -4,6 +4,11 @@
     display: grid;
     grid-template-rows: min-content auto;
 
+    .main-top-header{
+        .title{
+            margin-top: .25rem;
+        }
+    }
     .uploader-content{
         margin: 1rem 0;
         display: flex;
@@ -74,6 +79,11 @@
             flex-direction: column;
             width: 17rem;
         }
+    }
+
+    generic-list{
+        overflow: auto;
+        height: 100%;
     }
 }
 

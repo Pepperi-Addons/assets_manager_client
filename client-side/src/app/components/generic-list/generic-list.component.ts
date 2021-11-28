@@ -74,6 +74,9 @@ export class GenericListComponent implements OnInit, AfterViewInit {
     @Output()
     onAddClicked = new EventEmitter<void>();
 
+    @Output() 
+    onSelectedRowChange = new EventEmitter<Array<PepMenuItem>>();
+
     menuHandlers: { [key: string]: (obj: any) => Promise<void> }
     menuActions: Array<PepMenuItem>;
     PepScreenSizeType = PepScreenSizeType;
@@ -107,7 +110,7 @@ export class GenericListComponent implements OnInit, AfterViewInit {
         const actions = await this.dataSource.getActions(this.getMenuObjects());
         const res: PepMenuItem[] = []
         this.menuHandlers = {};
-
+   
         actions.forEach(item => {
             const uuid = PepGuid.newGuid();
             this.menuHandlers[uuid] = item.handler;
@@ -116,8 +119,10 @@ export class GenericListComponent implements OnInit, AfterViewInit {
                 text: item.title
             })
         })
-
+        
+        this.onSelectedRowChange.emit(res);
         return res;
+        
     }
 
     getMenuObjects() {
@@ -135,7 +140,7 @@ export class GenericListComponent implements OnInit, AfterViewInit {
     }
 
     onMenuItemClicked(action: IPepMenuItemClickEvent): void {
-        this.menuHandlers[action.source.key](this.getMenuObjects());
+        //this.menuHandlers[action.source.key](this.getMenuObjects());
     }
 
     onSearchChanged($event) {

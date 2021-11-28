@@ -24,7 +24,11 @@
         </div>
     </div>
 
-    <pep-top-bar class="main-top-header" [inline]="true" [title]="assetsHeaderTitle">
+    <pep-top-bar class="main-top-header" [inline]="true">
+        <div header-start-content>
+            <pep-list-actions [sizeType]="'sm'" class="pep-spacing-element" [actions]="menuActions" (actionClick)="onMenuItemClicked($event)"></pep-list-actions>
+            <div class="title title-lg">{{assetsHeaderTitle}}</div>
+        </div>
         <div header-end-content>
             <ng-container *ngTemplateOutlet="topBarEnd"></ng-container>
         </div>
@@ -35,7 +39,7 @@
     </pep-bread-crumbs>
     </div>
     <div>
-    <generic-list [dataSource]="assetsDataSource" [inline]="true" [showTopBar]="false" [title]="assetsHeaderTitle">
+    <generic-list [dataSource]="assetsDataSource" (onSelectedRowChange)="onSelectedRowChange($event)" [inline]="true" [allowMultipleSelection]="true" [showTopBar]="false" [title]="assetsHeaderTitle">
         <ng-container right-buttons>
             <ng-container *ngTemplateOutlet="topBarEnd"></ng-container>
         </ng-container>
@@ -45,16 +49,21 @@
 
 <ng-template #topBarEnd>
     <pep-button class="pep-spacing-element" value="{{'TOP_BAR.ADD_FOLDER' | translate}}" styleType="weak"
-    styleStateType="system" sizeType="sm" iconName="number_plus" iconPosition="end"
+    styleStateType="system" sizeType="sm" iconName="system_folder" iconPosition="end"
         (buttonClick)="onAddFolderClick($event)"></pep-button>
     <pep-menu class="pep-spacing-element" [items]="[]" sizeType="sm" (menuItemClick)="onMenuItemClicked($event)">
     </pep-menu>
-    <pep-search sizeType="sm" class="pep-spacing-element" [autoCompleteValues]="searchAutoCompleteValues" [value]="searchString"
+    <pep-search sizeType="sm" [triggerOn]="'click'" class="pep-spacing-element" [autoCompleteValues]="searchAutoCompleteValues" [value]="searchString"
         (search)="onSearchChanged($event)" (autocompleteChange)="onSearchAutocompleteChanged($event)"
         (stateChange)="onSearchStateChanged($event)">
     </pep-search>
-    <pep-list-sorting sizeType="sm" class="pep-spacing-element" [options]="sortingOptions" (change)="onSortingChanged($event)">
-    </pep-list-sorting> 
-    <pep-list-views sizeType="sm" class="pep-spacing-element" [views]="views" [displayType]="'menu'" [currentView]="currentPepViewType" (change)="onViewChanged($event)">
-    </pep-list-views>
+    <pep-button class="pep-spacing-element" styleType="weak" styleStateType="system" sizeType="sm" 
+        iconName="arrow_two_ways_ver_t" iconPosition="start" (buttonClick)="sortToggle($event)">
+    </pep-button>
+    <pep-button *ngIf="currentView !== 'list'" class="pep-spacing-element" styleType="weak" styleStateType="system" sizeType="sm" 
+        iconName="view_table" iconPosition="start" (buttonClick)="viewsToggle($event)">
+    </pep-button>
+    <pep-button *ngIf="currentView === 'list'" class="pep-spacing-element" styleType="weak" styleStateType="system" sizeType="sm" 
+        iconName="view_card_sm" iconPosition="start" (buttonClick)="viewsToggle($event)">
+    </pep-button>
 </ng-template>

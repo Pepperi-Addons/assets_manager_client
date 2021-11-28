@@ -1,31 +1,34 @@
-import { PepDialogData, PepDialogService } from '@pepperi-addons/ngx-lib/dialog';
 import {  map } from 'rxjs/operators';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from "@angular/core";
 import { PepLayoutService, PepScreenSizeType } from '@pepperi-addons/ngx-lib';
 import { AddonService } from '.';
 import { Observable } from 'rxjs';
-
+import { GenericListComponent, GenericListDataSource } from '../generic-list/generic-list.component';
 import { PepBreadCrumbItem } from '@pepperi-addons/ngx-lib/bread-crumbs';
 import { IPepSearchStateChangeEvent } from '@pepperi-addons/ngx-lib/search';
-import { IListViewChangeEvent, IPepListSortingOption, IPepListSortingOptionChangeEvent, IPepListView } from '@pepperi-addons/ngx-lib/list';
-import { GenericListDataSource } from '../generic-list/generic-list.component';
-import { AssetsService, IAsset } from '../../common/assets-service';
+import { AssetsService, assetsView, IAsset, sortBy } from '../../common/assets-service';
 import { AddFolderComponent } from '../add-folder/add-folder.component';
+import { EditFileComponent } from '../edit-file/edit-file.component';
+import { IPepMenuItemClickEvent, PepMenuItem } from '@pepperi-addons/ngx-lib/menu';
+import { PepDialogActionButton, PepDialogData } from '@pepperi-addons/ngx-lib/dialog';
 
 @Component({
   selector: 'addon-module',
   templateUrl: './addon.component.html',
   styleUrls: ['./addon.component.scss'],
-  providers: [TranslatePipe,AddFolderComponent]
+  providers: [TranslatePipe,AddFolderComponent,EditFileComponent]
 })
 export class AddonComponent implements OnInit {
 
     PepScreenSizeType = PepScreenSizeType;
     screenSize: PepScreenSizeType;
-    options: {key:string, value:string}[] = [];
+    // options: {key:string, value:string}[] = [];
     dataSource$: Observable<any[]>
     displayedColumns = ['Name', 'Description'];
+    
+    @ViewChild(GenericListComponent) assetsList: GenericListComponent;
+
     @Input() hostObject: any;
     @Output() hostEvents: EventEmitter<any> = new EventEmitter<any>();
 
@@ -35,20 +38,18 @@ export class AddonComponent implements OnInit {
     assetsHeaderTitle = '';
     searchString = '';
     searchAutoCompleteValues = [];
-    sortingOptions: Array<IPepListSortingOption>;
-    views: Array<IPepListView>;
-    currentPepViewType: IPepListView;
+    
+    currentView: assetsView = 'list';
+    sortBy: sortBy = 'ascending';
+    menuActions: Array<PepMenuItem>;
+    selectedAssets :Array<IAsset> = [];
+    assets: Array<IAsset> = [];
 
-    assets: Array<IAsset>;
-
-    //json  = JSON.parse('[{"Key":"1", "Type": "folder", "Name":"Avner","Description":"My first folder"}, {"Key":"2", "Type": "folder", "Name":"Avner","Description":"My first folder"},{"Key":"2", "Type": "file", "Name":"Avner","Description":"My first folder"}]');
-    constructor(
+   constructor(
         public addonService: AddonService,
         public layoutService: PepLayoutService,
-        public dialog: PepDialogService,
         public translate: TranslateService,
-        public assetsService: AssetsService,
-        public addFolder: AddFolderComponent
+        public assetsService: AssetsService
     ) {
 
         this.layoutService.onResize$.subscribe(size => {
@@ -63,7 +64,7 @@ export class AddonComponent implements OnInit {
              //let res: Promise<any[]> = this.json((pages) => {
               let  res =  this.assets.map(asset => ({
                 Key: asset.key,
-                Thumbnail: asset.thumbnail ? 'file' : 'folder',
+                Thumbnail: asset.thumbnailSrc,
                 FileName: asset.key,
                 Type: asset.mimeType, 
                 Description: asset.description  
@@ -112,10 +113,10 @@ export class AddonComponent implements OnInit {
                     }
                 ],
                 Columns: [
+                    { Width: 2 },
                     { Width: 15 },
-                    { Width: 25 },
-                    { Width: 10 },
-                    { Width: 50 },
+                    { Width: 5 },
+                    { Width: 78 },
                 ],
                 FrozenColumnsCount: 0,
                 MinimumColumnWidth: 0
@@ -123,86 +124,63 @@ export class AddonComponent implements OnInit {
         },
 
         getActions: async (objs) => {
-            let actions = objs.length ? [
+            this.selectedAssets = objs.length > 0 ? objs  : [];
+            return objs.length === 1 ? [
                 {
-                    title: this.translate.instant("Download"),
+                    action: 'edit',
+                    title: this.translate.instant("ACTIONS.EDIT"),
                     handler: async (objs) => {
-                        //this.downloadChart(objs[0]);
+                        //this.editAsset(objs);
+                        //this.navigationService.navigateToPage([objs[0].Key].toString());
+                    }
+                },
+                {
+                    title: this.translate.instant("ACTIONS.DELETE"),
+                    handler: async (objs: IAsset[]) => {
+                        if (objs.length > 0) {
+                            //this.deletePage(objs[0].Key);
+                        }
                     }
                 }
+            ] : 
+            objs.length > 1 ? [{
+                title: this.translate.instant("ACTIONS.DELETE"),
+                handler: async (objs: IAsset[]) => {
+                    if (objs.length > 0) {
+                        //this.deletePage(objs[0].Key);
+                    }
+                }
+            }
             ] : []
-            if (objs.length > 0 && !objs[0]?.ReadOnly) {
-                actions.unshift(
-                    {
-                        title: this.translate.instant("Edit"),
-                        handler: async (objs) => {
-                            // this.router.navigate([objs[0].Key], {
-                            //     state: { data: objs[0] },
-                            //     relativeTo: this.route,
-                            //     queryParamsHandling: 'merge'
-                            // });
-                        }
-                    },
-                    {
-                        title: this.translate.instant("Delete"),
-                        handler: async (objs) => {
-                            // this.deleteChart(objs[0]);
-                        }
-                    }
-                );
-            }
-            if (objs[0]?.ReadOnly) {
-                actions.unshift(
-                    {
-                        title: this.translate.instant("Preview"),
-                        handler: async (objs) => {
-                            // this.router.navigate([objs[0].Key], {
-                            //     state: { data: objs[0] },
-                            //     relativeTo: this.route,
-                            //     queryParamsHandling: 'merge'
-                            // });
-                        }
-                    }
-                );
-            }
-            return actions;
         }
     }
     
     ngOnInit(){
-        
-        this.loadListSorting();
-        this.loadViews();
-        
+        for(var i=0; i<3 ; i ++){
+            let asset = new IAsset('folder');
+            asset.key = "Folder-"+ i.toString();
+            this.assets.push(asset);
+        }
+
+        this.assetsList?.reload();
+    }
+
+    onSelectedRowChange(event){
+        this.menuActions = event?.length ? event : [];
     }
 
     upload(e) {
         const fileListAsArray = Array.from(e);
         fileListAsArray.forEach((item, i) => {
           const file = (e as HTMLInputElement);
-          const url = URL.createObjectURL(file[i]);
+          //const url = URL.createObjectURL(file[i]);
+
+          this.addNewFile(file[0]);
           //this.imgArr.push(url);
           //this.fileArr.push({ item, url: url });
         });    
     }
-
-    private loadListSorting(): void {
-        this.sortingOptions = [
-            { sortBy: 'a-z', title: 'A -> Z', isAsc: true },
-            { sortBy: 'z-a', title: 'Z -> A', isAsc: false },
-            { sortBy: 'index', title: 'Index' },
-        ];
-    }
-
-    private loadViews(): void {
-        this.views = [
-            { key: 'card', title: '', iconName: 'view_card_md' },
-            { key: 'table', title: '', iconName: 'view_table' }
-        ];
-
-        this.currentPepViewType = this.views[0];
-    }
-
+  
     assetURLChange(event){
 
     }
@@ -211,8 +189,17 @@ export class AddonComponent implements OnInit {
         
     }
 
-    onMenuItemClicked(event){
-        
+    onMenuItemClicked(action: IPepMenuItemClickEvent){
+        switch (action.source.text.toLowerCase()) {
+            case "edit": {
+               this.editAsset();
+               break; 
+            }
+            case "delete": {
+                this.showDeleteAssetMSG();
+                break; 
+             }
+        }  
     }
 
     onBreadCrumbItemClick(event){
@@ -233,19 +220,86 @@ export class AddonComponent implements OnInit {
         // debugger;
     }
 
-    onSortingChanged(sortingChangeEvent: IPepListSortingOptionChangeEvent) {
-        //
+    sortToggle(event){
+        this.sortBy = this.sortBy === 'ascending' ? 'ascending' : 'descending';
+        // TODO -  SORTING IMPLEMENTATION
     }
-
-    onViewChanged(viewChangeEvent: IListViewChangeEvent) {
-        // debugger;
-        //this.loadlist(this.dataSource);
+     
+    viewsToggle(event){
+        this.currentView = this.currentView === 'list' ? 'thumbnail' : 'list';
+        // TODO - REPLACE BETWEEN THE VIEWS IMPLEMENTATION
     }
 
     onAddFolderClick(event){
-        this.assetsService.openDialog(AddFolderComponent);
-        //this.assetsService.openDialogMsg("Add Folder","asdfsdfs",null);
+        this.assetsService.openDialog(AddFolderComponent,(data) => {
+        this.addNewFolder(data)});
     }
+    editAsset(){
+        const asset = this.getSelectedAsset();
+        if(asset){
+        this.assetsService.openDialog(EditFileComponent,(res) => {
+        this.updateAssetInfo(res)}, {'asset': asset , 'breadCrumbs': this.breadCrumbsItems});
+        }
+    }
+
+    updateAssetInfo(iasset: IAsset){
+        this.assets.forEach(asset => {
+            if(asset.key === this.selectedAssets[0]['Key']){
+                asset = iasset;
+            }
+        });
+
+        this.assetsList.reload();
+    }
+
+    getSelectedAsset(){
+        let retAsset = null;
+        this.assets.forEach(asset => {
+            if(asset.key === this.selectedAssets[0]['Key']){
+                retAsset =  asset;
+            }
+        });
+
+        return retAsset;
+    }
+    showDeleteAssetMSG(){
+      
+          const dialogData = new PepDialogData({
+            content: 'Sure you want to delete these files?',
+            showHeader: false,
+            actionsType: 'cancel-delete',
+            showClose: false,
+          });
+
+         this.assetsService.openDialogMsg(dialogData,() => {
+             this.deleteAssets()});  
+    }
+
+    deleteAssets(){
+        
+    }
+
+    addNewFile(f){
+        let file = new IAsset('file');
+        
+        file.key = f.name;
+        file.creationDate = new Date().getTime(); 
+        file.modificationDate = f.lastModified;
+        file.fileSize = f.size;
+        file.mimeType = f.type;
+        file.thumbnailSrc = 'https://images.squarespace-cdn.com/content/v1/5c8b13db65019feb12921ef4/1574655836868-D27Y5RC9J18111KAMD2C/Tilicho+Lake+1080x1080.jpg?format=1000w';
+        this.assets.push(file);
+        this.assetsList.reload();
+    }
+
+    addNewFolder(data){
+        let folder = new IAsset(this.translate.instant('folder'));
+        folder.key = data;
+                        
+        this.assets.push(folder);
+        this.assetsList.reload();
+        // TODO - NEED TO ADD A CALL TO ADD A NEW FOLDER
+    };
    
 
 

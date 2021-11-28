@@ -17,15 +17,19 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { PepDialogService } from '@pepperi-addons/ngx-lib/dialog';
 
 import { GenericListModule } from '../generic-list/generic-list.module';
-import { PepIconModule, PepIconRegistry, pepIconViewCardMd, pepIconViewCardSm, pepIconViewLine, pepIconViewTable } from '@pepperi-addons/ngx-lib/icon';
+import { pepIconArrowTwoWaysVerT, PepIconModule, PepIconRegistry, pepIconSystemDoc, pepIconSystemFolder, pepIconViewCardSm, pepIconViewLine, pepIconViewTable } from '@pepperi-addons/ngx-lib/icon';
 import { PepTextboxModule } from '@pepperi-addons/ngx-lib/textbox';
 import { PepMenuModule } from '@pepperi-addons/ngx-lib/menu';
 import { PepBreadCrumbsModule } from '@pepperi-addons/ngx-lib/bread-crumbs';
 import { PepSearchModule } from '@pepperi-addons/ngx-lib/search';
 import { AddFolderModule } from '../add-folder/add-folder.module';
+import { EditFileModule } from '../edit-file/edit-file.module';
 const pepIcons = [
     pepIconViewTable,
-    pepIconViewCardMd
+    pepIconViewCardSm,
+    pepIconArrowTwoWaysVerT,
+    pepIconSystemFolder,
+    pepIconSystemDoc,
 ];
 
 export function createTranslateLoader(http: HttpClient, fileService: PepFileService, addonService: PepAddonService) {
@@ -82,7 +86,8 @@ export function createTranslateLoader(http: HttpClient, fileService: PepFileServ
         PepMenuModule,
         PepBreadCrumbsModule,
         PepSearchModule,
-        AddFolderModule
+        AddFolderModule,
+        EditFileModule
 
 
     ],

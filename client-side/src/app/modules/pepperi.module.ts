@@ -109,7 +109,6 @@ const pepperiComponentsModules = [
     PepImageModule,
     PepImagesFilmstripModule,
     PepListModule,
-    PepCheckboxModule,
     PepQuantitySelectorModule,
     PepRichHtmlTextareaModule,
     PepSelectModule,
