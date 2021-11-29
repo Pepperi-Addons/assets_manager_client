@@ -6,11 +6,13 @@
                 <label class="body-md ellipsis">{{'UPLOAD_ASSET.TITLE' | translate}}</label>
                 <span class="body-xs ellipsis">{{'UPLOAD_ASSET.SUB_TITLE' | translate}}</span>
 
-                <div class="fileupload" (click)="fileField.click()">
+                <div class="fileupload" (click)="fileField.click()" (dragover)="onDragOver($event)" 
+                     (drop)="onDropSuccess($event)" [ngClass]="maxFileSizeExceeded === true ? 'validationErrMsg' : ''">
                                 <pep-icon name="system_file_upload_cloud"></pep-icon>
                                 <span class="body-sm ellipsis">{{'UPLOAD_ASSET.UPLOAD_FILE' | translate}}</span> 
-                                <input type="file" name="avatars" #fileField (change)="upload($event.target.files)">
+                                <input type="file" multiple="multiple" name="avatars" #fileField (change)="upload($event.target.files)">   
                 </div>
+                <div *ngIf="maxFileSizeExceeded" class="body-xs validationMsg"> Maximum 10MB per file </div>
             </div>
             <div class="url-section">
                 <pep-textbox [label]="'UPLOAD_ASSET.UPLOAD_URL' | translate" type="link" [value]="''" sizeType="xs"  (valueChange)="assetURLChange($event)"></pep-textbox>

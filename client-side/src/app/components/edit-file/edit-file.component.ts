@@ -25,7 +25,7 @@ export class EditFileComponent implements OnInit {
     ngOnInit(): void {
         this.breadCrumbsItems = this.data?.breadCrumbs || [];
         this.assetNmae = this.data?.asset?.key || '';
-        this.creationDate = new Date(this.data.asset.creationDate).toString() || '';
+        this.creationDate = new Date(this.data.asset.creationDate).toUTCString() || '';
     }
 
     close(event){

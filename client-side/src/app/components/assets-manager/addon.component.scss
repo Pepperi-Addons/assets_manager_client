@@ -45,9 +45,9 @@
 
                 .fileupload {
                     width: 240px;
-                    height: 96px;
+                    height: 6rem;
                     border: 1px dashed rgb(153, 153, 153);
-                    border-radius: 4px;
+                    border-radius: .25rem;
                     background-color: rgba(153, 153, 153, 50%);
                     cursor: pointer;
                     display: flex;
@@ -64,6 +64,22 @@
                     input[type="file"]{
                         display: none;
                     }
+
+                    &.validationErrMsg{
+                        border-color: rgb(230, 38, 0);
+                        background-color: #fff;
+                        height: 4.5rem;
+                        border-radius: .25rem .25rem 0 0;
+                        border-bottom: none;
+                    }
+                }
+
+                .validationMsg{
+                    background: rgb(230, 38, 0);
+                    border-radius: 0 0 4px 4px;
+                    color: #fff;
+                    padding: .25rem .5rem;
+                    line-height: 1.5rem;
                 }
             }
 

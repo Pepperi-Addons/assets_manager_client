@@ -11,7 +11,7 @@
         <li><span>{{'EDIT_FILE.UPLOADED_BY' | translate}}:</span><label>&nbsp;{{data?.asset?.uploadedBy}}</label></li>
         <li><span>{{'EDIT_FILE.FILE_TYPE' | translate}}:</span><label>&nbsp;{{data?.asset?.mimeType}}</label></li>
         <li><span>{{'EDIT_FILE.FILE_SIZE' | translate}}:</span><label>&nbsp;{{data?.asset?.fileSize}}</label></li>
-        <li><span>{{'EDIT_FILE.DIMENSIONS' | translate}}:</span><label>&nbsp;{{'EDIT_FILE.N_A' | translate}}</label></li>
+        <li><span>{{'EDIT_FILE.DIMENSIONS' | translate}}:</span><label>&nbsp;{{data?.asset?.dimension}}</label></li>
     </ul>
     <pep-textbox [label]="'EDIT_FILE.ASSET_URL' | translate" type="link" [(value)]="data.asset.thumbnailSrc" sizeType="xs"></pep-textbox>
     <label class="body-xs normal ellipsis">{{'EDIT_FILE.SYNCABLE' | translate}}</label>
@@ -22,7 +22,7 @@
         <pep-textarea [(value)]="data.asset.description" [label]="'EDIT_FILE.DESCRIPTION' | translate" [disabled]="false" 
                   rowSpan="1.5">
         </pep-textarea>
-        <pep-attachment [label]="'EDIT_FILE.PREVIEW' | translate" [src]="" [mandatory]="false" [disabled]="false" [xAlignment]="'left'" [rowSpan]="2.5"
+        <pep-attachment [label]="'EDIT_FILE.PREVIEW' | translate" [src]="data?.asset?.thumbnailSrc" [mandatory]="false" [disabled]="false" [xAlignment]="'left'" [rowSpan]="2.5"
         [showTitle]="true" (elementClick)="assetsElementClick($event)" (fileChange)="assetsFileChange($event)">
     </pep-attachment>
     </div>

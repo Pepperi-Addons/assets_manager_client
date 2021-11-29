@@ -9,8 +9,11 @@ import { PepDialogActionButton, PepDialogData, PepDialogService } from '@pepperi
     Always - always */
 
 export type syncOption = 'none' | 'device' | 'deviceThumbnail' | 'always';
+export type assetsTypes = 'images' | 'documents' | 'all';
+export type selectionType = 'single' | 'multiple';
 export type assetsView = 'list' | 'thumbnail';
 export type sortBy = 'ascending' | 'descending' ;
+
 
 export class IAsset {
     key: string = '';
@@ -24,7 +27,8 @@ export class IAsset {
     thumbnail : boolean = false;
     thumbnailSrc: string = '';
     mimeType: string  = '';
-    fileSize: number = 0;
+    fileSize: string = '0';
+    dimension: string = '';
 
     constructor(mimeType = null){
         this.mimeType = mimeType;
@@ -64,7 +68,13 @@ openDialogMsg(dialogData: PepDialogData, callback?: any) {
                 }
         });
 }
-// cancelClicked() {
-//     this.goBack();
-// }
+
+formatFileSize(bytes,decimalPoint) {
+    if(bytes == 0) return '0 Bytes';
+    var k = 1000,
+        dm = decimalPoint || 2,
+        sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'],
+        i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+ }
 }

@@ -23,18 +23,18 @@ export class AddonComponent implements OnInit {
 
     PepScreenSizeType = PepScreenSizeType;
     screenSize: PepScreenSizeType;
-    // options: {key:string, value:string}[] = [];
+    
     dataSource$: Observable<any[]>
-    displayedColumns = ['Name', 'Description'];
     
     @ViewChild(GenericListComponent) assetsList: GenericListComponent;
 
-    @Input() hostObject: any;
+    @Input() maxFileSize: number = 10000;
     @Output() hostEvents: EventEmitter<any> = new EventEmitter<any>();
 
-    breadCrumbsItems: Array<PepBreadCrumbItem> = [{key: '1', text: 'Main', title: 'Main'},
-                                                  {key: '2', text: 'Sub folder', title: 'Sub folder'}];
+    breadCrumbsItems: Array<PepBreadCrumbItem> = [];
     isOnPopUp: boolean = false;
+    
+    maxFileSizeExceeded = false;
     assetsHeaderTitle = '';
     searchString = '';
     searchAutoCompleteValues = [];
@@ -156,6 +156,9 @@ export class AddonComponent implements OnInit {
     }
     
     ngOnInit(){
+
+        this.breadCrumbsItems = [{key: '1', text: 'Main', title: 'Main'},
+                                 {key: '2', text: 'Sub folder', title: 'Sub folder'}];
         for(var i=0; i<3 ; i ++){
             let asset = new IAsset('folder');
             asset.key = "Folder-"+ i.toString();
@@ -173,11 +176,9 @@ export class AddonComponent implements OnInit {
         const fileListAsArray = Array.from(e);
         fileListAsArray.forEach((item, i) => {
           const file = (e as HTMLInputElement);
-          //const url = URL.createObjectURL(file[i]);
-
+          
           this.addNewFile(file[0]);
-          //this.imgArr.push(url);
-          //this.fileArr.push({ item, url: url });
+
         });    
     }
   
@@ -279,15 +280,54 @@ export class AddonComponent implements OnInit {
         
     }
 
+    onDragOver(event) {
+        event.preventDefault();
+   
+    }
+    
+    // From drag and drop
+    onDropSuccess(event) {
+        event.preventDefault();
+        if(event?.dataTransfer?.files){
+            Array.from(event.dataTransfer.files).forEach(file => {
+                this.addNewFile(file);
+            });
+        }
+    }
     addNewFile(f){
+
+        if(f.size > this.maxFileSize){
+            this.maxFileSizeExceeded = true;
+            return;
+        }
+        else{
+            this.maxFileSizeExceeded = false;
+        }
         let file = new IAsset('file');
         
         file.key = f.name;
         file.creationDate = new Date().getTime(); 
         file.modificationDate = f.lastModified;
-        file.fileSize = f.size;
+        file.fileSize = this.assetsService.formatFileSize(f.size,2);
         file.mimeType = f.type;
-        file.thumbnailSrc = 'https://images.squarespace-cdn.com/content/v1/5c8b13db65019feb12921ef4/1574655836868-D27Y5RC9J18111KAMD2C/Tilicho+Lake+1080x1080.jpg?format=1000w';
+
+        // TODO - CHECK IF FILE MIME TYPE IS IMAGE
+        const url = URL.createObjectURL(f);
+        var self = this;
+        var img = new Image();
+            img.src = url;
+            img.onload = function(image: any)
+            {
+                file.dimension = img.width.toString() + '/' + img.height.toString();
+                file.thumbnailSrc = 'https://images.squarespace-cdn.com/content/v1/5c8b13db65019feb12921ef4/1574655836868-D27Y5RC9J18111KAMD2C/Tilicho+Lake+1080x1080.jpg?format=1000w';
+               
+            }
+            img.onerror = function(err){
+                file.dimension = self.translate.instant('EDIT_FILE.N_A');
+            }
+		    img.remove();
+
+        
         this.assets.push(file);
         this.assetsList.reload();
     }
@@ -300,10 +340,4 @@ export class AddonComponent implements OnInit {
         this.assetsList.reload();
         // TODO - NEED TO ADD A CALL TO ADD A NEW FOLDER
     };
-   
-
-
-
-
-
 }
