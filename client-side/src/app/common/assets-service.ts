@@ -9,11 +9,17 @@ import { PepDialogActionButton, PepDialogData, PepDialogService } from '@pepperi
     Always - always */
 
 export type syncOption = 'none' | 'device' | 'deviceThumbnail' | 'always';
-export type assetsTypes = 'images' | 'documents' | 'all';
+export type allowedAssetsTypes = 'images' | 'documents' | 'all';
 export type selectionType = 'single' | 'multiple';
 export type assetsView = 'list' | 'thumbnail';
 export type sortBy = 'ascending' | 'descending' ;
+export type uploadStatus = 'uploading' | 'done' | 'failed' | 'hidden';
 
+export class assetProcess {
+    key: number;
+    name = '';
+    status: uploadStatus = 'uploading';
+}
 
 export class IAsset {
     key: string = '';
@@ -32,7 +38,6 @@ export class IAsset {
 
     constructor(mimeType = null){
         this.mimeType = mimeType;
-        this.thumbnailSrc = mimeType === 'folder' ? 'https://upload.wikimedia.org/wikipedia/commons/5/59/OneDrive_Folder_Icon.svg' : '';
     }
 }
 

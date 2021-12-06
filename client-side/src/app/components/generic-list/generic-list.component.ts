@@ -56,6 +56,7 @@ export class GenericListComponent implements OnInit, AfterViewInit {
     @Input() 
     showTotalRows: boolean = false;
 
+    @Input() firstFieldAsLink: boolean = false;
     @Input()
     title: string = ''
 
@@ -65,17 +66,15 @@ export class GenericListComponent implements OnInit, AfterViewInit {
     @Input()
     showSearch: boolean = false;
 
-    @Input()
-    allowSelection: boolean = true;
+    @Input() allowSelection: boolean = true;
 
-    @Input()
-    allowMultipleSelection: boolean = false;
+    @Input() allowMultipleSelection: boolean = false;
 
-    @Output()
-    onAddClicked = new EventEmitter<void>();
+    @Output() onAddClicked = new EventEmitter<void>();
 
-    @Output() 
-    onSelectedRowChange = new EventEmitter<Array<PepMenuItem>>();
+    @Output() onSelectedRowChange = new EventEmitter<Array<PepMenuItem>>();
+
+    @Output() fieldClicked: EventEmitter<any> = new EventEmitter();
 
     menuHandlers: { [key: string]: (obj: any) => Promise<void> }
     menuActions: Array<PepMenuItem>;
@@ -171,29 +170,36 @@ export class GenericListComponent implements OnInit, AfterViewInit {
     convertToPepRowData(object: any, dataView: DataView) {
         const row = new PepRowData();
         row.Fields = [];
-
-        for (const field of dataView.Fields as GridDataViewField[]) {
+        dataView.Fields.forEach((field,index) => {
             row.Fields.push({
                 ApiName: field.FieldID,
                 Title: this.translate.instant(field.Title),
                 XAlignment: 1,
                 FormattedValue: object[field.FieldID] || '',
                 Value: object[field.FieldID] || '',
-                ColumnWidth: 10,
+                ColumnWidth: dataView['Columns'][index].Width,
                 AdditionalValue: '',
                 OptionalValues: [],
                 FieldType: DataViewFieldTypes[field.Type],
                 ReadOnly: field.ReadOnly,
                 Enabled: !field.ReadOnly
             })
-        }
+        });
+
+
+      
+        // for (const field of dataView.Fields as GridDataViewField[]) {
+        
+        // }
 
         return row;
     }
 
     onAnimationStateChange(state): void { }
 
-    onCustomizeFieldClick(fieldClickEvent: IPepFormFieldClickEvent) { }
+    // onCustomizeFieldClick(fieldClickEvent: IPepFormFieldClickEvent) {
+    //     this.fieldClicked.emit(fieldClickEvent);
+    //  }
 
     selectedRowsChanged(selectedRowsCount: number) {
         this.loadMenuItems();

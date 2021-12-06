@@ -7,13 +7,14 @@
                 <span class="body-xs ellipsis">{{'UPLOAD_ASSET.SUB_TITLE' | translate}}</span>
 
                 <div class="fileupload" (click)="fileField.click()" (dragover)="onDragOver($event)" 
-                     (drop)="onDropSuccess($event)" [ngClass]="maxFileSizeExceeded === true ? 'validationErrMsg' : ''">
+                     (drop)="onDropSuccess($event)" [ngClass]="validateMsg !== '' ? 'validationErrMsg' : ''">
                                 <pep-icon name="system_file_upload_cloud"></pep-icon>
                                 <span class="body-sm ellipsis">{{'UPLOAD_ASSET.UPLOAD_FILE' | translate}}</span> 
                                 <input type="file" multiple="multiple" name="avatars" #fileField (change)="upload($event.target.files)">   
                 </div>
-                <div *ngIf="maxFileSizeExceeded" class="body-xs validationMsg"> Maximum 10MB per file </div>
+                <div *ngIf="validateMsg !== ''" class="body-xs validationMsg">{{validateMsg}}</div>
             </div>
+            
             <div class="url-section">
                 <pep-textbox [label]="'UPLOAD_ASSET.UPLOAD_URL' | translate" type="link" [value]="''" sizeType="xs"  (valueChange)="assetURLChange($event)"></pep-textbox>
                 <pep-button [value]="'UPLOAD_ASSET.INSERT_URL' | translate" [styleType]="'regular'" sizeType="md"  (buttonClick)="assetURLChange($event);"></pep-button>
@@ -41,11 +42,15 @@
     </pep-bread-crumbs>
     </div>
     <div>
-    <generic-list [dataSource]="assetsDataSource" (onSelectedRowChange)="onSelectedRowChange($event)" [inline]="true" [allowMultipleSelection]="true" [showTopBar]="false" [title]="assetsHeaderTitle">
+    <generic-list [dataSource]="assetsDataSource" (onSelectedRowChange)="onSelectedRowChange($event)" 
+                  [inline]="true" [allowMultipleSelection]="selectionType === 'multiple'" 
+                  [showTopBar]="false" [title]="assetsHeaderTitle" 
+                  [firstFieldAsLink]="true" (fieldClicked)="onCustomizeFieldClick($event)">
         <ng-container right-buttons>
             <ng-container *ngTemplateOutlet="topBarEnd"></ng-container>
         </ng-container>
     </generic-list>
+    <upload-panel *ngIf="assetsStack?.length > 0" [assetsList]="assetsStack"></upload-panel>
 </div>
 
 

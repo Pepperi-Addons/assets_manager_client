@@ -43,7 +43,9 @@
         "SYNCABLE_EXPLAIN": "If checked, asset will be abailable offline",
         "ASSET_NAME": "Asset Name",
         "DESCRIPTION": "Description",
-        "PREVIEW": "Preview"
+        "PREVIEW": "Preview",
+        "NOT_ALLOWED_MIME_TYPE": "This file format is not supported",
+        "MAXIMUM_FILE_SIZE":"Maximum 10MB per file"
     },
 
     "ACTIONS": {
@@ -52,5 +54,9 @@
         "EDIT": "Edit Asset info",
         "DELETE": "Delete",
         "UPDATE_ASSET": "Update Asset Info"
+    },
+
+    "DOWNLOAD_PANEL": {
+        "TITLE": "Uploading Assets"
     }
 }

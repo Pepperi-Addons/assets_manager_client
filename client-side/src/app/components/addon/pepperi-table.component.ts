@@ -7,8 +7,7 @@ import { PepListComponent } from '@pepperi-addons/ngx-lib/list';
   selector: 'pep-table',
   template: `<div class="list-container" #listContainer>
   <pep-list
-
-      [firstFieldAsLink]="false"
+      [firstFieldAsLink]="firstFieldAsLink"
       [isReport]="true"
       [supportSorting]="false"
       [supportResizing]="false"
@@ -23,7 +22,7 @@ import { PepListComponent } from '@pepperi-addons/ngx-lib/list';
 })
 export class PepperiTableComponent implements OnInit, OnChanges {
 
-
+    @Input() firstFieldAsLink = false;
     @Input() dataSource = null;
     @Input() displayedColumns = null;
     @Input() customizeTable = null;

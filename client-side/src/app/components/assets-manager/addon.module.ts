@@ -23,6 +23,7 @@ import { PepMenuModule } from '@pepperi-addons/ngx-lib/menu';
 import { PepBreadCrumbsModule } from '@pepperi-addons/ngx-lib/bread-crumbs';
 import { PepSearchModule } from '@pepperi-addons/ngx-lib/search';
 import { AddFolderModule } from '../add-folder/add-folder.module';
+import { UploadPanelModule } from '../upload-panel/upload-panel.module';
 import { EditFileModule } from '../edit-file/edit-file.module';
 const pepIcons = [
     pepIconViewTable,
@@ -87,6 +88,7 @@ export function createTranslateLoader(http: HttpClient, fileService: PepFileServ
         PepBreadCrumbsModule,
         PepSearchModule,
         AddFolderModule,
+        UploadPanelModule,
         EditFileModule
 
 

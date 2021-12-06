@@ -29,9 +29,9 @@
     </ng-template>
     <ng-template #listTemplate>
         <div class="list-wrapper" #listContainer id="listContainer">
-            <pep-list [supportSorting]="false" [viewType]="'table'"
-                [selectionTypeForActions]="allowMultipleSelection ? 'multi' : (allowSelection ? 'single' : 'none')" [noDataFoundMsg]="'No data' | translate" [parentScroll]="listContainer"
-                (fieldClick)="onCustomizeFieldClick($event)"
+            <pep-list [supportSorting]="false" [viewType]="'table'" [firstFieldAsLink]="firstFieldAsLink"
+                [selectionTypeForActions]="allowMultipleSelection ? 'multi' : (allowSelection ? 'single' : 'none')" [noDataFoundMsg]="'No data' | translate"
+                (fieldClick)="fieldClicked.emit($event)"
                 (selectedItemsChange)="selectedRowsChanged($event)">
             </pep-list>
         </div>

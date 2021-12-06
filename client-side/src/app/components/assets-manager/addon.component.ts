@@ -1,17 +1,18 @@
-import {  map } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from "@angular/core";
-import { PepLayoutService, PepScreenSizeType } from '@pepperi-addons/ngx-lib';
+import { PepAddonService, PepLayoutService, PepScreenSizeType } from '@pepperi-addons/ngx-lib';
 import { AddonService } from '.';
 import { Observable } from 'rxjs';
 import { GenericListComponent, GenericListDataSource } from '../generic-list/generic-list.component';
 import { PepBreadCrumbItem } from '@pepperi-addons/ngx-lib/bread-crumbs';
 import { IPepSearchStateChangeEvent } from '@pepperi-addons/ngx-lib/search';
-import { AssetsService, assetsView, IAsset, sortBy } from '../../common/assets-service';
+import { allowedAssetsTypes, assetProcess, AssetsService, assetsView, IAsset, selectionType, sortBy } from '../../common/assets-service';
 import { AddFolderComponent } from '../add-folder/add-folder.component';
 import { EditFileComponent } from '../edit-file/edit-file.component';
 import { IPepMenuItemClickEvent, PepMenuItem } from '@pepperi-addons/ngx-lib/menu';
 import { PepDialogActionButton, PepDialogData } from '@pepperi-addons/ngx-lib/dialog';
+import { IPepFormFieldClickEvent } from '@pepperi-addons/ngx-lib/form';
 
 @Component({
   selector: 'addon-module',
@@ -23,18 +24,21 @@ export class AddonComponent implements OnInit {
 
     PepScreenSizeType = PepScreenSizeType;
     screenSize: PepScreenSizeType;
-    
+
     dataSource$: Observable<any[]>
     
     @ViewChild(GenericListComponent) assetsList: GenericListComponent;
 
-    @Input() maxFileSize: number = 10000;
+    @Input() maxFileSize: number = 100000;
+    @Input() isOnPopUp: boolean = false;
+    @Input() allowedAssetsTypes: allowedAssetsTypes = 'all';
+    @Input() selectionType: selectionType = 'single';
+
     @Output() hostEvents: EventEmitter<any> = new EventEmitter<any>();
 
+    imagesPath = '';
     breadCrumbsItems: Array<PepBreadCrumbItem> = [];
-    isOnPopUp: boolean = false;
-    
-    maxFileSizeExceeded = false;
+    validateMsg: string = '';
     assetsHeaderTitle = '';
     searchString = '';
     searchAutoCompleteValues = [];
@@ -42,16 +46,19 @@ export class AddonComponent implements OnInit {
     currentView: assetsView = 'list';
     sortBy: sortBy = 'ascending';
     menuActions: Array<PepMenuItem>;
-    selectedAssets :Array<IAsset> = [];
+    selectedAssets: Array<IAsset> = [];
     assets: Array<IAsset> = [];
+    assetsStack: Array<assetProcess> = [];
+    stackIndex: number = 0;
 
    constructor(
         public addonService: AddonService,
         public layoutService: PepLayoutService,
+        private pepAddonService: PepAddonService,
         public translate: TranslateService,
         public assetsService: AssetsService
     ) {
-
+        this.imagesPath = this.pepAddonService.getAddonStaticFolder() + 'assets/images/';
         this.layoutService.onResize$.subscribe(size => {
             this.screenSize = size;
         });
@@ -64,7 +71,7 @@ export class AddonComponent implements OnInit {
              //let res: Promise<any[]> = this.json((pages) => {
               let  res =  this.assets.map(asset => ({
                 Key: asset.key,
-                Thumbnail: asset.thumbnailSrc,
+                Thumbnail: asset.url,
                 FileName: asset.key,
                 Type: asset.mimeType, 
                 Description: asset.description  
@@ -84,39 +91,40 @@ export class AddonComponent implements OnInit {
                 Title: '',
                 Fields: [
                     {
-                        FieldID: 'Thumbnail',
-                        Type: "Image",
-                        Title: this.translate.instant('GRID.COLUMN.THUMBNAIL'),
-                        Mandatory: false,
-                        ReadOnly: true
-                    },
-                    {
                         FieldID: 'FileName',
                         Type: 'TextBox',
-                        Title: this.translate.instant('GRID.COLUMN.FILENAME'),
+                        Title: 'GRID.COLUMN.FILENAME',
+                        Mandatory: false,
+                        ReadOnly: true,
+                      
+                    },
+                    {
+                        FieldID: 'Thumbnail',
+                        Type: "Image",
+                        Title: 'GRID.COLUMN.THUMBNAIL',
                         Mandatory: false,
                         ReadOnly: true
                     },
                     {
                         FieldID: 'Type',
                         Type: 'TextBox',
-                        Title: this.translate.instant('GRID.COLUMN.TYPE'),
+                        Title: 'GRID.COLUMN.TYPE',
                         Mandatory: false,
                         ReadOnly: true
                     },
                     {
                         FieldID: 'Description',
                         Type: 'TextBox',
-                        Title: this.translate.instant('GRID.COLUMN.DESCRIPTION'),
+                        Title: 'GRID.COLUMN.DESCRIPTION',
                         Mandatory: false,
                         ReadOnly: true
                     }
                 ],
                 Columns: [
-                    { Width: 2 },
                     { Width: 15 },
-                    { Width: 5 },
-                    { Width: 78 },
+                    { Width: 10 },
+                    { Width: 15 },
+                    { Width: 60 }
                 ],
                 FrozenColumnsCount: 0,
                 MinimumColumnWidth: 0
@@ -155,13 +163,15 @@ export class AddonComponent implements OnInit {
         }
     }
     
-    ngOnInit(){
+    async ngOnInit(){
+        const folder = await this.translate.get('ADD_FOLDER.FOLDER').toPromise();
 
         this.breadCrumbsItems = [{key: '1', text: 'Main', title: 'Main'},
                                  {key: '2', text: 'Sub folder', title: 'Sub folder'}];
         for(var i=0; i<3 ; i ++){
-            let asset = new IAsset('folder');
+            let asset = new IAsset(folder);
             asset.key = "Folder-"+ i.toString();
+            asset.url = this.imagesPath + 'system-folder.svg';
             this.assets.push(asset);
         }
 
@@ -192,7 +202,7 @@ export class AddonComponent implements OnInit {
 
     onMenuItemClicked(action: IPepMenuItemClickEvent){
         switch (action.source.text.toLowerCase()) {
-            case "edit": {
+            case "edit asset info": {
                this.editAsset();
                break; 
             }
@@ -253,16 +263,27 @@ export class AddonComponent implements OnInit {
         this.assetsList.reload();
     }
 
-    getSelectedAsset(){
+    getSelectedAsset(key: string = ''){
         let retAsset = null;
+
+        key = key !== '' ? key : this.selectedAssets[0]['Key'];
+
         this.assets.forEach(asset => {
-            if(asset.key === this.selectedAssets[0]['Key']){
+            if(asset.key === key){
                 retAsset =  asset;
             }
         });
 
         return retAsset;
     }
+
+    onCustomizeFieldClick(fieldClickEvent: IPepFormFieldClickEvent){
+        const asset = this.getSelectedAsset(fieldClickEvent.value);
+        if( asset?.mimeType === this.translate.instant('ADD_FOLDER.FOLDER')){
+            alert('navigate into folder');
+        }
+    }
+
     showDeleteAssetMSG(){
       
           const dialogData = new PepDialogData({
@@ -295,45 +316,77 @@ export class AddonComponent implements OnInit {
         }
     }
     addNewFile(f){
+        var self = this;
+        let file = new IAsset('file');
 
+        //Check mime types is allowed
+        if(f && f.type.indexOf('image/') > -1){
+            if(['images', 'all'].includes(this.allowedAssetsTypes)){
+                const url = URL.createObjectURL(f);
+                
+                var img = new Image();
+                    img.src = url;
+                    img.onload = function(image: any)
+                    {
+                        file.dimension = img.width.toString() + '/' + img.height.toString();
+                        file.url = file.thumbnailSrc = 'https://images.squarespace-cdn.com/content/v1/5c8b13db65019feb12921ef4/1574655836868-D27Y5RC9J18111KAMD2C/Tilicho+Lake+1080x1080.jpg?format=1000w';
+                       
+                    }
+                    img.onerror = function(err){
+                        file.dimension = self.translate.instant('EDIT_FILE.N_A');
+                    }
+                    img.remove();
+            }
+            else{
+                this.validateMsg = self.translate.instant('EDIT_FILE.NOT_ALLOWED_MIME_TYPE');
+                return;
+            }
+        }
+        else{
+            //TODO - NEED TO CHECK IF FILE IS ALLOWED 
+            file.url = this.imagesPath + 'system-doc.svg';
+            file.dimension = self.translate.instant('EDIT_FILE.N_A');
+        }
+        //Check if file size is allowed
         if(f.size > this.maxFileSize){
-            this.maxFileSizeExceeded = true;
+            this.validateMsg = self.translate.instant('EDIT_FILE.MAXIMUM_FILE_SIZE');
             return;
         }
         else{
-            this.maxFileSizeExceeded = false;
+            this.validateMsg = '';
         }
-        let file = new IAsset('file');
         
         file.key = f.name;
         file.creationDate = new Date().getTime(); 
         file.modificationDate = f.lastModified;
         file.fileSize = this.assetsService.formatFileSize(f.size,2);
         file.mimeType = f.type;
-
-        // TODO - CHECK IF FILE MIME TYPE IS IMAGE
-        const url = URL.createObjectURL(f);
-        var self = this;
-        var img = new Image();
-            img.src = url;
-            img.onload = function(image: any)
-            {
-                file.dimension = img.width.toString() + '/' + img.height.toString();
-                file.thumbnailSrc = 'https://images.squarespace-cdn.com/content/v1/5c8b13db65019feb12921ef4/1574655836868-D27Y5RC9J18111KAMD2C/Tilicho+Lake+1080x1080.jpg?format=1000w';
-               
-            }
-            img.onerror = function(err){
-                file.dimension = self.translate.instant('EDIT_FILE.N_A');
-            }
-		    img.remove();
-
         
+        this.setAssetsStack(file);
+
         this.assets.push(file);
+        //reload the grild list
         this.assetsList.reload();
+
+    }
+    setAssetsStack(asset: IAsset){
+        this.assetsStack.push({'name': asset.key, 'status': 'uploading', 'key': this.stackIndex});
+        const currKey = this.stackIndex;
+        var self = this;
+        setTimeout(() => {
+                self.assetsStack[currKey]['status'] = 'done';
+                setTimeout(() => {
+                    self.assetsStack[currKey]['status'] = 'hidden';
+                    
+            }, 7000);
+        }, 2000);
+
+        this.stackIndex ++ ;
     }
 
     addNewFolder(data){
-        let folder = new IAsset(this.translate.instant('folder'));
+        let folder = new IAsset(this.translate.instant('ADD_FOLDER.FOLDER'));
+        folder.url = this.imagesPath + 'system-folder.svg';
         folder.key = data;
                         
         this.assets.push(folder);
