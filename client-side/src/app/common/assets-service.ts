@@ -50,19 +50,28 @@ export class AssetsService {
 
 
     }
-openDialog(comp: any, callBack, data = {}){
+
+    getAssets(query?: string) {
+        // let url = `/addons/api/${this.addonService.addonUUID}/api/collections`
+        // if (query) {
+        //     url = url + query;
+        // }
+        // return this.addonService.pepGet(encodeURI(url)).toPromise();
+    }
+
+    openDialog(comp: any, callBack, data = {}){
     
-    let config = this.dialogService.getDialogConfig({}, 'inline');
-        config.disableClose = true;
-        config.minWidth = '29rem'; // THE EDIT MODAL WIDTH
+        let config = this.dialogService.getDialogConfig({}, 'inline');
+            config.disableClose = true;
+            config.minWidth = '29rem'; // THE EDIT MODAL WIDTH
 
-    let dialogRef: MatDialogRef<any> = this.dialogService.openDialog(comp, data, config);
+        let dialogRef: MatDialogRef<any> = this.dialogService.openDialog(comp, data, config);
 
-    dialogRef.afterClosed().subscribe((value) => {
-        if (value !== undefined && value !== null) {
-           callBack(value);
-        }
-    });
+        dialogRef.afterClosed().subscribe((value) => {
+            if (value !== undefined && value !== null) {
+            callBack(value);
+            }
+        });
 }
 openDialogMsg(dialogData: PepDialogData, callback?: any) {
     

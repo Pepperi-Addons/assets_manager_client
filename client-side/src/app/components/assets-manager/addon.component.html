@@ -42,15 +42,17 @@
     </pep-bread-crumbs>
     </div>
     <div>
-    <generic-list [dataSource]="assetsDataSource" (onSelectedRowChange)="onSelectedRowChange($event)" 
-                  [inline]="true" [allowMultipleSelection]="selectionType === 'multiple'" 
-                  [showTopBar]="false" [title]="assetsHeaderTitle" 
-                  [firstFieldAsLink]="true" (fieldClicked)="onCustomizeFieldClick($event)">
+        <!--   -->
+    <pep-generic-list [dataSource]="assetsDataSource" (onSelectedRowChange)="onSelectedRowChange($event)" 
+                  [inline]="false" [allowMultipleSelection]="selectionType === 'multiple'" 
+                  [showTopBar]="true" [title]="assetsHeaderTitle"
+                  [firstFieldAsLink]="true" (fieldClick)="onCustomizeFieldClick($event)">
         <ng-container right-buttons>
             <ng-container *ngTemplateOutlet="topBarEnd"></ng-container>
         </ng-container>
-    </generic-list>
-    <upload-panel *ngIf="assetsStack?.length > 0" [assetsList]="assetsStack"></upload-panel>
+    </pep-generic-list>
+
+    <pep-file-status-panel [title]="'DOWNLOAD_PANEL.TITLE' | translate" *ngIf="assetsStack?.length" [filesList]="assetsStack"></pep-file-status-panel>
 </div>
 
 

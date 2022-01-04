@@ -60,6 +60,6 @@ export class AppComponent implements OnInit {
         return this.getTopBarStyle() === 'strong' ? 'keep-background-on-focus' : 'invert';
     }
 
-    onMenuItemClicked(event: IPepMenuItemClickEvent) {}
+    //onMenuItemClicked(event: IPepMenuItemClickEvent) {}
 
 }

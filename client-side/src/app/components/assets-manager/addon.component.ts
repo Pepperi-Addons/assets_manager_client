@@ -4,7 +4,7 @@ import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from "@angu
 import { PepAddonService, PepLayoutService, PepScreenSizeType } from '@pepperi-addons/ngx-lib';
 import { AddonService } from '.';
 import { Observable } from 'rxjs';
-import { GenericListComponent, GenericListDataSource } from '../generic-list/generic-list.component';
+import { GenericListComponent, GenericListDataSource } from "@pepperi-addons/ngx-composite-lib/generic-list";
 import { PepBreadCrumbItem } from '@pepperi-addons/ngx-lib/bread-crumbs';
 import { IPepSearchStateChangeEvent } from '@pepperi-addons/ngx-lib/search';
 import { allowedAssetsTypes, assetProcess, AssetsService, assetsView, IAsset, selectionType, sortBy } from '../../common/assets-service';
@@ -32,7 +32,7 @@ export class AddonComponent implements OnInit {
     @Input() maxFileSize: number = 100000;
     @Input() isOnPopUp: boolean = false;
     @Input() allowedAssetsTypes: allowedAssetsTypes = 'all';
-    @Input() selectionType: selectionType = 'single';
+    @Input() selectionType: selectionType = 'multiple';
 
     @Output() hostEvents: EventEmitter<any> = new EventEmitter<any>();
 
@@ -62,13 +62,13 @@ export class AddonComponent implements OnInit {
         this.layoutService.onResize$.subscribe(size => {
             this.screenSize = size;
         });
-    }
-    
+    }  
+
     assetsDataSource: GenericListDataSource = {
         getList: async (state) => {
             const desktopTitle = await this.translate.get('SLIDESHOW.HEIGHTUNITS_REM').toPromise();
             this.assetsHeaderTitle = this.translate.instant('GRID.DEFAULT_TITLE');
-             //let res: Promise<any[]> = this.json((pages) => {
+            
               let  res =  this.assets.map(asset => ({
                 Key: asset.key,
                 Thumbnail: asset.url,
@@ -79,6 +79,16 @@ export class AddonComponent implements OnInit {
 
             return res;
         },
+        // getList: async (state) => {
+        //     const desktopTitle = await this.translate.get('SLIDESHOW.HEIGHTUNITS_REM').toPromise();
+        //     this.assetsHeaderTitle = this.translate.instant('GRID.DEFAULT_TITLE');
+
+        //     let res = await this.assetsService.getAssets();
+        //     if (state.searchString != "") {
+        //       //res = res.filter(collection => collection.Name.toLowerCase().includes(state.searchString.toLowerCase()))
+        //     }
+        //     return res;
+        //   },
 
         getDataView: async () => {
             return {
@@ -133,34 +143,34 @@ export class AddonComponent implements OnInit {
 
         getActions: async (objs) => {
             this.selectedAssets = objs.length > 0 ? objs  : [];
-            return objs.length === 1 ? [
-                {
-                    action: 'edit',
-                    title: this.translate.instant("ACTIONS.EDIT"),
-                    handler: async (objs) => {
-                        //this.editAsset(objs);
-                        //this.navigationService.navigateToPage([objs[0].Key].toString());
+            const actions = [];
+            if (objs.length === 1) {
+              actions.push({
+                title: this.translate.instant("ACTIONS.EDIT"),
+                handler: async (objs) => {
+                    if(objs[0].Type.toLowerCase() === 'folder'){
+                        this.onAddFolderClick(null);
+                        //this.addNewFolder(objs[0]);
                     }
-                },
-                {
-                    title: this.translate.instant("ACTIONS.DELETE"),
-                    handler: async (objs: IAsset[]) => {
-                        if (objs.length > 0) {
-                            //this.deletePage(objs[0].Key);
-                        }
+                    else{
+                        this.editAsset(objs[0]);
                     }
                 }
-            ] : 
-            objs.length > 1 ? [{
-                title: this.translate.instant("ACTIONS.DELETE"),
-                handler: async (objs: IAsset[]) => {
-                    if (objs.length > 0) {
-                        //this.deletePage(objs[0].Key);
-                    }
-                }
+              });
             }
-            ] : []
-        }
+            if (objs.length >= 1) {
+              actions.push({
+                title: this.translate.instant("ACTIONS.DELETE"),
+                handler: async (objs) => {
+                    if (objs.length > 0) {
+                        this.showDeleteAssetMSG();
+                     }
+                }
+              });
+            }
+      
+            return actions;
+          }
     }
     
     async ngOnInit(){
@@ -201,13 +211,14 @@ export class AddonComponent implements OnInit {
     }
 
     onMenuItemClicked(action: IPepMenuItemClickEvent){
+  
         switch (action.source.text.toLowerCase()) {
             case "edit asset info": {
-               this.editAsset();
+               //this.editAsset();
                break; 
             }
             case "delete": {
-                this.showDeleteAssetMSG();
+                //this.showDeleteAssetMSG();
                 break; 
              }
         }  
@@ -245,8 +256,10 @@ export class AddonComponent implements OnInit {
         this.assetsService.openDialog(AddFolderComponent,(data) => {
         this.addNewFolder(data)});
     }
-    editAsset(){
-        const asset = this.getSelectedAsset();
+    editAsset(asset){
+        
+        asset = this.getSelectedAsset(asset.key);
+
         if(asset){
         this.assetsService.openDialog(EditFileComponent,(res) => {
         this.updateAssetInfo(res)}, {'asset': asset , 'breadCrumbs': this.breadCrumbsItems});

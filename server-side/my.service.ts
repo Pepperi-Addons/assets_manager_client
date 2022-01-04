@@ -1,7 +1,7 @@
 import { PapiClient, InstalledAddon } from '@pepperi-addons/papi-sdk'
 import { Client } from '@pepperi-addons/debug-server';
 
-class MyService {
+class AssetsService {
 
     papiClient: PapiClient
 
@@ -21,4 +21,4 @@ class MyService {
     }
 }
 
-export default MyService;
+export default AssetsService;
