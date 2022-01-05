@@ -27,7 +27,7 @@
         </div>
     </div>
 
-    <pep-top-bar class="main-top-header" [inline]="true">
+    <!-- <pep-top-bar class="main-top-header" [inline]="true">
         <div header-start-content>
             <pep-list-actions [sizeType]="'sm'" class="pep-spacing-element" [actions]="menuActions" (actionClick)="onMenuItemClicked($event)"></pep-list-actions>
             <div class="title title-lg">{{assetsHeaderTitle}}</div>
@@ -35,17 +35,15 @@
         <div header-end-content>
             <ng-container *ngTemplateOutlet="topBarEnd"></ng-container>
         </div>
-    </pep-top-bar>
-    <pep-bread-crumbs class="pep-spacing-element" [items]="breadCrumbsItems" [displayType]="'items'"
+    </pep-top-bar> -->
+    <pep-bread-crumbs #breadCrumbs class="pep-spacing-element" [items]="breadCrumbsItems" [displayType]="'items'"
                     (itemClick)="onBreadCrumbItemClick($event)">
-
     </pep-bread-crumbs>
     </div>
     <div>
-        <!--   -->
     <pep-generic-list [dataSource]="assetsDataSource" (onSelectedRowChange)="onSelectedRowChange($event)" 
                   [inline]="false" [allowMultipleSelection]="selectionType === 'multiple'" 
-                  [showTopBar]="true" [title]="assetsHeaderTitle"
+                  [showTopBar]="true" [title]="assetsHeaderTitle" [noDataFoundMsg]="'GRID.FILE_NOT_FOUND' | translate"
                   [firstFieldAsLink]="true" (fieldClick)="onCustomizeFieldClick($event)">
         <ng-container right-buttons>
             <ng-container *ngTemplateOutlet="topBarEnd"></ng-container>

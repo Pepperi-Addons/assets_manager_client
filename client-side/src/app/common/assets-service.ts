@@ -2,7 +2,7 @@ import { UrlResolver } from "@angular/compiler";
 import { Injectable } from "@angular/core";
 import { MatDialogRef } from "@angular/material/dialog";
 import { PepDialogActionButton, PepDialogData, PepDialogService } from '@pepperi-addons/ngx-lib/dialog';
-
+import { AddonService } from '../../app/components/assets-manager/addon.service';
 /*  None - the asset will not be included in the sync process thus will not be accessible
     Device - the asset will be synced to the device and will be available offline 
     Device Thumbnail - only the thumbnail version of the asset will be synced to the device. If the asset does not support thumbnail (PDFs etc.) then this option is the same as 'Device' 
@@ -46,17 +46,20 @@ export class IAsset {
 })
 export class AssetsService {
 
-    constructor(public dialogService: PepDialogService){
-
+    constructor(public dialogService: PepDialogService, private addonService: AddonService){
+        
 
     }
 
     getAssets(query?: string) {
-        // let url = `/addons/api/${this.addonService.addonUUID}/api/collections`
-        // if (query) {
-        //     url = url + query;
-        // }
-        // return this.addonService.pepGet(encodeURI(url)).toPromise();
+        let url = `/addons/files/${'714671a5-5274-4668-97fa-e122dd3fc542'}`
+       
+       if (query) {
+            url = url + query;
+        }
+        // https://papi.pepperi.com/V1.0/addons/files/714671a5-5274-4668-97fa-e122dd3fc542?folder='/'
+        return this.addonService.papiClient.get(encodeURI(url));
+        //return this.addonService.pep pepGet(encodeURI(url)).toPromise();
     }
 
     openDialog(comp: any, callBack, data = {}){

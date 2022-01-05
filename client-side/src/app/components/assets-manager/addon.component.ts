@@ -1,6 +1,6 @@
 import { map } from 'rxjs/operators';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
-import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from "@angular/core";
+import { Component, ElementRef, EventEmitter, Input, OnInit, Output, Renderer2, ViewChild } from "@angular/core";
 import { PepAddonService, PepLayoutService, PepScreenSizeType } from '@pepperi-addons/ngx-lib';
 import { AddonService } from '.';
 import { Observable } from 'rxjs';
@@ -28,6 +28,9 @@ export class AddonComponent implements OnInit {
     dataSource$: Observable<any[]>
     
     @ViewChild(GenericListComponent) assetsList: GenericListComponent;
+    @ViewChild('breadCrumbs') breadCrumbs: ElementRef;
+    @ViewChild('pepFileStatus') pepFileStatus: ElementRef;
+    
 
     @Input() maxFileSize: number = 100000;
     @Input() isOnPopUp: boolean = false;
@@ -56,39 +59,50 @@ export class AddonComponent implements OnInit {
         public layoutService: PepLayoutService,
         private pepAddonService: PepAddonService,
         public translate: TranslateService,
-        public assetsService: AssetsService
+        public assetsService: AssetsService,
+        private renderer: Renderer2,
     ) {
         this.imagesPath = this.pepAddonService.getAddonStaticFolder() + 'assets/images/';
         this.layoutService.onResize$.subscribe(size => {
             this.screenSize = size;
         });
+        
     }  
 
-    assetsDataSource: GenericListDataSource = {
-        getList: async (state) => {
-            const desktopTitle = await this.translate.get('SLIDESHOW.HEIGHTUNITS_REM').toPromise();
-            this.assetsHeaderTitle = this.translate.instant('GRID.DEFAULT_TITLE');
-            
-              let  res =  this.assets.map(asset => ({
-                Key: asset.key,
-                Thumbnail: asset.url,
-                FileName: asset.key,
-                Type: asset.mimeType, 
-                Description: asset.description  
-            }));
+    // listDataSource: GenericListDataSource = {
+    //     getList: async (state) => {
+    //       let res = await this.relatedItemsService.getCollections();
+    //       if (state.searchString != "") {
+    //         res = res.filter(collection => collection.Name.toLowerCase().includes(state.searchString.toLowerCase()))
+    //       }
+    //       return res;
+    //     },
 
-            return res;
-        },
+    assetsDataSource: GenericListDataSource = {
         // getList: async (state) => {
         //     const desktopTitle = await this.translate.get('SLIDESHOW.HEIGHTUNITS_REM').toPromise();
         //     this.assetsHeaderTitle = this.translate.instant('GRID.DEFAULT_TITLE');
+            
+        //       let  res =  this.assets.map(asset => ({
+        //         Key: asset.key,
+        //         Thumbnail: asset.url,
+        //         FileName: asset.key,
+        //         Type: asset.mimeType, 
+        //         Description: asset.description  
+        //     }));
 
-        //     let res = await this.assetsService.getAssets();
-        //     if (state.searchString != "") {
-        //       //res = res.filter(collection => collection.Name.toLowerCase().includes(state.searchString.toLowerCase()))
-        //     }
         //     return res;
-        //   },
+        // },
+        getList: async (state) => {
+            const desktopTitle = await this.translate.get('SLIDESHOW.HEIGHTUNITS_REM').toPromise();
+            this.assetsHeaderTitle = this.translate.instant('GRID.DEFAULT_TITLE');
+
+            let res = await this.assetsService.getAssets("?folder=/");
+            if (state.searchString != "") {
+              //res = res.filter(collection => collection.Name.toLowerCase().includes(state.searchString.toLowerCase()))
+            }
+            return res;
+          },
 
         getDataView: async () => {
             return {
@@ -185,7 +199,10 @@ export class AddonComponent implements OnInit {
             this.assets.push(asset);
         }
 
-        this.assetsList?.reload();
+        //this.assetsList?.reload();
+
+        // TODO - NEED TO APPENT THE BREAD CRUMBS AFTER THE TOP BAR 
+        //this.renderer.insertBefore(this.pepFileStatus, this.breadCrumbs,null,true);
     }
 
     onSelectedRowChange(event){
@@ -196,7 +213,7 @@ export class AddonComponent implements OnInit {
         const fileListAsArray = Array.from(e);
         fileListAsArray.forEach((item, i) => {
           const file = (e as HTMLInputElement);
-          
+          debugger;
           this.addNewFile(file[0]);
 
         });    

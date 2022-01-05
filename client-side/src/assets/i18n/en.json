@@ -21,7 +21,8 @@
             "FILENAME": "File Name",
             "TYPE": "Type",
             "DESCRIPTION": "Description"
-        }
+        },
+        "FILE_NOT_FOUND": "File not found"
     },
 
     "ADD_FOLDER": {
