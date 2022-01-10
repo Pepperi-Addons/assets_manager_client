@@ -44,7 +44,7 @@
     <pep-generic-list [dataSource]="assetsDataSource" (onSelectedRowChange)="onSelectedRowChange($event)" 
                   [inline]="false" [allowMultipleSelection]="selectionType === 'multiple'" 
                   [showTopBar]="true" [title]="assetsHeaderTitle" [noDataFoundMsg]="'GRID.FILE_NOT_FOUND' | translate"
-                  [firstFieldAsLink]="true" (fieldClick)="onCustomizeFieldClick($event)">
+                  [firstFieldAsLink]="false" (fieldClick)="onCustomizeFieldClick($event)">
         <ng-container right-buttons>
             <ng-container *ngTemplateOutlet="topBarEnd"></ng-container>
         </ng-container>
@@ -60,7 +60,7 @@
         (buttonClick)="onAddFolderClick($event)"></pep-button>
     <pep-menu class="pep-spacing-element" [items]="[]" sizeType="sm" (menuItemClick)="onMenuItemClicked($event)">
     </pep-menu>
-    <pep-search sizeType="sm" [triggerOn]="'click'" class="pep-spacing-element" [autoCompleteValues]="searchAutoCompleteValues" [value]="searchString"
+    <pep-search sizeType="md" [triggerOn]="'click'" class="pep-spacing-element" [autoCompleteValues]="searchAutoCompleteValues" [value]="searchString"
         (search)="onSearchChanged($event)" (autocompleteChange)="onSearchAutocompleteChanged($event)"
         (stateChange)="onSearchStateChanged($event)">
     </pep-search>

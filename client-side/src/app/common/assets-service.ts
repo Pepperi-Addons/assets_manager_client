@@ -8,7 +8,7 @@ import { AddonService } from '../../app/components/assets-manager/addon.service'
     Device Thumbnail - only the thumbnail version of the asset will be synced to the device. If the asset does not support thumbnail (PDFs etc.) then this option is the same as 'Device' 
     Always - always */
 
-export type syncOption = 'none' | 'device' | 'deviceThumbnail' | 'always';
+export type syncOption = "None" | "Device" | "DeviceThumbnail" | "Always";
 export type allowedAssetsTypes = 'images' | 'documents' | 'all';
 export type selectionType = 'single' | 'multiple';
 export type assetsView = 'list' | 'thumbnail';
@@ -22,22 +22,37 @@ export class assetProcess {
 }
 
 export class IAsset {
-    key: string = '';
+
+    Key: string = ''; // mandatory, unique, /my-images/7535.jpg /'s in the name will organize the files in folders
+    Folder: ""; // readonly,
+    Name: ""; // readonly,
+    Description: string = ''; // optional
+    MIME: string  = ''; //image/jpeg... (file type) or "pepperi/folder"
+    Thumbnails: [ // optional
+        {
+            Size: string, // '200x200', // Only for image type
+            URL: string, // readonly "http://cdn.pepperi.com/private_pfs/dakhdakhd_200x200.jpg"
+        }
+    ];
+    Sync: syncOption = 'None'; // optional
+    URL: string = ""; // Read only. the CDN URL
+    URI: string = ""; // mandatory on create/update , empty "URI" means a creation of a folder , Can be a http URL or base64 data URI
+
+
     creationDate: number;
     modificationDate: number;
     hidden: boolean = false;
-    description: string = '';
+    
     ownerUUID : string = '';
-    sync: syncOption = 'none'; 
     url: string  = '';
     thumbnail : boolean = false;
     thumbnailSrc: string = '';
-    mimeType: string  = '';
+    
     fileSize: string = '0';
     dimension: string = '';
 
     constructor(mimeType = null){
-        this.mimeType = mimeType;
+        //this.mimeType = mimeType;
     }
 }
 
@@ -48,7 +63,6 @@ export class AssetsService {
 
     constructor(public dialogService: PepDialogService, private addonService: AddonService){
         
-
     }
 
     getAssets(query?: string) {
@@ -60,6 +74,21 @@ export class AssetsService {
         // https://papi.pepperi.com/V1.0/addons/files/714671a5-5274-4668-97fa-e122dd3fc542?folder='/'
         return this.addonService.papiClient.get(encodeURI(url));
         //return this.addonService.pep pepGet(encodeURI(url)).toPromise();
+    }
+
+    createAsset(asset: IAsset, query?: string){
+        let url = `/addons/files/${'714671a5-5274-4668-97fa-e122dd3fc542'}`
+       
+        let body = {
+                Key: asset.Key,
+                Description: asset.Description,
+                MIME: asset.MIME,
+                Sync: asset.Sync,
+                Thumbnails: asset.Thumbnails,
+                URI: asset.URI
+        };
+        
+        this.addonService.papiClient.post(encodeURI(url),body);
     }
 
     openDialog(comp: any, callBack, data = {}){

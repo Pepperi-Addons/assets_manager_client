@@ -9,20 +9,20 @@
     <ul class="body-xs">
         <li><span>{{'EDIT_FILE.CREATED_ON' | translate}}:</span><label>&nbsp;{{creationDate}}</label></li>
         <li><span>{{'EDIT_FILE.UPLOADED_BY' | translate}}:</span><label>&nbsp;{{data?.asset?.uploadedBy}}</label></li>
-        <li><span>{{'EDIT_FILE.FILE_TYPE' | translate}}:</span><label>&nbsp;{{data?.asset?.mimeType}}</label></li>
+        <li><span>{{'EDIT_FILE.FILE_TYPE' | translate}}:</span><label>&nbsp;{{data?.asset?.MIMI}}</label></li>
         <li><span>{{'EDIT_FILE.FILE_SIZE' | translate}}:</span><label>&nbsp;{{data?.asset?.fileSize}}</label></li>
         <li><span>{{'EDIT_FILE.DIMENSIONS' | translate}}:</span><label>&nbsp;{{data?.asset?.dimension}}</label></li>
     </ul>
-    <pep-textbox [label]="'EDIT_FILE.ASSET_URL' | translate" type="link" [(value)]="data.asset.url" sizeType="xs"></pep-textbox>
+    <pep-textbox [label]="'EDIT_FILE.ASSET_URL' | translate" type="link" [(value)]="data.asset.URL" sizeType="xs"></pep-textbox>
     <label class="body-xs normal ellipsis">{{'EDIT_FILE.SYNCABLE' | translate}}</label>
-    <pep-checkbox  [value]="data.asset.sync !== 'none'" [label]="'EDIT_FILE.SYNCABLE_EXPLAIN' | translate"  [renderTitle]="false"></pep-checkbox>
+    <pep-checkbox  [value]="data.asset.Sync !== 'none'" [label]="'EDIT_FILE.SYNCABLE_EXPLAIN' | translate"  [renderTitle]="false"></pep-checkbox>
     <pep-separator></pep-separator>
     <div class="gridContainer">
-        <pep-textbox [label]="'EDIT_FILE.ASSET_NAME' | translate" type="link" [(value)]="data.asset.key" sizeType="xs"></pep-textbox>
-        <pep-textarea [(value)]="data.asset.description" [label]="'EDIT_FILE.DESCRIPTION' | translate" [disabled]="false" 
+        <pep-textbox [label]="'EDIT_FILE.ASSET_NAME' | translate" type="link" [(value)]="data.asset.Key" sizeType="xs"></pep-textbox>
+        <pep-textarea [(value)]="data.asset.Description" [label]="'EDIT_FILE.DESCRIPTION' | translate" [disabled]="false" 
                   rowSpan="1.5">
         </pep-textarea>
-        <pep-attachment [label]="'EDIT_FILE.PREVIEW' | translate" [src]="data?.asset?.url" [mandatory]="false" [disabled]="false" [xAlignment]="'left'" [rowSpan]="2.5"
+        <pep-attachment [label]="'EDIT_FILE.PREVIEW' | translate" [src]="data?.asset?.URL" [mandatory]="false" [disabled]="false" [xAlignment]="'left'" [rowSpan]="2.5"
         [showTitle]="true" (elementClick)="assetsElementClick($event)" (fileChange)="assetsFileChange($event)">
     </pep-attachment>
     </div>

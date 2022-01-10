@@ -31,7 +31,7 @@ export class AddonComponent implements OnInit {
     @ViewChild('breadCrumbs') breadCrumbs: ElementRef;
     @ViewChild('pepFileStatus') pepFileStatus: ElementRef;
     
-
+    @Input() currentFolder: string = '/';
     @Input() maxFileSize: number = 100000;
     @Input() isOnPopUp: boolean = false;
     @Input() allowedAssetsTypes: allowedAssetsTypes = 'all';
@@ -69,38 +69,50 @@ export class AddonComponent implements OnInit {
         
     }  
 
-    // listDataSource: GenericListDataSource = {
-    //     getList: async (state) => {
-    //       let res = await this.relatedItemsService.getCollections();
-    //       if (state.searchString != "") {
-    //         res = res.filter(collection => collection.Name.toLowerCase().includes(state.searchString.toLowerCase()))
-    //       }
-    //       return res;
-    //     },
+    async ngOnInit(){
+        const folder = await this.translate.get('ADD_FOLDER.FOLDER').toPromise();
 
+        this.setBreadCrumbs();
+    }
+    
+    setBreadCrumbs(){
+        if(this.breadCrumbsItems.length === 0){
+            this.breadCrumbsItems =  [{key: "/", text: "Main", title: "Main"}] ;
+        }
+        else{
+
+            let folderIndex : number = this.breadCrumbsItems.map((item,index) => {
+                if(item.key == this.currentFolder)
+                    return index;
+            })[0];
+
+            if(folderIndex === undefined){
+                this.breadCrumbsItems.push({key: this.currentFolder, text: this.currentFolder, title: this.currentFolder}) ;
+            }
+            else{
+                this.breadCrumbsItems.length = (folderIndex + 1);
+            }
+        }
+
+        
+        this.assetsList.reload();
+    }
     assetsDataSource: GenericListDataSource = {
-        // getList: async (state) => {
-        //     const desktopTitle = await this.translate.get('SLIDESHOW.HEIGHTUNITS_REM').toPromise();
-        //     this.assetsHeaderTitle = this.translate.instant('GRID.DEFAULT_TITLE');
-            
-        //       let  res =  this.assets.map(asset => ({
-        //         Key: asset.key,
-        //         Thumbnail: asset.url,
-        //         FileName: asset.key,
-        //         Type: asset.mimeType, 
-        //         Description: asset.description  
-        //     }));
-
-        //     return res;
-        // },
+ 
         getList: async (state) => {
             const desktopTitle = await this.translate.get('SLIDESHOW.HEIGHTUNITS_REM').toPromise();
             this.assetsHeaderTitle = this.translate.instant('GRID.DEFAULT_TITLE');
 
-            let res = await this.assetsService.getAssets("?folder=/");
+            let res = await this.assetsService.getAssets("?folder=" + this.currentFolder);
             if (state.searchString != "") {
               //res = res.filter(collection => collection.Name.toLowerCase().includes(state.searchString.toLowerCase()))
             }
+            
+            res.forEach( (row, index) =>  {
+                res[index].Thumbnail = row.MIME === 'pepperi/folder' ?  this.imagesPath + 'system-folder.svg' : row.URL; 
+             });
+             
+            this.assets = res;
             return res;
           },
 
@@ -115,14 +127,6 @@ export class AddonComponent implements OnInit {
                 Title: '',
                 Fields: [
                     {
-                        FieldID: 'FileName',
-                        Type: 'TextBox',
-                        Title: 'GRID.COLUMN.FILENAME',
-                        Mandatory: false,
-                        ReadOnly: true,
-                      
-                    },
-                    {
                         FieldID: 'Thumbnail',
                         Type: "Image",
                         Title: 'GRID.COLUMN.THUMBNAIL',
@@ -130,7 +134,15 @@ export class AddonComponent implements OnInit {
                         ReadOnly: true
                     },
                     {
-                        FieldID: 'Type',
+                        FieldID: 'Name',
+                        Type: 'TextBox',
+                        Title: 'GRID.COLUMN.FILENAME',
+                        Mandatory: false,
+                        ReadOnly: true,
+                      
+                    },
+                    {
+                        FieldID: 'MIME',
                         Type: 'TextBox',
                         Title: 'GRID.COLUMN.TYPE',
                         Mandatory: false,
@@ -145,8 +157,8 @@ export class AddonComponent implements OnInit {
                     }
                 ],
                 Columns: [
-                    { Width: 15 },
-                    { Width: 10 },
+                    { Width: 7 },
+                    { Width: 18 },
                     { Width: 15 },
                     { Width: 60 }
                 ],
@@ -162,7 +174,7 @@ export class AddonComponent implements OnInit {
               actions.push({
                 title: this.translate.instant("ACTIONS.EDIT"),
                 handler: async (objs) => {
-                    if(objs[0].Type.toLowerCase() === 'folder'){
+                    if(objs[0].MIME === 'pepperi/folder'){
                         this.onAddFolderClick(null);
                         //this.addNewFolder(objs[0]);
                     }
@@ -187,23 +199,6 @@ export class AddonComponent implements OnInit {
           }
     }
     
-    async ngOnInit(){
-        const folder = await this.translate.get('ADD_FOLDER.FOLDER').toPromise();
-
-        this.breadCrumbsItems = [{key: '1', text: 'Main', title: 'Main'},
-                                 {key: '2', text: 'Sub folder', title: 'Sub folder'}];
-        for(var i=0; i<3 ; i ++){
-            let asset = new IAsset(folder);
-            asset.key = "Folder-"+ i.toString();
-            asset.url = this.imagesPath + 'system-folder.svg';
-            this.assets.push(asset);
-        }
-
-        //this.assetsList?.reload();
-
-        // TODO - NEED TO APPENT THE BREAD CRUMBS AFTER THE TOP BAR 
-        //this.renderer.insertBefore(this.pepFileStatus, this.breadCrumbs,null,true);
-    }
 
     onSelectedRowChange(event){
         this.menuActions = event?.length ? event : [];
@@ -213,7 +208,7 @@ export class AddonComponent implements OnInit {
         const fileListAsArray = Array.from(e);
         fileListAsArray.forEach((item, i) => {
           const file = (e as HTMLInputElement);
-          debugger;
+          
           this.addNewFile(file[0]);
 
         });    
@@ -242,7 +237,12 @@ export class AddonComponent implements OnInit {
     }
 
     onBreadCrumbItemClick(event){
+        if(this.currentFolder === event.source.key){
+            return false;
+        }
 
+        this.currentFolder = event.source.key;
+        this.setBreadCrumbs();
     }
 
     onSearchStateChanged(searchStateChangeEvent: IPepSearchStateChangeEvent) {
@@ -275,7 +275,7 @@ export class AddonComponent implements OnInit {
     }
     editAsset(asset){
         
-        asset = this.getSelectedAsset(asset.key);
+        asset = this.getSelectedAsset(asset.UID)[0];
 
         if(asset){
         this.assetsService.openDialog(EditFileComponent,(res) => {
@@ -285,7 +285,7 @@ export class AddonComponent implements OnInit {
 
     updateAssetInfo(iasset: IAsset){
         this.assets.forEach(asset => {
-            if(asset.key === this.selectedAssets[0]['Key']){
+            if(asset.Key === this.selectedAssets[0]['Key']){
                 asset = iasset;
             }
         });
@@ -293,24 +293,18 @@ export class AddonComponent implements OnInit {
         this.assetsList.reload();
     }
 
-    getSelectedAsset(key: string = ''){
-        let retAsset = null;
+    getSelectedAsset(uuid?: string){
 
-        key = key !== '' ? key : this.selectedAssets[0]['Key'];
+        return this.assets.filter(row => row['UID']  == uuid );
 
-        this.assets.forEach(asset => {
-            if(asset.key === key){
-                retAsset =  asset;
-            }
-        });
-
-        return retAsset;
     }
 
     onCustomizeFieldClick(fieldClickEvent: IPepFormFieldClickEvent){
-        const asset = this.getSelectedAsset(fieldClickEvent.value);
-        if( asset?.mimeType === this.translate.instant('ADD_FOLDER.FOLDER')){
-            alert('navigate into folder');
+        const asset = (this.getSelectedAsset(fieldClickEvent.id))[0];
+        if( asset.MIME === 'pepperi/folder'){
+            this.currentFolder = asset.Key;
+            this.setBreadCrumbs();
+            return false;
         }
     }
 
@@ -333,7 +327,6 @@ export class AddonComponent implements OnInit {
 
     onDragOver(event) {
         event.preventDefault();
-   
     }
     
     // From drag and drop
@@ -345,7 +338,15 @@ export class AddonComponent implements OnInit {
             });
         }
     }
-    addNewFile(f){
+
+    toBase64 = file => new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = error => reject(error);
+    });
+
+    async addNewFile(f){
         var self = this;
         let file = new IAsset('file');
 
@@ -354,13 +355,46 @@ export class AddonComponent implements OnInit {
             if(['images', 'all'].includes(this.allowedAssetsTypes)){
                 const url = URL.createObjectURL(f);
                 
+                // get the base 64 string;
+                file.URI = (await this.toBase64(f)) as string;
+                file.Thumbnails = [
+                    {
+                        "Size": '200x200' as string,
+                        "URL": ""
+                    }
+                ];
                 var img = new Image();
                     img.src = url;
                     img.onload = function(image: any)
                     {
                         file.dimension = img.width.toString() + '/' + img.height.toString();
-                        file.url = file.thumbnailSrc = 'https://images.squarespace-cdn.com/content/v1/5c8b13db65019feb12921ef4/1574655836868-D27Y5RC9J18111KAMD2C/Tilicho+Lake+1080x1080.jpg?format=1000w';
+                        file.URL = file.thumbnailSrc = 'https://images.squarespace-cdn.com/content/v1/5c8b13db65019feb12921ef4/1574655836868-D27Y5RC9J18111KAMD2C/Tilicho+Lake+1080x1080.jpg?format=1000w';
                        
+                    //Check if file size is allowed
+                    if(f.size > self.maxFileSize){
+                        self.validateMsg = self.translate.instant('EDIT_FILE.MAXIMUM_FILE_SIZE');
+                        return;
+                    }
+                    else{
+                        self.validateMsg = '';
+                    }
+                    
+                    file.Thumbnails = [{
+                        Size: '200x200',
+                        URL: file.url
+                    }]
+
+                    file.Key = (self.currentFolder === '/' ? '' : self.currentFolder) +  f.name;
+                    file.MIME = f.type;
+                    file.creationDate = new Date().getTime(); 
+                    file.modificationDate = f.lastModified;
+                    file.fileSize = self.assetsService.formatFileSize(f.size,2);
+                    
+                
+                    self.setAssetsStack(file);
+
+                    self.assetsService.createAsset(file);
+                    
                     }
                     img.onerror = function(err){
                         file.dimension = self.translate.instant('EDIT_FILE.N_A');
@@ -374,33 +408,17 @@ export class AddonComponent implements OnInit {
         }
         else{
             //TODO - NEED TO CHECK IF FILE IS ALLOWED 
-            file.url = this.imagesPath + 'system-doc.svg';
+            file.URL = this.imagesPath + 'system-doc.svg';
             file.dimension = self.translate.instant('EDIT_FILE.N_A');
         }
-        //Check if file size is allowed
-        if(f.size > this.maxFileSize){
-            this.validateMsg = self.translate.instant('EDIT_FILE.MAXIMUM_FILE_SIZE');
-            return;
-        }
-        else{
-            this.validateMsg = '';
-        }
         
-        file.key = f.name;
-        file.creationDate = new Date().getTime(); 
-        file.modificationDate = f.lastModified;
-        file.fileSize = this.assetsService.formatFileSize(f.size,2);
-        file.mimeType = f.type;
-        
-        this.setAssetsStack(file);
-
-        this.assets.push(file);
         //reload the grild list
-        this.assetsList.reload();
+        //this.assetsList.reload();
 
     }
+
     setAssetsStack(asset: IAsset){
-        this.assetsStack.push({'name': asset.key, 'status': 'uploading', 'key': this.stackIndex});
+        this.assetsStack.push({'name': asset.Key, 'status': 'uploading', 'key': this.stackIndex});
         const currKey = this.stackIndex;
         var self = this;
         setTimeout(() => {
@@ -417,7 +435,7 @@ export class AddonComponent implements OnInit {
     addNewFolder(data){
         let folder = new IAsset(this.translate.instant('ADD_FOLDER.FOLDER'));
         folder.url = this.imagesPath + 'system-folder.svg';
-        folder.key = data;
+        folder.Key = data;
                         
         this.assets.push(folder);
         this.assetsList.reload();
