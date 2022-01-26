@@ -11,7 +11,7 @@
         <li><span>{{'EDIT_FILE.UPLOADED_BY' | translate}}:</span><label>&nbsp;{{data?.asset?.uploadedBy}}</label></li>
         <li><span>{{'EDIT_FILE.FILE_TYPE' | translate}}:</span><label>&nbsp;{{data?.asset?.MIMI}}</label></li>
         <li><span>{{'EDIT_FILE.FILE_SIZE' | translate}}:</span><label>&nbsp;{{data?.asset?.fileSize}}</label></li>
-        <li><span>{{'EDIT_FILE.DIMENSIONS' | translate}}:</span><label>&nbsp;{{data?.asset?.dimension}}</label></li>
+        <li><span>{{'EDIT_FILE.DIMENSIONS' | translate}}:</span><label>&nbsp;{{data?.asset?.Thumbnails?.Size}}</label></li>
     </ul>
     <pep-textbox [label]="'EDIT_FILE.ASSET_URL' | translate" type="link" [(value)]="data.asset.URL" sizeType="xs"></pep-textbox>
     <label class="body-xs normal ellipsis">{{'EDIT_FILE.SYNCABLE' | translate}}</label>
@@ -29,7 +29,7 @@
 </ng-container>
     <ng-container pep-dialog-actions>
         <div class="btnCont">
-            <pep-button [value]="'ACTIONS.DELETE' | translate" [styleStateType]="'caution'" [styleType]="'weak'" sizeType="sm" class="pep-spacing-element" (buttonClick)="close($event);"></pep-button>
+            <pep-button [value]="'ACTIONS.DELETE' | translate" key='delete' [styleStateType]="'caution'" [styleType]="'weak'" sizeType="sm" class="pep-spacing-element" (buttonClick)="updateAssetInfo($event);"></pep-button>
         </div>
         <div class="btnCont">
             <pep-button [value]="'ACTIONS.CANCEL' | translate" [styleType]="'regular'" sizeType="sm" class="pep-spacing-element" (buttonClick)="close($event);"></pep-button>

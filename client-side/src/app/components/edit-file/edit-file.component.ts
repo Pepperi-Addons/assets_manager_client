@@ -30,7 +30,7 @@ export class EditFileComponent implements OnInit {
     }
 
     close(event){
-        this.dialogRef?.close();
+        this.dialogRef?.close(this.data.asset);
     }
 
 
@@ -39,10 +39,15 @@ export class EditFileComponent implements OnInit {
     }
 
     assetsFileChange(event){
-        
+        debugger;
+       // TODO - NEED TO CHANGE THE uri ... UPLOAD THE IMAGE AND GET IT LIKE BASE 64 
     }
 
     updateAssetInfo(event){
+        if(event.source.key == 'delete'){
+            this.data.asset.Hidden = "true";
+        }
+
         this.dialogRef?.close(this.data.asset);
     }
 }

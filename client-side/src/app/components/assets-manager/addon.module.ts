@@ -1,6 +1,5 @@
 import { MatCardModule } from '@angular/material/card';
 import { PepListModule } from '@pepperi-addons/ngx-lib/list';
-import { AddonService } from './addon.service';
 import { PepTopBarModule } from '@pepperi-addons/ngx-lib/top-bar';
 // import { RouterModule, Routes } from '@angular/router';
 import { CommonModule } from '@angular/common';
@@ -12,7 +11,6 @@ import { PepSelectModule } from '@pepperi-addons/ngx-lib/select';
 import { PepButtonModule } from '@pepperi-addons/ngx-lib/button';
 import { PepHttpService, PepFileService, PepNgxLibModule, PepAddonService, PepCustomizationService } from '@pepperi-addons/ngx-lib';
 import { AddonComponent } from './index';
-import {PepperiTableComponent} from '../addon/pepperi-table.component'
 import { MatDialogModule } from '@angular/material/dialog';
 import { PepDialogService } from '@pepperi-addons/ngx-lib/dialog';
 import { PepGenericListModule } from '@pepperi-addons/ngx-composite-lib/generic-list';
@@ -58,8 +56,7 @@ export function createTranslateLoader(http: HttpClient, fileService: PepFileServ
 
 @NgModule({
     declarations: [
-        AddonComponent,
-        PepperiTableComponent
+        AddonComponent
     ],
     imports: [
         CommonModule,
@@ -94,7 +91,6 @@ export function createTranslateLoader(http: HttpClient, fileService: PepFileServ
     ],
     exports:[AddonComponent],
     providers: [
-        AddonService,
         HttpClient,
         TranslateStore,
         PepHttpService,

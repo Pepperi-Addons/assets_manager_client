@@ -16,35 +16,24 @@
             </div>
             
             <div class="url-section">
-                <pep-textbox [label]="'UPLOAD_ASSET.UPLOAD_URL' | translate" type="link" [value]="''" sizeType="xs"  (valueChange)="assetURLChange($event)"></pep-textbox>
+                <pep-textbox [label]="'UPLOAD_ASSET.UPLOAD_URL' | translate" type="link" [(value)]="linkURL" sizeType="xs"  (valueChange)="assetURLChange($event)"></pep-textbox>
                 <pep-button [value]="'UPLOAD_ASSET.INSERT_URL' | translate" [styleType]="'regular'" sizeType="md"  (buttonClick)="assetURLChange($event);"></pep-button>
             </div>
         </div>
         <div *ngIf="isOnPopUp" class="link-asset">
                 <label class="body-md">{{'UPLOAD_ASSET.TITLE' | translate}}</label>
-                <pep-textbox [label]="'UPLOAD_ASSET.UPLOAD_URL' | translate" type="link" [value]="''" sizeType="md"  (valueChange)="assetURLChange($event)"></pep-textbox>
+                <pep-textbox [label]="'UPLOAD_ASSET.UPLOAD_URL' | translate" type="link" [(value)]="linkURL" sizeType="md"  (valueChange)="assetURLChange($event)"></pep-textbox>
                 <pep-button [value]="'UPLOAD_ASSET.INSERT_URL' | translate" [styleType]="'regular'" sizeType="md"  (buttonClick)="assetURLChange($event);"></pep-button>
         </div>
     </div>
 
-    <!-- <pep-top-bar class="main-top-header" [inline]="true">
-        <div header-start-content>
-            <pep-list-actions [sizeType]="'sm'" class="pep-spacing-element" [actions]="menuActions" (actionClick)="onMenuItemClicked($event)"></pep-list-actions>
-            <div class="title title-lg">{{assetsHeaderTitle}}</div>
-        </div>
-        <div header-end-content>
-            <ng-container *ngTemplateOutlet="topBarEnd"></ng-container>
-        </div>
-    </pep-top-bar> -->
-    <pep-bread-crumbs #breadCrumbs class="pep-spacing-element" [items]="breadCrumbsItems" [displayType]="'items'"
-                    (itemClick)="onBreadCrumbItemClick($event)">
-    </pep-bread-crumbs>
     </div>
     <div>
-    <pep-generic-list [dataSource]="assetsDataSource" (onSelectedRowChange)="onSelectedRowChange($event)" 
-                  [inline]="false" [allowMultipleSelection]="selectionType === 'multiple'" 
-                  [showTopBar]="true" [title]="assetsHeaderTitle" [noDataFoundMsg]="'GRID.FILE_NOT_FOUND' | translate"
-                  [firstFieldAsLink]="false" (fieldClick)="onCustomizeFieldClick($event)">
+    <pep-generic-list [data]="assetsDataSource" [actions]="actions" (onSelectedRowChange)="onSelectedRowChange($event)" 
+                      [pager]="pager" [breadCrumbsItems]="breadCrumbsItems" (breadCrumbItemClick)="onBreadCrumbItemClick($event)"
+                      [inline]="true" [allowMultipleSelection]="selectionType === 'multiple'" 
+                      [showTopBar]="true" [title]="assetsHeaderTitle" [noDataFoundMsg]="'GRID.FILE_NOT_FOUND' | translate"
+                      [firstFieldAsLink]="true" (fieldClick)="onCustomizeFieldClick($event)">
         <ng-container right-buttons>
             <ng-container *ngTemplateOutlet="topBarEnd"></ng-container>
         </ng-container>
@@ -60,7 +49,7 @@
         (buttonClick)="onAddFolderClick($event)"></pep-button>
     <pep-menu class="pep-spacing-element" [items]="[]" sizeType="sm" (menuItemClick)="onMenuItemClicked($event)">
     </pep-menu>
-    <pep-search sizeType="md" [triggerOn]="'click'" class="pep-spacing-element" [autoCompleteValues]="searchAutoCompleteValues" [value]="searchString"
+    <pep-search sizeType="sm" [triggerOn]="'click'" class="pep-spacing-element" [autoCompleteValues]="searchAutoCompleteValues" [value]="searchString"
         (search)="onSearchChanged($event)" (autocompleteChange)="onSearchAutocompleteChanged($event)"
         (stateChange)="onSearchStateChanged($event)">
     </pep-search>

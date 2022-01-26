@@ -22,7 +22,8 @@
             "TYPE": "Type",
             "DESCRIPTION": "Description"
         },
-        "FILE_NOT_FOUND": "File not found"
+        "FILE_NOT_FOUND": "File not found",
+        "CONFIRM_DELETE": "Sure you want to delete these files?"
     },
 
     "ADD_FOLDER": {

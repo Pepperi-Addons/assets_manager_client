@@ -1,10 +1,10 @@
 import { ActivatedRoute } from '@angular/router';
 import { from, Observable, of } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { AddonService } from './components/assets-manager/addon.service';
 import { Component, OnInit } from '@angular/core';
 import { PepCustomizationService, PepLoaderService, PepStyleType } from '@pepperi-addons/ngx-lib';
 import { IPepMenuItemClickEvent, PepMenuItem } from '@pepperi-addons/ngx-lib/menu';
+import { AssetsService } from './common/assets-service';
 
 declare var CLIENT_MODE: any;
 
@@ -23,9 +23,9 @@ export class AppComponent implements OnInit {
 
 
     constructor(
+        private assetsService: AssetsService,
         public customizationService: PepCustomizationService,
-        public loaderService: PepLoaderService,
-        public addonService: AddonService
+        public loaderService: PepLoaderService
     ) {
         this.loaderService.onChanged$
             .subscribe((show) => {
@@ -37,7 +37,7 @@ export class AppComponent implements OnInit {
     ngOnInit() {
         this.customizationService.setThemeVariables();
         this.customizationService.footerHeight.subscribe(footerHeight => this.footerHeight = footerHeight);
-        this.addon$ = from(this.addonService.get(`/addons/installed_addons`)).pipe(
+        this.addon$ = from(this.assetsService.get(`/addons/installed_addons`)).pipe(
             map(res => {return res[0]?.Addon}));
 
         this.menuItems = [];
