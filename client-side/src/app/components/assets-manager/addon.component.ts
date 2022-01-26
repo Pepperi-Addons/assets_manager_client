@@ -238,7 +238,7 @@ export class AddonComponent implements OnInit {
 
         let asset: IAsset = new IAsset();
 
-        asset.Key = filename;
+        asset.Key = this.getCurrentURL() + filename;
         asset.URI = await this.convertURLToBase64(this.linkURL) as string;
         asset.fileSize = this.assetsService.formatFileSize(blob.size,2);
         asset.MIME = blob.type;
@@ -532,7 +532,7 @@ export class AddonComponent implements OnInit {
             path += this.breadCrumbsItems[i].text;
         }
         
-        return path;
+        return path === "/" ? '' : path;
     }
     
 }
