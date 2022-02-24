@@ -7,6 +7,7 @@ import { PapiClient } from "@pepperi-addons/papi-sdk";
 import { HttpClient } from '@angular/common/http'
 import { PepHttpService, PepSessionService } from "@pepperi-addons/ngx-lib";
 import { Observable } from "rxjs";
+import { config } from "../addon.config";
 
 /*  None - the asset will not be included in the sync process thus will not be accessible
     Device - the asset will be synced to the device and will be available offline 
@@ -65,10 +66,11 @@ export class IAsset {
 })
 export class AssetsService {
     
-    addonUUID: string = '714671a5-5274-4668-97fa-e122dd3fc542';
+    addonURL = '';
     accessToken = '';
     parsedToken: any
     papiBaseURL = ''
+    addonUUID;
 
     get papiClient(): PapiClient {
         return new PapiClient({
@@ -79,37 +81,21 @@ export class AssetsService {
     
         })
     }
+    
     constructor(
         public session:  PepSessionService,
         public dialogService: PepDialogService,
         private httpClient: HttpClient,
         private pepHttp: PepHttpService
     ) {
-        this.accessToken = this.session.getIdpToken();
-        this.parsedToken = jwt(this.accessToken);
-        this.papiBaseURL = this.parsedToken["pepperi.baseurl"]
+        this.addonUUID = config.AddonUUID;
+        this.addonURL = `/addons/files/${this.addonUUID}`;
+        const accessToken = this.session.getIdpToken();
+        this.parsedToken = jwt(accessToken);
+        this.papiBaseURL = this.parsedToken["pepperi.baseurl"];
     }
 
-
-
-    async get(endpoint: string): Promise<any> {
-        return await this.papiClient.get(endpoint);
-    }
-
-    async post(endpoint: string, body: any): Promise<any> {
-        return await this.papiClient.post(endpoint, body);
-    }
-
-    pepGet(endpoint: string): Observable<any> {
-        return this.pepHttp.getPapiApiCall(endpoint);
-    }
-
-    pepPost(endpoint: string, body: any): Observable<any> {
-        return this.pepHttp.postPapiApiCall(endpoint, body);
-
-    }
-
-    getAssets(query?: string) {
+     getAssets(query?: string) {
         let url = `/addons/files/${this.addonUUID}`
        //query = '?order_by="UID"';
        if (query) {
@@ -145,6 +131,23 @@ export class AssetsService {
         });
     });
         //this.papiClient.post(encodeURI(url),body);
+    }
+
+    async get(endpoint: string): Promise<any> {
+        return await this.papiClient.get(endpoint);
+    }
+
+    async post(endpoint: string, body: any): Promise<any> {
+        return await this.papiClient.post(endpoint, body);
+    }
+
+    pepGet(endpoint: string): Observable<any> {
+        return this.pepHttp.getPapiApiCall(endpoint);
+    }
+
+    pepPost(endpoint: string, body: any): Observable<any> {
+        return this.pepHttp.postPapiApiCall(endpoint, body);
+
     }
 
     openDialog(comp: any, callBack, data = {}){
