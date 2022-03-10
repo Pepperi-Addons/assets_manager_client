@@ -1,0 +1,13 @@
+<!-- <pep-top-bar class="main-top-header" [inline]="true" [title]="'Add Folder'">
+    
+</pep-top-bar> -->
+
+<pep-dialog [title]="'ADD_FOLDER.ADD_FOLDER' | translate">
+    <ng-container pep-dialog-content>
+        <pep-textbox [label]="'ADD_FOLDER.FOLDER_NAME' | translate" type="link" [(value)]="folderName" sizeType="md"></pep-textbox>
+    </ng-container>
+    <ng-container pep-dialog-actions>
+        <pep-button [value]="'ACTIONS.CANCEL' | translate" styleType="'regular'" sizeType="sm" class="pep-spacing-element" (buttonClick)="close($event);"></pep-button>
+        <pep-button [value]="'ACTIONS.ADD' | translate" styleType="'strong'" sizeType="sm"  (buttonClick)="addFolder($event);"></pep-button>
+    </ng-container>
+</pep-dialog>

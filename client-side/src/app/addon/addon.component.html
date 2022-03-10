@@ -1,0 +1,72 @@
+<pep-page-layout>
+    <ng-container pep-top-area>
+        <pep-top-bar [title]="('TITLE' | translate)">
+            <div header-start-content>
+            </div>
+            <div header-end-content>
+            </div>
+        </pep-top-bar>
+    </ng-container>
+
+    <ng-container pep-main-area>
+        <div class="uploader-content" [ngClass]="isOnPopUp === true ? 'popUpView' : ''">
+            <div class="upload-asset">
+                <div class="file-section">
+                    <label class="body-md ellipsis">{{'UPLOAD_ASSET.TITLE' | translate}}</label>
+                    <span class="body-xs ellipsis">{{'UPLOAD_ASSET.SUB_TITLE' | translate}}</span>
+    
+                    <div class="fileupload" (click)="fileField.click()" (dragover)="onDragOver($event)" 
+                         (drop)="onDropSuccess($event)" [ngClass]="validateMsg !== '' ? 'validationErrMsg' : ''">
+                                    <pep-icon name="system_file_upload_cloud"></pep-icon>
+                                    <span class="body-sm ellipsis">{{'UPLOAD_ASSET.UPLOAD_FILE' | translate}}</span> 
+                                    <input type="file" multiple="multiple" name="avatars" #fileField (change)="upload($event.target.files)">   
+                    </div>
+                    <div *ngIf="validateMsg !== ''" class="body-xs validationMsg">{{validateMsg}}</div>
+                </div>
+                
+                <div class="url-section">
+                    <pep-textbox [label]="'UPLOAD_ASSET.UPLOAD_URL' | translate" type="link" [(value)]="linkURL" sizeType="xs"  (valueChange)="assetURLChange($event)"></pep-textbox>
+                    <pep-button [value]="'UPLOAD_ASSET.INSERT_URL' | translate" styleType="'regular'" sizeType="md"  (buttonClick)="assetURLChange($event);"></pep-button>
+                </div>
+            </div>
+            <div *ngIf="isOnPopUp" class="link-asset">
+                    <label class="body-md">{{'UPLOAD_ASSET.TITLE' | translate}}</label>
+                    <pep-textbox [label]="'UPLOAD_ASSET.UPLOAD_URL' | translate" type="link" [(value)]="linkURL" sizeType="md"  (valueChange)="assetURLChange($event)"></pep-textbox>
+                    <pep-button [value]="'UPLOAD_ASSET.INSERT_URL' | translate" styleType="'regular'" sizeType="md"  (buttonClick)="assetURLChange($event);"></pep-button>
+            </div>
+        </div>
+
+        <pep-generic-list [dataSource]="dataSource" [actions]="actions" (onSelectedRowChange)="onSelectedRowChange($event)" 
+                      [uuidMapping]="'Key'" [pager]="pager" [breadCrumbsItems]="breadCrumbsItems" (breadCrumbItemClick)="onBreadCrumbItemClick($event)"
+                      [inline]="true" [selectionType]="'single'"
+                      [showTopBar]="true" [title]="assetsHeaderTitle" [noDataFoundMsg]="'GRID.FILE_NOT_FOUND' | translate"
+                      (fieldClick)="onCustomizeFieldClick($event)">
+        <ng-container right-buttons>
+            <ng-container *ngTemplateOutlet="topBarEnd"></ng-container>
+        </ng-container>
+    </pep-generic-list>
+    </ng-container>
+</pep-page-layout>
+
+<pep-size-detector></pep-size-detector>
+
+<ng-template #topBarEnd>
+    <pep-button class="pep-spacing-element" value="{{'TOP_BAR.ADD_FOLDER' | translate}}" styleType="weak"
+    styleStateType="system" sizeType="sm" iconName="system_folder" iconPosition="end"
+        (buttonClick)="onAddFolderClick($event)"></pep-button>
+    <pep-menu class="pep-spacing-element" [items]="[]" sizeType="sm" (menuItemClick)="onMenuItemClicked($event)">
+    </pep-menu>
+    <pep-search sizeType="sm" [triggerOn]="'click'" class="pep-spacing-element" [autoCompleteValues]="searchAutoCompleteValues" [value]="searchString"
+        (search)="onSearchChanged($event)" (autocompleteChange)="onSearchAutocompleteChanged($event)"
+        (stateChange)="onSearchStateChanged($event)">
+    </pep-search>
+    <pep-button class="pep-spacing-element" styleType="weak" styleStateType="system" sizeType="sm" 
+        iconName="arrow_two_ways_ver_t" iconPosition="start" (buttonClick)="sortToggle($event)">
+    </pep-button>
+    <pep-button *ngIf="currentView !== 'list'" class="pep-spacing-element" styleType="weak" styleStateType="system" sizeType="sm" 
+        iconName="view_table" iconPosition="start" (buttonClick)="viewsToggle($event)">
+    </pep-button>
+    <pep-button *ngIf="currentView === 'list'" class="pep-spacing-element" styleType="weak" styleStateType="system" sizeType="sm" 
+        iconName="view_card_sm" iconPosition="start" (buttonClick)="viewsToggle($event)">
+    </pep-button>
+</ng-template>

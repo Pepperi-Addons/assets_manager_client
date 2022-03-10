@@ -1,0 +1,39 @@
+<pep-dialog [showClose]="false" [title]="assetNmae">
+    <ng-container pep-dialog-header>
+       
+    </ng-container>
+    <ng-container pep-dialog-content>
+        <pep-bread-crumbs class="pep-spacing-element body-xs" [items]="breadCrumbsItems" [displayType]="'items'">
+    </pep-bread-crumbs>
+    <pep-separator class="pep-field-no-spacing"></pep-separator>
+    <ul class="body-xs">
+        <li><span>{{'EDIT_FILE.CREATED_ON' | translate}}:</span><label>&nbsp;{{creationDate}}</label></li>
+        <li><span>{{'EDIT_FILE.UPLOADED_BY' | translate}}:</span><label>&nbsp;{{data?.asset?.uploadedBy}}</label></li>
+        <li><span>{{'EDIT_FILE.FILE_TYPE' | translate}}:</span><label>&nbsp;{{data?.asset?.MIME}}</label></li>
+        <li><span>{{'EDIT_FILE.FILE_SIZE' | translate}}:</span><label>&nbsp;{{data?.asset?.fileSize}}</label></li>
+        <li><span>{{'EDIT_FILE.DIMENSIONS' | translate}}:</span><label>&nbsp;{{data?.asset?.Thumbnails?.Size}}</label></li>
+    </ul>
+    <pep-textbox [label]="'EDIT_FILE.ASSET_URL' | translate" type="link" [(value)]="data.asset.URL" sizeType="xs"></pep-textbox>
+    <label class="body-xs normal ellipsis">{{'EDIT_FILE.SYNCABLE' | translate}}</label>
+    <pep-checkbox  [value]="data.asset.Sync !== 'none'" [label]="'EDIT_FILE.SYNCABLE_EXPLAIN' | translate"  [renderTitle]="false"></pep-checkbox>
+    <pep-separator class="pep-field-no-spacing"></pep-separator>
+    <div class="gridContainer">
+        <pep-textbox [label]="'EDIT_FILE.ASSET_NAME' | translate" type="link" [(value)]="data.asset.Key" sizeType="xs"></pep-textbox>
+        <pep-textarea [(value)]="data.asset.Description" [label]="'EDIT_FILE.DESCRIPTION' | translate" [disabled]="false" 
+                  rowSpan="1.5">
+        </pep-textarea>
+        <pep-attachment [label]="'EDIT_FILE.PREVIEW' | translate" [src]="data?.asset?.URL" [mandatory]="false" [disabled]="false" [xAlignment]="'left'" [rowSpan]="2.5"
+        [showTitle]="true" (elementClick)="assetsElementClick($event)" (fileChange)="assetsFileChange($event)">
+    </pep-attachment>
+    </div>
+</ng-container>
+    <ng-container pep-dialog-actions>
+        <div class="btnCont">
+            <pep-button [value]="'ACTIONS.DELETE' | translate" key='delete' [styleStateType]="'caution'" [styleType]="'weak'" [sizeType]="'sm'" class="pep-spacing-element" (buttonClick)="updateAssetInfo($event);"></pep-button>
+        </div>
+        <div class="btnCont">
+            <pep-button [value]="'ACTIONS.CANCEL' | translate" [styleType]="'regular'" [sizeType]="'sm'" class="pep-spacing-element" (buttonClick)="close($event);"></pep-button>
+            <pep-button [value]="'ACTIONS.UPDATE_ASSET' | translate" [styleType]="'strong'" [sizeType]="'sm'"  (buttonClick)="updateAssetInfo($event);"></pep-button>
+        </div>
+    </ng-container>
+</pep-dialog>

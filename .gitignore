@@ -1,3 +1,6 @@
+node_modules/**
+build/**
+publish/*.js
 cpi-side/node_modules/.package-lock.json
 cpi-side/node_modules/.bin/is-ci
 cpi-side/node_modules/.bin/is-ci.cmd

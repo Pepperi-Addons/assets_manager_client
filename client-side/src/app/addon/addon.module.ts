@@ -1,0 +1,96 @@
+import { NgModule } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { RouterModule, Routes } from '@angular/router';
+import { HttpClient, HttpClientModule } from '@angular/common/http';
+
+import { PepNgxLibModule, PepAddonService, PepFileService } from '@pepperi-addons/ngx-lib';
+import { PepTopBarModule } from '@pepperi-addons/ngx-lib/top-bar';
+import { PepSizeDetectorModule } from '@pepperi-addons/ngx-lib/size-detector';
+import { PepPageLayoutModule } from '@pepperi-addons/ngx-lib/page-layout';
+import { pepIconSystemClose, pepIconArrowDownAlt, pepIconSystemBin,PepIconModule, pepIconArrowTwoWaysVerT, PepIconRegistry, pepIconSystemDoc, pepIconSystemFolder, pepIconViewCardSm, pepIconViewLine, pepIconViewTable } from '@pepperi-addons/ngx-lib/icon';
+
+import { PepButtonModule } from '@pepperi-addons/ngx-lib/button';
+import { PepDialogModule } from '@pepperi-addons/ngx-lib/dialog';
+import { PepMenuModule } from '@pepperi-addons/ngx-lib/menu';
+import { PepDraggableItemsModule } from '@pepperi-addons/ngx-lib/draggable-items';
+import { PepGenericListModule } from '@pepperi-addons/ngx-composite-lib/generic-list';
+import { PepTextboxModule } from '@pepperi-addons/ngx-lib/textbox';
+import { PepSelectModule } from '@pepperi-addons/ngx-lib/select';
+import { PepFileStatusPanelModule }  from '@pepperi-addons/ngx-composite-lib/file-status-panel';
+
+import { TranslateLoader, TranslateModule, TranslateService, TranslateStore } from '@ngx-translate/core';
+
+import { AddonService } from './addon.service';
+import { AddonComponent } from './index';
+import { config } from './addon.config';
+
+import { AddFolderModule } from '../components/add-folder/add-folder.module';
+import { EditFileModule } from '../components/edit-file/edit-file.module';
+
+const pepIcons = [
+    pepIconViewTable,
+    pepIconViewCardSm,
+    pepIconArrowTwoWaysVerT,
+    pepIconSystemFolder,
+    pepIconSystemDoc,
+    pepIconSystemClose, 
+    pepIconArrowDownAlt, 
+    pepIconSystemBin
+];
+
+export const routes: Routes = [
+    {
+        path: '',
+        component: AddonComponent
+    }
+];
+
+@NgModule({
+    declarations: [
+        AddonComponent,
+    ],
+    imports: [
+        CommonModule,
+        HttpClientModule,
+        PepNgxLibModule,
+        PepSizeDetectorModule,
+        PepTopBarModule,
+        PepPageLayoutModule,
+        PepButtonModule,
+        PepMenuModule,
+        PepDialogModule,
+        PepDraggableItemsModule,
+        PepGenericListModule,
+        PepTextboxModule,
+        PepSelectModule,
+        AddFolderModule,
+        PepFileStatusPanelModule,
+        EditFileModule,
+        PepIconModule,
+        TranslateModule.forChild({
+            loader: {
+                provide: TranslateLoader,
+                useFactory: (http: HttpClient, fileService: PepFileService, addonService: PepAddonService) => 
+                    PepAddonService.createDefaultMultiTranslateLoader(http, fileService, addonService, config.AddonUUID),
+                deps: [HttpClient, PepFileService, PepAddonService],
+            }, isolate: false
+        }),
+        RouterModule.forChild(routes)
+    ],
+    exports:[AddonComponent],
+    providers: [
+        TranslateStore,
+        // When loading this module from route we need to add this here (because only this module is loading).
+        AddonService
+    ]
+})
+export class AddonModule {
+    constructor(
+        translate: TranslateService,
+        private pepIconRegistry: PepIconRegistry,
+        private pepAddonService: PepAddonService
+    ) {
+        this.pepAddonService.setDefaultTranslateLang(translate);
+        this.pepIconRegistry.registerIcons(pepIcons);
+    }
+}
