@@ -4,7 +4,7 @@ export type allowedAssetsTypes = 'images' | 'documents' | 'all';
 export type selectionType = 'single' | 'multiple';
 export type assetsView = 'list' | 'thumbnail';
 export type sortBy = 'ascending' | 'descending' ;
-export type uploadStatus = 'uploading' | 'done' | 'failed' | 'hidden';
+export type uploadStatus = 'uploading' | 'done' | 'failed' | 'hidden' | 'deleting';
 
 export class Thumbnails { 
     Size: string = '200x200';
@@ -12,7 +12,7 @@ export class Thumbnails {
 }
 
 export class assetProcess {
-    key: number;
+    key?: number;
     name = '';
     status: uploadStatus = 'uploading';
 }

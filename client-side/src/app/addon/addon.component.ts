@@ -6,7 +6,7 @@ import { AddFolderComponent } from '../components/add-folder/add-folder.componen
 import { EditFileComponent } from '../components/edit-file/edit-file.component';
 import { AddonService } from "./addon.service";
 import { PepBreadCrumbItem } from "@pepperi-addons/ngx-lib/bread-crumbs";
-import { allowedAssetsTypes, assetProcess, IAsset, selectionType, Thumbnails } from '../addon/addon.model';
+import { allowedAssetsTypes, assetProcess, IAsset, selectionType, Thumbnails, uploadStatus } from '../addon/addon.model';
 import { IPepMenuItemClickEvent, PepMenuItem } from "@pepperi-addons/ngx-lib/menu";
 import { PepDialogData, PepDialogService } from "@pepperi-addons/ngx-lib/dialog";
 import { MatDialogRef } from "@angular/material/dialog";
@@ -240,9 +240,7 @@ export class AddonComponent implements OnInit {
         asset.fileSize = this.formatFileSize(blob.size,2);
         asset.MIME = blob.type;
         
-        this.addonService.createAsset(asset, null, (res) => {
-            this.setDataSource();
-        });  
+        this.createAsset(asset);
     }
 
     buttonClick(event){
@@ -316,10 +314,7 @@ export class AddonComponent implements OnInit {
             this.showDeleteAssetMSG(asset);
         }
         else{
-            //asset.URI = await this.convertURLToBase64(asset.URL) as string;
-            this.addonService.createAsset(asset, null, (res) => {
-                this.setDataSource();
-             }); 
+            this.createAsset(asset);
            
         }
     }
@@ -367,11 +362,7 @@ export class AddonComponent implements OnInit {
         
         asset.Hidden = true;
 
-        this.addonService.createAsset(asset,null, (res) => {
-            if(res){
-                    this.setDataSource();
-            }   
-        });
+        this.createAsset(asset,null,'deleting');
     }
 
     onDragOver(event) {
@@ -479,29 +470,34 @@ export class AddonComponent implements OnInit {
             //     const url = URL.createObjectURL(f);
             //     asset.Thumbnails = await this.getThumbnails(url);
             // }
-
-            this.addonService.createAsset(asset,null, (res)=> {
-                if(res){
-                    this.setDataSource();
-                }
-            }); 
+            //this.setAssetsStack(asset);
+            this.createAsset(asset);
+            
        
         });
     }
-
-    setAssetsStack(asset: IAsset){
-        this.assetsStack.push({'name': asset.Key, 'status': 'uploading', 'key': this.stackIndex});
-        const currKey = this.stackIndex;
-        var self = this;
-        setTimeout(() => {
-                self.assetsStack[currKey]['status'] = 'done';
-                setTimeout(() => {
-                    self.assetsStack[currKey]['status'] = 'hidden';
-                    
-            }, 7000);
-        }, 2000);
-
-        this.stackIndex ++ ;
+    createAsset(asset, query = null,status: uploadStatus = 'uploading'){
+        this.setAssetsStack(asset,status);
+        this.addonService.createAsset(asset,null, (res)=> {
+            if(res){
+                this.setAssetsStack(asset,'done');
+                this.setDataSource();
+            }
+        }); 
+    }
+    setAssetsStack(asset: IAsset, status: uploadStatus = "uploading"){
+        let isExist = false;
+        this.assetsStack.forEach(file => {
+            if(file.name == asset.Key){
+                file.status = status;
+                isExist = true;
+            }
+        });
+        
+        if(!isExist){
+            this.assetsStack.push({'name': asset.Key, 'status': status});
+        }
+        
     }
 
     async addNewFolder(data){
@@ -512,9 +508,7 @@ export class AddonComponent implements OnInit {
 
         folder.Key = this.getCurrentURL() + data + "/";
 
-        this.addonService.createAsset(folder, null, (res) => {
-            this.setDataSource();
-        }); 
+        this.createAsset(folder);
     };
 
     getCurrentURL(){

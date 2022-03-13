@@ -45,6 +45,8 @@
             <ng-container *ngTemplateOutlet="topBarEnd"></ng-container>
         </ng-container>
     </pep-generic-list>
+
+    <pep-file-status-panel [title]="'File download'" [filesList]="assetsStack"></pep-file-status-panel>
     </ng-container>
 </pep-page-layout>
 
