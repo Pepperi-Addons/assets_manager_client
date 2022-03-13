@@ -34,6 +34,7 @@ export class AddonComponent implements OnInit {
 
     imagesPath = '';
     breadCrumbsItems = new Array<PepBreadCrumbItem>();
+    searchString: string = '';
     menuActions: Array<PepMenuItem>;
     assetsStack: Array<assetProcess> = [];
     stackIndex: number = 0;
@@ -142,7 +143,7 @@ export class AddonComponent implements OnInit {
         this.dataSource = {
             init: async (state) => {
                 let folder = this.currentFolder.key === '/' ? '/' : this.currentFolder.text;
-                this.assetsList = await this.addonService.getAssets("?folder=" + folder);
+                this.assetsList = await this.addonService.getAssets("?folder=" + folder + this.searchString);
                 
                 this.assetsList.forEach( (asset, index) =>  {
                             asset.Name = asset.MIME === 'pepperi/folder' && asset.Key !== '/' ? this.cleanFolderName(asset.Key) : asset.Key;
@@ -276,7 +277,8 @@ export class AddonComponent implements OnInit {
     // }
 
     onSearchChanged(search: any) {
-        console.log(search);
+        this.searchString = "&Name=" + search;
+        this.setDataSource();
     }
 
     onSearchAutocompleteChanged(value) {

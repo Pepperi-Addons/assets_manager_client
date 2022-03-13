@@ -27,6 +27,8 @@ import { config } from './addon.config';
 import { AddFolderModule } from '../components/add-folder/add-folder.module';
 import { EditFileModule } from '../components/edit-file/edit-file.module';
 
+import { PepSearchModule } from '@pepperi-addons/ngx-lib/search';
+
 const pepIcons = [
     pepIconViewTable,
     pepIconViewCardSm,
@@ -67,6 +69,7 @@ export const routes: Routes = [
         PepFileStatusPanelModule,
         EditFileModule,
         PepIconModule,
+        PepSearchModule,
         TranslateModule.forChild({
             loader: {
                 provide: TranslateLoader,

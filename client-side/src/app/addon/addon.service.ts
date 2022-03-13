@@ -41,6 +41,7 @@ export class AddonService {
     getAssets(query?: string) {
         let url = `/addons/files/${this.addonUUID}`
        //query = '?order_by="UID"';
+       //query = '?folder=/&Name=orange.jpg';
        if (query) {
             url = url + query;
         }
