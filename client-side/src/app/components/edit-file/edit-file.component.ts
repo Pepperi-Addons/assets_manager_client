@@ -25,7 +25,6 @@ export class EditFileComponent implements OnInit {
     ngOnInit(): void {
         this.breadCrumbsItems = this.data?.breadCrumbs || [];
         this.assetNmae = this.data?.asset?.Key || '';
-        //this.creationDate = new Date(this.data.asset.creationDate).toUTCString() || '';
         this.creationDate = new Date(this.data.asset.ModificationDateTime).toUTCString() || '';
     }
 
@@ -39,7 +38,13 @@ export class EditFileComponent implements OnInit {
     }
 
     assetsFileChange(event){
-       // TODO - NEED TO CHANGE THE uri ... UPLOAD THE IMAGE AND GET IT LIKE BASE 64 
+        debugger;
+        this.data.asset.URI = event?.fileStr || '';
+        //we dont change the file name , this is the key by now
+        //this.data.asset.Key = event.fileName;
+        this.data.asset.ModificationDateTime = new Date();
+        this.data.asset.MIME = event?.fileStr.match(/[^:]\w+\/[\w-+\d.]+(?=;|,)/)[0] || '';
+
     }
 
     updateAssetInfo(event){

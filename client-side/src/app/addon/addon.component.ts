@@ -311,11 +311,10 @@ export class AddonComponent implements OnInit {
     async updateAssetInfo(asset: IAsset){
        
         if(asset?.Hidden == true){
-            this.showDeleteAssetMSG();
+            this.showDeleteAssetMSG(asset);
         }
         else{
-            
-            asset.URI = await this.convertURLToBase64(asset.URL) as string;
+            //asset.URI = await this.convertURLToBase64(asset.URL) as string;
             this.addonService.createAsset(asset, null, (res) => {
                 this.setDataSource();
              }); 
@@ -347,7 +346,7 @@ export class AddonComponent implements OnInit {
         }
     }
 
-    showDeleteAssetMSG(){
+    showDeleteAssetMSG(asset: IAsset = null){
           const dialogData = new PepDialogData({
             content: this.translate.instant('GRID.CONFIRM_DELETE'),
             showHeader: false,
@@ -356,21 +355,21 @@ export class AddonComponent implements OnInit {
           });
 
          this.openDialogMsg(dialogData,() => {
-             this.deleteAssets()});  
+             this.deleteAssets(asset)});  
     }
 
-    deleteAssets(){
-        // TODO FIX THIS
-        // let data : PepSelectionData = this.assetsList.customList.getSelectedItemsData();
-        // data.rows.forEach( (row, index) =>  {
-        //     let asset = this.getSelectedAsset(row);
-        //     asset.Hidden = true;
-        //     this.assetsService.createAsset(asset,null, (res) => {
-        //         if(res){
-        //            this.setDataSource();
-        //         }
-        //     });
-        // });
+    deleteAssets(asset: IAsset = null){
+        // TODO - NEED FIX THIS WHEN CHANGING TO MULTIPLE SELECTION MODE 
+        asset = asset !== null ? asset : 
+                this.getSelectedAsset(this.genericListService.getSelectedItems().rows[0]);
+        
+        asset.Hidden = true;
+
+        this.addonService.createAsset(asset,null, (res) => {
+            if(res){
+                    this.setDataSource();
+            }   
+        });
     }
 
     onDragOver(event) {
@@ -468,7 +467,7 @@ export class AddonComponent implements OnInit {
 
         this.convertFileToBase64(f).subscribe(async base64 => {
             asset.URI = base64;
-            asset.Key = (this.currentFolder.key === '/' ? '' : this.currentFolder) +  f.name;
+            asset.Key = (this.currentFolder.key === '/' ? '' : this.breadCrumbsItems[1].text) + '/' +  f.name;
             asset.MIME = f.type;
             asset.creationDate = new Date().getTime(); 
             asset.modificationDate = f.lastModified;
