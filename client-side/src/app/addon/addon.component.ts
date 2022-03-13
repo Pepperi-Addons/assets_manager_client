@@ -275,7 +275,8 @@ export class AddonComponent implements OnInit {
     // }
 
     onSearchChanged(search: any) {
-        this.searchString = "&Name=" + search;
+        //this.searchString = "&Name=" + search;
+        this.searchString = "&where=Name=" + search.value;
         this.setDataSource();
     }
 
