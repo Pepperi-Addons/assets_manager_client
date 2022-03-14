@@ -11,7 +11,13 @@
 
     "TOP_BAR":{
         "ADD_FOLDER": "Add Folder",
-        "FILTERS": "Filters"
+        "FILTERS": "Filters",
+
+        "FILTER_TYPE": {
+            "ALL" : "All",
+            "IMG": "Images",
+            "DOC": "Documents"
+        }
     },
 
     "GRID": {
