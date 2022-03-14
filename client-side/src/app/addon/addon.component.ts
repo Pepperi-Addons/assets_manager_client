@@ -44,6 +44,7 @@ export class AddonComponent implements OnInit {
     selectedAssets: Array<IAsset> = [];
     assetsList: Array<any>;
     mimeFilterItems = new Array<PepMenuItem>();
+    mimeFilter = "all";
 
     @Input() currentFolder: PepBreadCrumbItem;
     @Input() maxFileSize: number = 1250000;
@@ -77,8 +78,8 @@ export class AddonComponent implements OnInit {
         const folder = await this.translate.get('ADD_FOLDER.FOLDER').toPromise();
 
         this.mimeFilterItems= [{ key: 'all', text: this.translate.instant('TOP_BAR.FILTER_TYPE.ALL') },
-                               { key: 'images', text: this.translate.instant('TOP_BAR.FILTER_TYPE.IMG')},
-                               { key: 'doc', text: this.translate.instant('TOP_BAR.FILTER_TYPE.DOC')}];
+                               { key: 'image', text: this.translate.instant('TOP_BAR.FILTER_TYPE.IMG')},
+                               { key: 'application', text: this.translate.instant('TOP_BAR.FILTER_TYPE.DOC')}];
 
         
         this.breadCrumbsItems = new Array<PepBreadCrumbItem>();
@@ -144,13 +145,22 @@ export class AddonComponent implements OnInit {
             return actions;
         }
     }
+    setWhereClauseSTR(){
+        // + " AND MIME LIKE '%folder%'"
+        // "&where="
+        let whereCluse = this.searchString !== '' ? "Name LIKE '%" + this.searchString + "%'" : '';
+            whereCluse +=  this.mimeFilter != 'all' ? ((whereCluse == '' ? '' : " AND ") + "MIME LIKE '%" + this.mimeFilter + "%'") : '';
+
+            whereCluse = whereCluse !== '' ? "&where=" + whereCluse : '';
+        return whereCluse;
+    }
 
     setDataSource() {
         this.dataSource = {
             init: async (state) => {
                 let folder = this.currentFolder.key === '/' ? '/' : this.currentFolder.text;
-                const whereCluse = this.searchString !== '' ? "&where=Name LIKE '%" + this.searchString + "%'" : '';//  '&where=Name LIKE "%25"' +  this.searchString + '%25"': '';
-                this.assetsList = await this.addonService.getAssets("?folder=" + folder + whereCluse);
+
+                this.assetsList = await this.addonService.getAssets("?folder=" + folder + this.setWhereClauseSTR());
                 
                 this.assetsList.forEach( (asset, index) =>  {
                             asset.Name = asset.MIME === 'pepperi/folder' && asset.Key !== '/' ? this.cleanFolderName(asset.Key) : asset.Name;
@@ -255,17 +265,9 @@ export class AddonComponent implements OnInit {
     }
 
     onMenuItemClicked(action: IPepMenuItemClickEvent){
-        debugger;
-        switch (action.source.text.toLowerCase()) {
-            case "edit asset info": {
-               //this.editAsset();
-               break; 
-            }
-            case "delete": {
-                //this.showDeleteAssetMSG();
-                break; 
-             }
-        }  
+        this.mimeFilter = action.source.key;
+        this.setDataSource();
+        
     }
 
     onBreadCrumbItemClick(event){
