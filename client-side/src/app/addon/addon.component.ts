@@ -15,6 +15,7 @@ import { Observable, ReplaySubject } from "rxjs";
 import { PepSelectionData } from "@pepperi-addons/ngx-lib/list";
 import { IPepFormFieldClickEvent } from "@pepperi-addons/ngx-lib/form";
 import { PepImageService } from "@pepperi-addons/ngx-lib/image";
+import { MatSnackBar } from "@angular/material/snack-bar";
 
 @Component({
     selector: 'addon-module',
@@ -60,7 +61,8 @@ export class AddonComponent implements OnInit {
         private pepAddonService: PepAddonService,
         public translate: TranslateService,
         public dialogService: PepDialogService,
-        private httpClient: HttpClient
+        private httpClient: HttpClient,
+        private _snackBar: MatSnackBar
     ) {
         this.imagesPath = this.pepAddonService.getAddonStaticFolder() + 'assets/images/';
         this.layoutService.onResize$.subscribe(size => {
@@ -87,6 +89,11 @@ export class AddonComponent implements OnInit {
         this.breadCrumbsItems.push(this.currentFolder); 
 
         this.setDataSource();
+        
+        this._snackBar.open('Cannonball!!', 'Splash', {
+            horizontalPosition: 'end',
+            verticalPosition: 'bottom',
+        });
     }
     
     setBreadCrumbs(){
@@ -488,13 +495,14 @@ export class AddonComponent implements OnInit {
     }
     createAsset(asset, query = null,status: uploadStatus = 'uploading'){
         this.setAssetsStack(asset,status);
-        this.addonService.createAsset(asset,null, (res)=> {
+        this.addonService.createAsset(asset).then((res)=> {
             if(res){
                 this.setAssetsStack(asset,'done');
                 this.setDataSource();
             }
         }); 
     }
+    
     setAssetsStack(asset: IAsset, status: uploadStatus = "uploading"){
         let isExist = false;
         this.assetsStack.forEach(file => {
