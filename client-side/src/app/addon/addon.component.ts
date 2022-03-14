@@ -44,6 +44,7 @@ export class AddonComponent implements OnInit {
     assetsHeaderTitle = '';
     selectedAssets: Array<IAsset> = [];
     assetsList: Array<any>;
+    mimeFilterItems = new Array<PepMenuItem>();
 
     @Input() currentFolder: PepBreadCrumbItem;
     @Input() maxFileSize: number = 1250000;
@@ -75,8 +76,13 @@ export class AddonComponent implements OnInit {
             size: 10,
             index: 0
         };
-
         const folder = await this.translate.get('ADD_FOLDER.FOLDER').toPromise();
+
+        this.mimeFilterItems= [{ key: 'all', text: this.translate.instant('TOP_BAR.FILTER_TYPE.ALL') },
+                               { key: 'images', text: this.translate.instant('TOP_BAR.FILTER_TYPE.IMG')},
+                               { key: 'doc', text: this.translate.instant('TOP_BAR.FILTER_TYPE.DOC')}];
+
+        
         this.breadCrumbsItems = new Array<PepBreadCrumbItem>();
         this.currentFolder = new PepBreadCrumbItem({key: '/', text: 'Main', title: 'Main'});
         this.breadCrumbsItems.push(this.currentFolder); 
@@ -150,10 +156,11 @@ export class AddonComponent implements OnInit {
         this.dataSource = {
             init: async (state) => {
                 let folder = this.currentFolder.key === '/' ? '/' : this.currentFolder.text;
-                this.assetsList = await this.addonService.getAssets("?folder=" + folder + this.searchString);
+                const whereCluse = this.searchString !== '' ? "&where=Name LIKE '%" + this.searchString + "%'" : '';//  '&where=Name LIKE "%25"' +  this.searchString + '%25"': '';
+                this.assetsList = await this.addonService.getAssets("?folder=" + folder + whereCluse);
                 
                 this.assetsList.forEach( (asset, index) =>  {
-                            asset.Name = asset.MIME === 'pepperi/folder' && asset.Key !== '/' ? this.cleanFolderName(asset.Key) : asset.Key;
+                            asset.Name = asset.MIME === 'pepperi/folder' && asset.Key !== '/' ? this.cleanFolderName(asset.Key) : asset.Name;
                             asset.Thumbnail = asset.MIME === 'pepperi/folder' ?  this.imagesPath + 'system-folder.svg' : 
                                               asset.MIME.indexOf('application/') > -1 ? this.imagesPath + 'system-doc.svg'  : asset.URL; 
                 });
@@ -255,7 +262,7 @@ export class AddonComponent implements OnInit {
     }
 
     onMenuItemClicked(action: IPepMenuItemClickEvent){
-  
+        debugger;
         switch (action.source.text.toLowerCase()) {
             case "edit asset info": {
                //this.editAsset();
@@ -282,7 +289,8 @@ export class AddonComponent implements OnInit {
     // }
 
     onSearchChanged(search: any) {
-        this.searchString = "&Name=" + search;
+        //this.searchString = "&Name=" + search;
+        this.searchString = search?.value || '';
         this.setDataSource();
     }
 

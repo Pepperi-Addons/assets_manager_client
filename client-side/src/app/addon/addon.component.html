@@ -56,7 +56,7 @@
     <pep-button class="pep-spacing-element" value="{{'TOP_BAR.ADD_FOLDER' | translate}}" styleType="weak"
     styleStateType="system" sizeType="sm" iconName="system_folder" iconPosition="end"
         (buttonClick)="onAddFolderClick($event)"></pep-button>
-    <pep-menu class="pep-spacing-element" [items]="[]" sizeType="sm" (menuItemClick)="onMenuItemClicked($event)">
+    <pep-menu class="pep-spacing-element" [items]="mimeFilterItems" sizeType="sm" (menuItemClick)="onMenuItemClicked($event)">
     </pep-menu>
     <pep-search sizeType="sm" [triggerOn]="'click'" class="pep-spacing-element" [autoCompleteValues]="searchAutoCompleteValues" [value]="searchString"
         (search)="onSearchChanged($event)" (autocompleteChange)="onSearchAutocompleteChanged($event)"
@@ -68,7 +68,7 @@
     <pep-button *ngIf="currentView !== 'list'" class="pep-spacing-element" styleType="weak" styleStateType="system" sizeType="sm" 
         iconName="view_table" iconPosition="start" (buttonClick)="viewsToggle($event)">
     </pep-button>
-    <pep-button *ngIf="currentView === 'list'" class="pep-spacing-element" styleType="weak" styleStateType="system" sizeType="sm" 
+    <!-- <pep-button *ngIf="currentView === 'list'" class="pep-spacing-element" styleType="weak" styleStateType="system" sizeType="sm" 
         iconName="view_card_sm" iconPosition="start" (buttonClick)="viewsToggle($event)">
-    </pep-button>
+    </pep-button> -->
 </ng-template>
