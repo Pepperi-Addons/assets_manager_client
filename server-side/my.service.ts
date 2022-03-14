@@ -26,12 +26,7 @@ class MyService {
         const res = await this.papiClient.post(encodeURI(url),body, headers );
         return res;
     }
-    
-    // For page block template
-    upsertRelation(relation): Promise<any> {
-        return this.papiClient.post('/addons/data/relations', relation);
-    }
-
+  
     getAddons(): Promise<InstalledAddon[]> {
         return this.papiClient.addons.installedAddons.find({});
     }

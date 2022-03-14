@@ -3,10 +3,11 @@ import jwt from 'jwt-decode';
 import { PapiClient } from '@pepperi-addons/papi-sdk';
 import { Injectable } from '@angular/core';
 
-import { PepHttpService, PepSessionService } from '@pepperi-addons/ngx-lib';
+import { PepAddonService, PepHttpService, PepSessionService } from '@pepperi-addons/ngx-lib';
 import { HttpClient } from '@angular/common/http';
 import { config } from './addon.config';
 import { IAsset } from './addon.model';
+import { ActivatedRoute } from '@angular/router';
 
 @Injectable({ providedIn: 'root' })
 export class AddonService {
@@ -20,22 +21,24 @@ export class AddonService {
     get papiClient(): PapiClient {
         return new PapiClient({
             baseURL: this.papiBaseURL,
-            token: this.session.getIdpToken(),
+            token: this.sessionService.getIdpToken(),
             addonUUID: this.addonUUID,
             suppressLogging:true
         })
     }
 
     constructor(
-        public session:  PepSessionService,
+        public sessionService:  PepSessionService,
+        private addonService:  PepAddonService,
         private httpClient: HttpClient,
         private httpService: PepHttpService
     ) {
         this.addonUUID = config.AddonUUID;
         this.addonURL = `/addons/files/${this.addonUUID}`;
-        this.accessToken = this.session.getIdpToken();
+        this.accessToken = this.sessionService.getIdpToken();
         this.parsedToken = jwt(this.accessToken);
         this.papiBaseURL = this.parsedToken["pepperi.baseurl"];
+
     }
 
     getAssets(query?: string) {
@@ -50,8 +53,7 @@ export class AddonService {
         //return this.pepGet(encodeURI(url)).toPromise();
     }
 
-    async createAsset(asset: IAsset, query?: string, callback = null){
-    return new Promise(async (resolve, reject) => {
+    async createAsset(asset: IAsset, query?: string) {
         let body = {
                 Key: asset.Key,
                 Description: asset.Description,
@@ -62,22 +64,8 @@ export class AddonService {
                 Hidden: asset.Hidden
         };
 
-        //let res = await this.papiClient.addons.api.uuid(this.addonUUID).file('api').func('create_asset').post(undefined, body);
-       // work on prod
-        await this.httpService.postPapiApiCall(`/addons/api/${this.addonUUID}/api/create_asset`, body).subscribe((res) => {
-            if(callback){
-                callback(res);
-            }
-        });
-        //await this.httpClient.post('http://localhost:4500/api/create_asset', body, {
-    //     headers: {
-    //         'Authorization': 'Bearer ' + this.accessToken
-    //     }
-    //    })
-    });
-        //this.papiClient.post(encodeURI(url),body);
+        return this.addonService.postAddonApiCall(this.addonUUID, 'api', 'create_asset', body).toPromise();
     }
-
     
     async get(endpoint: string): Promise<any> {
         return await this.papiClient.get(endpoint);

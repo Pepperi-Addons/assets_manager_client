@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { RouterModule, Routes } from '@angular/router';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 
+import { MatSnackBarModule } from '@angular/material/snack-bar';
+
 import { PepNgxLibModule, PepAddonService, PepFileService } from '@pepperi-addons/ngx-lib';
 import { PepTopBarModule } from '@pepperi-addons/ngx-lib/top-bar';
 import { PepSizeDetectorModule } from '@pepperi-addons/ngx-lib/size-detector';
@@ -54,6 +56,7 @@ export const routes: Routes = [
     imports: [
         CommonModule,
         HttpClientModule,
+        MatSnackBarModule,
         PepNgxLibModule,
         PepSizeDetectorModule,
         PepTopBarModule,
