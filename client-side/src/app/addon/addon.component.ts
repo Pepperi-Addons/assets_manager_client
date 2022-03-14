@@ -35,12 +35,13 @@ export class AddonComponent implements OnInit {
 
     imagesPath = '';
     breadCrumbsItems = new Array<PepBreadCrumbItem>();
-    searchString: string = '';
+
     menuActions: Array<PepMenuItem>;
     assetsStack: Array<assetProcess> = [];
     stackIndex: number = 0;
     linkURL: string = '';
     validateMsg: string = '';
+    urlValidateMsg = '';
     assetsHeaderTitle = '';
     selectedAssets: Array<IAsset> = [];
     assetsList: Array<any>;
@@ -152,22 +153,26 @@ export class AddonComponent implements OnInit {
             return actions;
         }
     }
-    setWhereClauseSTR(){
+    setWhereClauseSTR(state){
         // + " AND MIME LIKE '%folder%'"
         // "&where="
-        let whereCluse = this.searchString !== '' ? "Name LIKE '%" + this.searchString + "%'" : '';
+        let whereCluse = state.searchString  ? "Name LIKE '%" + state.searchString + "%'" : '';
             whereCluse +=  this.mimeFilter != 'all' ? ((whereCluse == '' ? '' : " AND ") + "MIME LIKE '%" + this.mimeFilter + "%'") : '';
-
             whereCluse = whereCluse !== '' ? "&where=" + whereCluse : '';
+
+            // todo - sort is not supportoted on this version
+            whereCluse += state.sorting ? ("&order_by=" + state.sorting.sortBy + " " + state.sorting.isAsc ? 'ASC' : 'DESC') : '';
         return whereCluse;
     }
 
     setDataSource() {
+
+        let folder = this.currentFolder.key === '/' ? '/' : this.currentFolder.text;
+
         this.dataSource = {
             init: async (state) => {
-                let folder = this.currentFolder.key === '/' ? '/' : this.currentFolder.text;
 
-                this.assetsList = await this.addonService.getAssets("?folder=" + folder + this.setWhereClauseSTR());
+                this.assetsList = await this.addonService.getAssets("?folder=" + folder + this.setWhereClauseSTR(state));
                 
                 this.assetsList.forEach( (asset, index) =>  {
                             asset.Name = asset.MIME === 'pepperi/folder' && asset.Key !== '/' ? this.cleanFolderName(asset.Key) : asset.Name;
@@ -230,7 +235,10 @@ export class AddonComponent implements OnInit {
                         MinimumColumnWidth: 0
                     }
                 } as IPepGenericListInitData;
-            }  
+            }, 
+            update: async (params: any) => {
+                return await this.addonService.getAssets("?folder=" + folder + this.setWhereClauseSTR(params));
+            }
         }
     }
       
@@ -247,24 +255,26 @@ export class AddonComponent implements OnInit {
   
     async assetURLChange(event){
 
-        let filename = '';
-        try {
-           filename = new URL(this.linkURL).pathname.split('/').pop();
+        this.urlValidateMsg = '';
+
+        if(event !== ''){
+            try {
+                let filename = new URL(this.linkURL).pathname.split('/').pop();
+                let blob = await fetch(event).then(r => r.blob());
+
+                let asset: IAsset = new IAsset();
+
+                asset.Key = this.getCurrentURL() + '/' + filename;
+                asset.URI = await this.convertURLToBase64(this.linkURL) as string;
+                asset.fileSize = this.formatFileSize(blob.size,2);
+                asset.MIME = blob.type;
+            
+                this.createAsset(asset);
+            }
+            catch (e){
+                this.urlValidateMsg = e.message;
+            }  
         }
-        catch (e){
-            console.log(e);
-        }
-
-        let blob = await fetch(event).then(r => r.blob());
-
-        let asset: IAsset = new IAsset();
-
-        asset.Key = this.getCurrentURL() + filename;
-        asset.URI = await this.convertURLToBase64(this.linkURL) as string;
-        asset.fileSize = this.formatFileSize(blob.size,2);
-        asset.MIME = blob.type;
-        
-        this.createAsset(asset);
     }
 
     buttonClick(event){
@@ -290,11 +300,7 @@ export class AddonComponent implements OnInit {
 
     // }
 
-    onSearchChanged(search: any) {
-        //this.searchString = "&Name=" + search;
-        this.searchString = search?.value || '';
-        this.setDataSource();
-    }
+   
 
     onSearchAutocompleteChanged(value) {
         console.log(value);
