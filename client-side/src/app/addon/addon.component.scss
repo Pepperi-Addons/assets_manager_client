@@ -1,8 +1,7 @@
-::ng-deep .pep-main-area{
-
+.main-area-container{
     height: 100%;
     display: grid;
-    grid-template-rows: min-content auto;
+    grid-template-rows: auto 1fr;
 
     .main-top-header{
         .title{
