@@ -38,7 +38,6 @@ export class EditFileComponent implements OnInit {
     }
 
     assetsFileChange(event){
-        debugger;
         this.data.asset.URI = event?.fileStr || '';
         //we dont change the file name , this is the key by now
         //this.data.asset.Key = event.fileName;

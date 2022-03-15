@@ -36,16 +36,18 @@ export class AddonComponent implements OnInit {
 
     imagesPath = '';
     breadCrumbsItems = new Array<PepBreadCrumbItem>();
-    searchString: string = '';
+
     menuActions: Array<PepMenuItem>;
     assetsStack: Array<assetProcess> = [];
     stackIndex: number = 0;
     linkURL: string = '';
     validateMsg: string = '';
+    urlValidateMsg = '';
     assetsHeaderTitle = '';
     selectedAssets: Array<IAsset> = [];
     assetsList: Array<any>;
     mimeFilterItems = new Array<PepMenuItem>();
+    mimeFilter = "all";
 
     @Input() currentFolder: PepBreadCrumbItem;
     @Input() maxFileSize: number = 1250000;
@@ -164,8 +166,8 @@ export class AddonComponent implements OnInit {
         const folder = await this.translate.get('ADD_FOLDER.FOLDER').toPromise();
 
         this.mimeFilterItems= [{ key: 'all', text: this.translate.instant('TOP_BAR.FILTER_TYPE.ALL') },
-                               { key: 'images', text: this.translate.instant('TOP_BAR.FILTER_TYPE.IMG')},
-                               { key: 'doc', text: this.translate.instant('TOP_BAR.FILTER_TYPE.DOC')}];
+                               { key: 'image', text: this.translate.instant('TOP_BAR.FILTER_TYPE.IMG')},
+                               { key: 'application', text: this.translate.instant('TOP_BAR.FILTER_TYPE.DOC')}];
 
         
         this.breadCrumbsItems = new Array<PepBreadCrumbItem>();
@@ -232,13 +234,25 @@ export class AddonComponent implements OnInit {
             return actions;
         }
     }
+    setWhereClauseSTR(state){
+        // + " AND MIME LIKE '%folder%'"
+        // "&where="
+        let whereCluse = state.searchString  ? "Name LIKE '%" + state.searchString + "%'" : '';
+            whereCluse +=  this.mimeFilter != 'all' ? ((whereCluse == '' ? '' : " AND ") + "MIME LIKE '%" + this.mimeFilter + "%'") : '';
+            whereCluse = whereCluse !== '' ? "&where=" + whereCluse : '';
+
+            // todo - sort is not supportoted on this version
+            whereCluse += state.sorting ? ("&order_by=" + state.sorting.sortBy + " " + state.sorting.isAsc ? 'ASC' : 'DESC') : '';
+        return whereCluse;
+    }
 
     setDataSource() {
+
+        let folder = this.currentFolder.key === '/' ? '/' : this.currentFolder.text;
+
         this.dataSource = {
             init: async (state) => {
-                let folder = this.currentFolder.key === '/' ? '/' : this.currentFolder.text;
-                const whereCluse = this.searchString !== '' ? "&where=Name LIKE '%" + this.searchString + "%'" : '';//  '&where=Name LIKE "%25"' +  this.searchString + '%25"': '';
-                this.assetsList = await this.addonService.getAssets("?folder=" + folder + whereCluse);
+                this.assetsList = await this.addonService.getAssets("?folder=" + folder + this.setWhereClauseSTR(state));
                 
                 this.assetsList.forEach( (asset, index) =>  {
                             asset.Name = asset.MIME === 'pepperi/folder' && asset.Key !== '/' ? this.cleanFolderName(asset.Key) : asset.Name;
@@ -301,7 +315,10 @@ export class AddonComponent implements OnInit {
                         MinimumColumnWidth: 0
                     }
                 } as IPepGenericListInitData;
-            }  
+            }, 
+            update: async (params: any) => {
+                return await this.addonService.getAssets("?folder=" + folder + this.setWhereClauseSTR(params));
+            }
         }
     }
       
@@ -311,24 +328,26 @@ export class AddonComponent implements OnInit {
   
     async assetURLChange(event){
 
-        let filename = '';
-        try {
-           filename = new URL(this.linkURL).pathname.split('/').pop();
+        this.urlValidateMsg = '';
+
+        if(event !== ''){
+            try {
+                let filename = new URL(this.linkURL).pathname.split('/').pop();
+                let blob = await fetch(event).then(r => r.blob());
+
+                let asset: IAsset = new IAsset();
+
+                asset.Key = this.getCurrentURL() + '/' + filename;
+                asset.URI = await this.convertURLToBase64(this.linkURL) as string;
+                asset.fileSize = this.formatFileSize(blob.size,2);
+                asset.MIME = blob.type;
+            
+                this.upsertAsset(asset);
+            }
+            catch (e){
+                this.urlValidateMsg = e.message;
+            }  
         }
-        catch (e){
-            console.log(e);
-        }
-
-        let blob = await fetch(event).then(r => r.blob());
-
-        let asset: IAsset = new IAsset();
-
-        asset.Key = this.getCurrentURL() + filename;
-        asset.URI = await this.convertURLToBase64(this.linkURL) as string;
-        asset.fileSize = this.formatFileSize(blob.size,2);
-        asset.MIME = blob.type;
-        
-        this.upsertAsset(asset);
     }
 
     buttonClick(event){
@@ -336,17 +355,9 @@ export class AddonComponent implements OnInit {
     }
 
     onMenuItemClicked(action: IPepMenuItemClickEvent){
-        debugger;
-        switch (action.source.text.toLowerCase()) {
-            case "edit asset info": {
-               //this.editAsset();
-               break; 
-            }
-            case "delete": {
-                //this.showDeleteAssetMSG();
-                break; 
-             }
-        }  
+        this.mimeFilter = action.source.key;
+        this.setDataSource();
+        
     }
 
     onBreadCrumbItemClick(event){
@@ -362,11 +373,7 @@ export class AddonComponent implements OnInit {
 
     // }
 
-    onSearchChanged(search: any) {
-        //this.searchString = "&Name=" + search;
-        this.searchString = search?.value || '';
-        this.setDataSource();
-    }
+   
 
     onSearchAutocompleteChanged(value) {
         console.log(value);
@@ -572,6 +579,12 @@ export class AddonComponent implements OnInit {
             if(res) {
                 this.setAssetsStack(asset, 'done');
                 this.setDataSource();
+
+                // TODO: just update the data.
+                // this.dataSource.update({
+                //     fromIndex: 0,
+                //     toIndex: 100,
+                // });
             }
         }); 
     }
