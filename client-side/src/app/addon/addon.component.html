@@ -8,7 +8,7 @@
         </pep-top-bar>
     </ng-container>
 
-    <div pep-main-area class="main-area-container">
+    <ng-container pep-main-area>
         <div class="uploader-content" [ngClass]="isOnPopUp === true ? 'popUpView' : ''">
             <div class="upload-asset">
                 <div class="file-section">
@@ -48,7 +48,7 @@
         </pep-generic-list>
 
         <!-- <pep-file-status-panel [title]="'File download'" [filesList]="assetsStack"></pep-file-status-panel> -->
-    </div>
+    </ng-container>
 </pep-page-layout>
 
 <pep-size-detector></pep-size-detector>

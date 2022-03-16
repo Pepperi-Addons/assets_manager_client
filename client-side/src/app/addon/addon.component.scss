@@ -4,15 +4,17 @@
 
 ::ng-deep .pep-main-area{
 
-    height: 100%;
-    display: grid;
-    grid-template-rows: min-content auto;
+        display: grid !important;
+        grid-template-rows: auto 1fr;
+    // height: 100%;
+    // display: grid;
+    // grid-template-rows: auto 1fr;
 
-    .main-top-header{
-        .title{
-            margin-top: .25rem;
-        }
-    }
+    // .main-top-header{
+    //     .title{
+    //         margin-top: .25rem;
+    //     }
+    // }
     .uploader-content{
         margin: 1rem 0;
         display: flex;
