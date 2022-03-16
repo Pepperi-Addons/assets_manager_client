@@ -25,15 +25,15 @@
                 </div>
                 
                 <div class="url-section">
-                    <pep-textbox [label]="'UPLOAD_ASSET.UPLOAD_URL' | translate" type="link" [(value)]="linkURL" sizeType="xs"  (valueChange)="assetURLChange($event)"></pep-textbox>
-                    <pep-button [value]="'UPLOAD_ASSET.INSERT_URL' | translate" [styleType]="'regular'" [sizeType]="'md'"  (buttonClick)="assetURLChange($event);"></pep-button>
+                    <pep-textbox [label]="'UPLOAD_ASSET.UPLOAD_URL' | translate" type="link" [(value)]="linkURL" sizeType="xs"></pep-textbox>
+                    <pep-button [value]="'UPLOAD_ASSET.INSERT_URL' | translate" [styleType]="'regular'" [sizeType]="'md'"  (buttonClick)="assetURLChange(linkURL);"></pep-button>
                     <div *ngIf="urlValidateMsg !== ''" class="body-xs validationMsg">{{urlValidateMsg}}</div>
                 </div>
             </div>
             <div *ngIf="isOnPopUp" class="link-asset">
                     <label class="body-md">{{'UPLOAD_ASSET.TITLE' | translate}}</label>
-                    <pep-textbox [label]="'UPLOAD_ASSET.UPLOAD_URL' | translate" type="link" [(value)]="linkURL" sizeType="md"  (valueChange)="assetURLChange($event)"></pep-textbox>
-                    <pep-button [value]="'UPLOAD_ASSET.INSERT_URL' | translate" [styleType]="'regular'" [sizeType]="'md'"  (buttonClick)="assetURLChange($event);"></pep-button>
+                    <pep-textbox [label]="'UPLOAD_ASSET.UPLOAD_URL' | translate" type="link" [(value)]="popUplinkURL" sizeType="md"></pep-textbox>
+                    <pep-button [value]="'UPLOAD_ASSET.INSERT_URL' | translate" [styleType]="'regular'" [sizeType]="'md'"  (buttonClick)="assetURLChange(popUplinkURL);"></pep-button>
             </div>
         </div>
 

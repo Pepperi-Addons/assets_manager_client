@@ -40,6 +40,7 @@ export class AddonComponent implements OnInit {
     assetsStack: Array<assetProcess> = [];
     stackIndex: number = 0;
     linkURL: string = '';
+    popUplinkURL: string = '';
     validateMsg: string = '';
     urlValidateMsg = '';
     assetsHeaderTitle = '';
@@ -253,19 +254,19 @@ export class AddonComponent implements OnInit {
         });    
     }
   
-    async assetURLChange(event){
+    async assetURLChange(url: string = ''){
 
         this.urlValidateMsg = '';
-
-        if(event !== ''){
+       
+        if(url !== ''){
             try {
-                let filename = new URL(this.linkURL).pathname.split('/').pop();
-                let blob = await fetch(event).then(r => r.blob());
+                let filename = new URL(url).pathname.split('/').pop();
+                let blob = await fetch(url).then(r => r.blob());
 
                 let asset: IAsset = new IAsset();
 
                 asset.Key = this.getCurrentURL() + '/' + filename;
-                asset.URI = await this.convertURLToBase64(this.linkURL) as string;
+                asset.URI = await this.convertURLToBase64(url) as string;
                 asset.fileSize = this.formatFileSize(blob.size,2);
                 asset.MIME = blob.type;
             
