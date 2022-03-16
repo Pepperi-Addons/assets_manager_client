@@ -6,9 +6,18 @@ import { Injectable } from '@angular/core';
 import { PepAddonService, PepHttpService, PepSessionService } from '@pepperi-addons/ngx-lib';
 import { HttpClient } from '@angular/common/http';
 import { config } from './addon.config';
-import { IAsset } from './addon.model';
+import { assetProcess, IAsset } from './addon.model';
 import { ActivatedRoute } from '@angular/router';
+import { MatSnackBar, MatSnackBarRef, TextOnlySnackBar } from '@angular/material/snack-bar';
+import { InlineWorker } from '../inline-worker';
+import { FileStatusPanelComponent, IFile } from '../components/file-status-panel';
 
+export interface IUploadFilesWorker {
+    baseServerUrl: string;
+    token: string;
+    assetsKeyPrefix: string;
+    files: any[];
+}
 @Injectable({ providedIn: 'root' })
 export class AddonService {
 
@@ -17,6 +26,8 @@ export class AddonService {
     parsedToken: any
     papiBaseURL = ''
     addonUUID;
+    snackBarRef: MatSnackBarRef<TextOnlySnackBar>;
+    currentSnackBar: MatSnackBarRef<FileStatusPanelComponent>;
 
     get papiClient(): PapiClient {
         return new PapiClient({
@@ -31,7 +42,8 @@ export class AddonService {
         public sessionService:  PepSessionService,
         private addonService:  PepAddonService,
         private httpClient: HttpClient,
-        private httpService: PepHttpService
+        private httpService: PepHttpService,
+        private snackBar: MatSnackBar,
     ) {
         this.addonUUID = config.AddonUUID;
         this.addonURL = `/addons/files/${this.addonUUID}`;
@@ -53,7 +65,7 @@ export class AddonService {
         //return this.pepGet(encodeURI(url)).toPromise();
     }
 
-    async createAsset(asset: IAsset, query?: string) {
+    async upsertAsset(asset: IAsset, query?: string): Promise<any> {
         let body = {
                 Key: asset.Key,
                 Description: asset.Description,
@@ -64,7 +76,7 @@ export class AddonService {
                 Hidden: asset.Hidden
         };
 
-        return this.addonService.postAddonApiCall(this.addonUUID, 'api', 'create_asset', body).toPromise();
+        return this.addonService.postAddonApiCall(this.addonUUID, 'api', 'upsert_asset', body).toPromise();
     }
     
     async get(endpoint: string): Promise<any> {
@@ -84,4 +96,119 @@ export class AddonService {
 
     }
 
+    showSnackBar(title, assetsStack) {
+        if (this.currentSnackBar?.instance) {
+            this.currentSnackBar.instance.title = title;
+            this.currentSnackBar.instance.filesList = assetsStack;
+        } else {
+            this.currentSnackBar = this.snackBar.openFromComponent(FileStatusPanelComponent, {
+                horizontalPosition: 'end',
+                verticalPosition: 'bottom',
+            });
+            this.currentSnackBar.instance.title = title;
+            this.currentSnackBar.instance.filesList = assetsStack;
+
+            this.currentSnackBar.instance.closeClick.subscribe(() => {
+                this.currentSnackBar.dismiss();
+                this.currentSnackBar = null;
+            });
+        }
+    }
+
+    runUploadWorker(files, assetsKeyPrefix) {
+        const worker = new InlineWorker(() => {
+            // START OF WORKER THREAD CODE
+            console.log('Start worker thread, wait for postMessage: ');
+      
+            const getAssetBody = (data: IUploadFilesWorker, file: any, assetUri: string): string => {
+                return JSON.stringify({
+                    Key: data.assetsKeyPrefix + '/' +  file.name,
+                    // Description: '',
+                    MIME: file.type,
+                    // Sync: 'None',
+                    //Thumbnails: asset.Thumbnails,
+                    URI: assetUri,
+                    Hidden: false
+                });
+            };
+
+            const uploadFiles = (data: IUploadFilesWorker) => {
+                const filesStatus: Array<IFile> = [];
+                let filesUploadedCount = 0;
+                
+                // If there is XMLHttpRequest and files length > 0.
+                if (typeof XMLHttpRequest != 'undefined' && data?.files?.length > 0) {
+                    
+                    // Go for all the files and upload each one.
+                    for (let index = 0; index < data.files.length; index++) {
+                        const file = data.files[index];
+                        filesStatus.push({ key: index, name: file.name, status: 'uploading' });
+
+                        // @ts-ignore
+                        this.postMessage({ filesStatus: filesStatus, isFinish: false });
+
+                        const reader = new FileReader();
+                        reader.readAsDataURL(file);
+                        reader.onload = (event) => {
+                            // Declare the XMLHttpRequest for upload the files.
+                            let xhr = new XMLHttpRequest();
+                            xhr.open('POST', `${data.baseServerUrl}/upsert_asset`, true);
+                            xhr.setRequestHeader("Authorization", 'Bearer ' + data.token);
+                            xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+                            xhr.onreadystatechange = () => {
+                                if (xhr.readyState === 4 && xhr.status === 200) {
+                                    filesUploadedCount++;
+                                    console.log(`${file.name} is uploaded - index ${index}, files uploaded count ${filesUploadedCount}`);
+                                    const isFinish = filesUploadedCount === data.files.length;
+                                    filesStatus.find(fs => fs.name === file.name).status = 'done';
+
+                                    // @ts-ignore
+                                    this.postMessage({ filesStatus: filesStatus, isFinish: isFinish });
+
+                                    // Close only if finish.
+                                    if (isFinish) {
+                                        close();
+                                    }
+                                }
+                            }
+        
+                            const assetUri = event.target.result.toString();
+                            const body = getAssetBody(data, file, assetUri);
+                            xhr.send(body);
+                        }
+                    }
+                }
+            };
+        
+            // @ts-ignore
+            this.onmessage = (event) => {
+                console.log('Upload started: ' + new Date());
+                uploadFiles(event.data);
+            };
+            // END OF WORKER THREAD CODE
+        });
+      
+        const token = this.sessionService.getIdpToken();
+        const baseServerUrl = this.addonService.getServerBaseUrl(this.addonUUID, 'api');
+        worker.postMessage({
+            baseServerUrl,
+            token,
+            assetsKeyPrefix,
+            files,
+        });
+      
+        worker.onmessage().subscribe((data) => {
+            console.log(data.data.isFinish ? 'Upload done: ' : 'Upload updated: ', new Date() + ' ' + data.data);
+            let assetsStack: Array<IFile> = data.data.filesStatus;
+            this.showSnackBar('Uploading', assetsStack);
+            
+            if (data.data.isFinish) {
+                worker.terminate();
+            }
+        });
+      
+        worker.onerror().subscribe((data) => {
+            console.log(data);
+        });
+    }
 }

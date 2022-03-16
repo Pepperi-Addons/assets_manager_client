@@ -18,7 +18,7 @@ class MyService {
         this.addonSecretKey = client.AddonSecretKey
     }
 
-    async createAsset(body: Object) {
+    async upsertAsset(body: Object) {
         let url = `/addons/files/${this.addonUUID}`
         const headers = {
             'X-Pepperi-SecretKey' :  this.addonSecretKey,      

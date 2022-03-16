@@ -10,9 +10,9 @@ export async function foo(client: Client, request: Request) {
     return res
 };
 
-export async function create_asset(client: Client, request: Request) {
+export async function upsert_asset(client: Client, request: Request) {
     const service = new MyService(client)
-    const res = await service.createAsset(request.body)
+    const res = await service.upsertAsset(request.body)
     return res
 };
 

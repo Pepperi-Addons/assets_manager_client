@@ -1,5 +1,13 @@
+@use '~@pepperi-addons/ngx-lib/src/core/style/abstracts/functions';
+
 /* You can add global styles to this file, and also import other style files */
 html {
 
 }
 
+.mat-snack-bar-container {
+    color: functions.get-pep-color(color-text, color-main) !important;
+    background: functions.get-pep-color(color-system-primary-invert, color-base) !important;
+    box-shadow: functions.get-pep-shadow(shadow-sm, hard) !important;
+    border: 1px solid functions.get-pep-color(color-system-primary, color-base) !important;
+}

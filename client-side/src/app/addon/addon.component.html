@@ -8,7 +8,7 @@
         </pep-top-bar>
     </ng-container>
 
-    <ng-container pep-main-area>
+    <div pep-main-area class="main-area-container">
         <div class="uploader-content" [ngClass]="isOnPopUp === true ? 'popUpView' : ''">
             <div class="upload-asset">
                 <div class="file-section">
@@ -16,7 +16,7 @@
                     <span class="body-xs ellipsis">{{'UPLOAD_ASSET.SUB_TITLE' | translate}}</span>
     
                     <div class="fileupload" (click)="fileField.click()" (dragover)="onDragOver($event)" 
-                         (drop)="onDropSuccess($event)" [ngClass]="validateMsg !== '' ? 'validationErrMsg' : ''">
+                        (drop)="onDropSuccess($event)" [ngClass]="validateMsg !== '' ? 'validationErrMsg' : ''">
                                     <pep-icon name="system_file_upload_cloud"></pep-icon>
                                     <span class="body-sm ellipsis">{{'UPLOAD_ASSET.UPLOAD_FILE' | translate}}</span> 
                                     <input type="file" multiple="multiple" name="avatars" #fileField (change)="upload($event.target.files)">   
@@ -38,17 +38,17 @@
         </div>
 
         <pep-generic-list [dataSource]="dataSource" [actions]="actions" (onSelectedRowChange)="onSelectedRowChange($event)" 
-                      [uuidMapping]="'Key'" [pager]="pager" [breadCrumbsItems]="breadCrumbsItems" (breadCrumbItemClick)="onBreadCrumbItemClick($event)"
-                      [inline]="true" [selectionType]="'single'" [supportSorting]="false" [showSearch]="true"
-                      [showTopBar]="true" [title]="assetsHeaderTitle" [noDataFoundMsg]="'GRID.FILE_NOT_FOUND' | translate"
-                      (fieldClick)="onCustomizeFieldClick($event)">
-        <ng-container right-buttons>
-            <ng-container *ngTemplateOutlet="topBarEnd"></ng-container>
-        </ng-container>
-    </pep-generic-list>
+            [uuidMapping]="'Key'" [pager]="pager" [breadCrumbsItems]="breadCrumbsItems" (breadCrumbItemClick)="onBreadCrumbItemClick($event)"
+            [inline]="true" [selectionType]="'single'" [supportSorting]="false" [showSearch]="true"
+            [showTopBar]="true" [title]="assetsHeaderTitle" [noDataFoundMsg]="'GRID.FILE_NOT_FOUND' | translate"
+            (fieldClick)="onCustomizeFieldClick($event)">
+            <ng-container right-buttons>
+                <ng-container *ngTemplateOutlet="topBarEnd"></ng-container>
+            </ng-container>
+        </pep-generic-list>
 
-    <pep-file-status-panel [title]="'File download'" [filesList]="assetsStack"></pep-file-status-panel>
-    </ng-container>
+        <!-- <pep-file-status-panel [title]="'File download'" [filesList]="assetsStack"></pep-file-status-panel> -->
+    </div>
 </pep-page-layout>
 
 <pep-size-detector></pep-size-detector>

@@ -18,7 +18,9 @@ import { PepDraggableItemsModule } from '@pepperi-addons/ngx-lib/draggable-items
 import { PepGenericListModule } from '@pepperi-addons/ngx-composite-lib/generic-list';
 import { PepTextboxModule } from '@pepperi-addons/ngx-lib/textbox';
 import { PepSelectModule } from '@pepperi-addons/ngx-lib/select';
-import { PepFileStatusPanelModule }  from '@pepperi-addons/ngx-composite-lib/file-status-panel';
+import { PepFileStatusPanelModule }  from '../components/file-status-panel';
+import { PepListModule } from '@pepperi-addons/ngx-lib/list';
+import { PepBreadCrumbsModule } from '@pepperi-addons/ngx-lib/bread-crumbs';
 
 import { TranslateLoader, TranslateModule, TranslateService, TranslateStore } from '@ngx-translate/core';
 
@@ -58,6 +60,8 @@ export const routes: Routes = [
         HttpClientModule,
         MatSnackBarModule,
         PepNgxLibModule,
+        PepListModule,
+        PepBreadCrumbsModule,
         PepSizeDetectorModule,
         PepTopBarModule,
         PepPageLayoutModule,
