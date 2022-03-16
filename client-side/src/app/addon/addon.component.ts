@@ -153,7 +153,7 @@ export class AddonComponent implements OnInit {
         }
 
         if (isValid) {
-            const assetsKeyPrefix = (this.currentFolder.key === '/' ? '' : this.breadCrumbsItems[1].text);
+            const assetsKeyPrefix = (this.currentFolder.key === '/' ? '' : this.getCurrentURL());
             this.addonService.runUploadWorker(files, assetsKeyPrefix);
         }
     }
@@ -249,14 +249,14 @@ export class AddonComponent implements OnInit {
 
     setDataSource() {
 
-        let folder = this.currentFolder.key === '/' ? '/' : this.currentFolder.text;
+        let folder = this.currentFolder.key === '/' ? '/' : this.getCurrentURL();
 
         this.dataSource = {
             init: async (state) => {
                 this.assetsList = await this.addonService.getAssets("?folder=" + folder + this.setWhereClauseSTR(state));
                 
                 this.assetsList.forEach( (asset, index) =>  {
-                            asset.Name = asset.MIME === 'pepperi/folder' && asset.Key !== '/' ? this.cleanFolderName(asset.Key) : asset.Name;
+                            asset.Name = asset.MIME === 'pepperi/folder' && asset.Key !== '/' ? this.cleanFolderName(asset.Name) : asset.Name;
                             asset.Thumbnail = asset.MIME === 'pepperi/folder' ?  this.imagesPath + 'system-folder.svg' : 
                                               asset.MIME.indexOf('application/') > -1 ? this.imagesPath + 'system-doc.svg'  : asset.URL; 
                 });
@@ -428,7 +428,7 @@ export class AddonComponent implements OnInit {
             return false;
         }   
         else if(asset?.MIME && asset.MIME === 'pepperi/folder'){
-            this.currentFolder = { key: 'new', text: asset.Key, title: asset.Key};
+            this.currentFolder = { key: 'new', text: asset.Name, title: asset.Name};
             this.setBreadCrumbs();
             return false;
         }
@@ -609,18 +609,18 @@ export class AddonComponent implements OnInit {
         let folder = new IAsset();
         folder.MIME = 'pepperi/folder';
         folder.URI = ''; // should be empty for folder
-        folder.Key = this.getCurrentURL() + data + "/";
+        folder.Key = this.getCurrentURL() + '/' + data + "/";
 
         this.upsertAsset(folder);
     };
 
     getCurrentURL(){
-        let path = '/';
+        let path = '';
         for(let i=1 ; i < this.breadCrumbsItems.length; i++){
-            path += this.breadCrumbsItems[i].text;
+            path += '/' + this.breadCrumbsItems[i].text;
         }
         
-        return path === "/" ? '' : path;
+        return path;
     }
 
     formatFileSize(bytes,decimalPoint) {
