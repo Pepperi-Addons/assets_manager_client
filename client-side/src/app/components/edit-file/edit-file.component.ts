@@ -16,6 +16,7 @@ export class EditFileComponent implements OnInit {
 
     assetNmae: string = '';
     creationDate: string = '';
+    isImageFile = false;
 
     constructor(private dialogRef: MatDialogRef<EditFileComponent>, 
                 @Inject(MAT_DIALOG_DATA) public data: any) {
@@ -24,12 +25,13 @@ export class EditFileComponent implements OnInit {
     }
     ngOnInit(): void {
         this.breadCrumbsItems = this.data?.breadCrumbs || [];
+        this.isImageFile = this.data?.asset?.MIME.toLowerCase().indexOf('image') > -1 ? true : false;
         this.assetNmae = this.data?.asset?.Key || '';
         this.creationDate = new Date(this.data.asset.ModificationDateTime).toUTCString() || '';
     }
 
     close(event){
-        this.dialogRef?.close(this.data.asset);
+        this.dialogRef?.close(null);
     }
 
 

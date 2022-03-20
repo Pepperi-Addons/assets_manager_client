@@ -4,17 +4,9 @@
 
 ::ng-deep .pep-main-area{
 
-        display: grid !important;
-        grid-template-rows: auto 1fr;
-    // height: 100%;
-    // display: grid;
-    // grid-template-rows: auto 1fr;
-
-    // .main-top-header{
-    //     .title{
-    //         margin-top: .25rem;
-    //     }
-    // }
+    display: grid !important;
+    grid-template-rows: auto 1fr;
+   
     .uploader-content{
         margin: 1rem 0;
         display: flex;
@@ -115,6 +107,14 @@
         overflow: auto;
         height: 100%;
 
+        pep-menu{
+            ::ng-deep{
+                button{
+                    font-weight:  500;
+                }
+            }
+        }
+        
         ::ng-deep{
             img{
                 background-color: rgba(21, 24, 26, 0.15);

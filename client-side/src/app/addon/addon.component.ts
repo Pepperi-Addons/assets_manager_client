@@ -28,7 +28,8 @@ export class AddonComponent implements OnInit {
     @Input() hostObject: any;
     
     @Output() hostEvents: EventEmitter<any> = new EventEmitter<any>();
-    
+    @Output() linkUrlClick: EventEmitter<any> = new EventEmitter();
+
     screenSize: PepScreenSizeType;
     
     dataSource: IPepGenericListDataSource = null;
@@ -52,7 +53,7 @@ export class AddonComponent implements OnInit {
 
     @Input() currentFolder: PepBreadCrumbItem;
     @Input() maxFileSize: number = 1250000;
-    @Input() isOnPopUp: boolean = false;
+    @Input() isOnPopUp: boolean = true;
     @Input() allowedAssetsTypes: allowedAssetsTypes = 'all';
     @Input() selectionType: selectionType = 'multiple';
     
@@ -258,7 +259,7 @@ export class AddonComponent implements OnInit {
                 this.assetsList.forEach( (asset, index) =>  {
                             asset.Name = asset.MIME === 'pepperi/folder' && asset.Key !== '/' ? this.cleanFolderName(asset.Name) : asset.Name;
                             asset.Thumbnail = asset.MIME === 'pepperi/folder' ?  this.imagesPath + 'system-folder.svg' : 
-                                              asset.MIME.indexOf('application/') > -1 ? this.imagesPath + 'system-doc.svg'  : asset.URL; 
+                                              asset.MIME.toLowerCase().indexOf('application/') > -1 ? this.imagesPath + 'system-doc.svg'  : asset.URL; 
                 });
 
                 if (state.searchString != "") {
@@ -326,7 +327,7 @@ export class AddonComponent implements OnInit {
     onSelectedRowChange(event){
         this.menuActions = event?.length ? event : [];
     }
-  
+    
     async assetURLChange(url: string = ''){
 
         this.urlValidateMsg = '';
@@ -351,9 +352,10 @@ export class AddonComponent implements OnInit {
         }
     }
 
-    buttonClick(event){
-        
-    }
+    assetLinkURLChange(event){
+        // emit the new url - the addon/component user need to get the url and use it like a URL ( without upload a file)
+        this.linkUrlClick.emit({url: event});
+    }    
 
     onMenuItemClicked(action: IPepMenuItemClickEvent){
         this.mimeFilter = action.source.key;
@@ -400,8 +402,8 @@ export class AddonComponent implements OnInit {
         let asset = this.getSelectedAsset(key);
         
         if(asset){
-        this.openDialog(EditFileComponent,(res) => {
-        this.updateAssetInfo(res)}, {'asset': asset , 'breadCrumbs': this.breadCrumbsItems});
+            this.openDialog(EditFileComponent,(res) => {
+            this.updateAssetInfo(res)}, {'asset': asset , 'breadCrumbs': this.breadCrumbsItems});
         }
     }
 
@@ -411,6 +413,7 @@ export class AddonComponent implements OnInit {
             this.showDeleteAssetMSG(asset);
         }
         else{
+            asset.Key = this.getCurrentURL() + '/' + asset.Name;
             this.upsertAsset(asset);
            
         }
@@ -424,7 +427,7 @@ export class AddonComponent implements OnInit {
        
         const asset: any = this.getSelectedAsset(fieldClickEvent.id);
 
-        if(asset?.MIME && asset.MIME.indexOf('application/') > -1){
+        if(asset.MIME?.indexOf('application/') > -1 && fieldClickEvent.fieldType !== 26){
             return false;
         }   
         else if(asset?.MIME && asset.MIME === 'pepperi/folder'){
@@ -580,6 +583,8 @@ export class AddonComponent implements OnInit {
             if(res) {
                 this.setAssetsStack(asset, 'done');
                 this.setDataSource();
+
+                this.linkURL = this.popUplinkURL = '';
 
                 // TODO: just update the data.
                 // this.dataSource.update({

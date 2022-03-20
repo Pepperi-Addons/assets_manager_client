@@ -1,4 +1,4 @@
-<pep-dialog [showClose]="false" [title]="assetNmae">
+<pep-dialog class="edit-dialog" [showClose]="false" [title]="assetNmae">
     <ng-container pep-dialog-header>
        
     </ng-container>
@@ -22,7 +22,11 @@
         <pep-textarea [(value)]="data.asset.Description" [label]="'EDIT_FILE.DESCRIPTION' | translate" [disabled]="false" 
                   rowSpan="1.5">
         </pep-textarea>
-        <pep-attachment [label]="'EDIT_FILE.PREVIEW' | translate" [src]="data?.asset?.URL" [mandatory]="false" [disabled]="false" [xAlignment]="'left'" [rowSpan]="2.5"
+        <pep-image *ngIf="isImageFile"
+            [src]="data?.asset?.URL" [label]="'EDIT_FILE.PREVIEW' | translate" xAlignment="left" [rowSpan]="2.5" 
+            (fileChange)="assetsFileChange($event)" (elementClick)="assetsElementClick($event)">
+        </pep-image>
+        <pep-attachment *ngIf="!isImageFile" [label]="'EDIT_FILE.PREVIEW' | translate" [src]="data?.asset?.URL" [mandatory]="false" [disabled]="false" [xAlignment]="'left'" [rowSpan]="2.5"
         [showTitle]="true" (elementClick)="assetsElementClick($event)" (fileChange)="assetsFileChange($event)">
     </pep-attachment>
     </div>

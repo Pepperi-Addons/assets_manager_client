@@ -6,7 +6,10 @@
         "SUB_TITLE": "By clicking or darging & droping",
         "UPLOAD_FILE": "Upload File or Files",
         "UPLOAD_URL": "Or by typing a URL",
-        "INSERT_URL": "Insert URL"
+        "INSERT_URL": "Insert URL",
+        "LINK_TITLE": "Link an asset",
+        "LINK_SUB_TITLE": "From an external source",
+        "LINK_URL": "Link URL"
     },
 
     "TOP_BAR":{

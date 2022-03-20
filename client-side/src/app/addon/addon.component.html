@@ -31,9 +31,9 @@
                 </div>
             </div>
             <div *ngIf="isOnPopUp" class="link-asset">
-                    <label class="body-md">{{'UPLOAD_ASSET.TITLE' | translate}}</label>
-                    <pep-textbox [label]="'UPLOAD_ASSET.UPLOAD_URL' | translate" type="link" [(value)]="popUplinkURL" sizeType="md"></pep-textbox>
-                    <pep-button [value]="'UPLOAD_ASSET.INSERT_URL' | translate" [styleType]="'regular'" [sizeType]="'md'"  (buttonClick)="assetURLChange(popUplinkURL);"></pep-button>
+                    <label class="body-md">{{'UPLOAD_ASSET.LINK_TITLE' | translate}}</label>
+                    <pep-textbox [label]="'UPLOAD_ASSET.LINK_SUB_TITLE' | translate" type="link" [(value)]="popUplinkURL" sizeType="md"></pep-textbox>
+                    <pep-button [value]="'UPLOAD_ASSET.LINK_URL' | translate" [styleType]="'regular'" [sizeType]="'md'"  (buttonClick)="assetLinkURLChange(popUplinkURL);"></pep-button>
             </div>
         </div>
 
@@ -57,7 +57,9 @@
     <pep-button class="pep-spacing-element" value="{{'TOP_BAR.ADD_FOLDER' | translate}}" [styleType]="'weak'"
     [styleStateType]="'system'" [sizeType]="'sm'" iconName="system_folder" iconPosition="end"
         (buttonClick)="onAddFolderClick($event)"></pep-button>
-    <pep-menu class="pep-spacing-element" [items]="mimeFilterItems" sizeType="sm" (menuItemClick)="onMenuItemClicked($event)">
+    <pep-menu text="{{'TOP_BAR.FILTERS' | translate }}" [type]="'action-select'" [class]="'pep-spacing-element'" [items]="mimeFilterItems"
+              [styleType]="'weak'" [styleStateType]="'system'" [sizeType]="'sm'" [c]lassNames]="mat-button" 
+              (menuItemClick)="onMenuItemClicked($event)">
     </pep-menu>
     <!-- <pep-search sizeType="sm" [triggerOn]="'click'" class="pep-spacing-element" [autoCompleteValues]="searchAutoCompleteValues" [value]="searchString"
         (search)="onSearchChanged($event)" (autocompleteChange)="onSearchAutocompleteChanged($event)"
