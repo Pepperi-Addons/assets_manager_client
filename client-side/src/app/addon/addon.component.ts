@@ -4,12 +4,11 @@ import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { IPepGenericListDataSource, IPepGenericListPager, IPepGenericListActions, IPepGenericListInitData, PepGenericListService } from "@pepperi-addons/ngx-composite-lib/generic-list";
 import { AddFolderComponent } from '../components/add-folder/add-folder.component';
 import { EditFileComponent } from '../components/edit-file/edit-file.component';
-import { AddonService } from "./addon.service";
+import { AddonService, IUploadFilesWorkerResult } from "./addon.service";
 import { PepBreadCrumbItem } from "@pepperi-addons/ngx-lib/bread-crumbs";
 import { allowedAssetsTypes, assetProcess, IAsset, selectionType, Thumbnails, uploadStatus } from '../addon/addon.model';
 import { IPepMenuItemClickEvent, PepMenuItem } from "@pepperi-addons/ngx-lib/menu";
 import { PepDialogData, PepDialogService } from "@pepperi-addons/ngx-lib/dialog";
-import { MatDialogRef } from "@angular/material/dialog";
 import { HttpClient } from "@angular/common/http";
 import { Observable, ReplaySubject } from "rxjs";
 import { PepSelectionData } from "@pepperi-addons/ngx-lib/list";
@@ -50,6 +49,7 @@ export class AddonComponent implements OnInit {
     assetsList: Array<any>;
     mimeFilterItems = new Array<PepMenuItem>();
     mimeFilter = "all";
+    softFilesCountLimit = 10;
 
     @Input() currentFolder: PepBreadCrumbItem;
     @Input() maxFileSize: number = 1250000;
@@ -72,6 +72,12 @@ export class AddonComponent implements OnInit {
         this.imagesPath = this.pepAddonService.getAddonStaticFolder() + 'assets/images/';
         this.layoutService.onResize$.subscribe(size => {
             this.screenSize = size;
+        });
+
+        this.addonService.workerResultChange$.subscribe((workerResult: IUploadFilesWorkerResult) => {
+            if (workerResult?.isFinish) {
+                this.setDataSource();
+            }
         });
     }
 
@@ -143,19 +149,30 @@ export class AddonComponent implements OnInit {
     // }
 
     private uploadMultiFiles(files: any[]) {
-        let isValid = true;
-
-        for (let index = 0; index < files.length; index++) {
-            const file = files[index];
-            if(!this.checkFileSize(file.size) || !this.checkFileType(file.type)){
-                isValid = false;
-                break;
-            }
-        }
+        let isValid = files.length <= this.softFilesCountLimit;
 
         if (isValid) {
-            const assetsKeyPrefix = (this.currentFolder.key === '/' ? '' : this.getCurrentURL());
-            this.addonService.runUploadWorker(files, assetsKeyPrefix);
+            for (let index = 0; index < files.length; index++) {
+                const file = files[index];
+                if(!this.checkFileSize(file.size) || !this.checkFileType(file.type)) {
+                    isValid = false;
+                    break;
+                }
+            }
+            
+            if (isValid) {
+                const assetsKeyPrefix = (this.currentFolder.key === '/' ? '' : this.getCurrentURL());
+                this.addonService.runUploadWorker(files, assetsKeyPrefix);
+            }
+        } else {
+            // Show limit error msg.
+            const dialogData = new PepDialogData({
+                content: this.translate.instant('MESSAGES.FILES_COUNT_LIMIT_MESSAGE', { files_limit: this.softFilesCountLimit}),
+                showHeader: false,
+                showClose: false,
+            });
+
+            this.dialogService.openDefaultDialog(dialogData);
         }
     }
 
@@ -578,13 +595,20 @@ export class AddonComponent implements OnInit {
     // }
 
     upsertAsset(asset: IAsset, query = null, status: uploadStatus = 'uploading') {
-        this.setAssetsStack(asset,status);
+        // Show snack bar for the single asset
+        let assetsStack: Array<assetProcess> = [];
+        assetsStack.push({ 'name': asset.Key, 'status': status });
+        this.addonService.showSnackBar('Uploading', assetsStack);
+        
         this.addonService.upsertAsset(asset).then((res)=> {
             if(res) {
-                this.setAssetsStack(asset, 'done');
-                this.setDataSource();
-
                 this.linkURL = this.popUplinkURL = '';
+
+                // Update asset status.
+                assetsStack[0].status = 'done';
+                this.addonService.showSnackBar('Uploading', assetsStack);
+                
+                this.setDataSource();
 
                 // TODO: just update the data.
                 // this.dataSource.update({
@@ -592,23 +616,23 @@ export class AddonComponent implements OnInit {
                 //     toIndex: 100,
                 // });
             }
-        }); 
+        });
     }
     
-    setAssetsStack(asset: IAsset, status: uploadStatus = "uploading"){
-        let isExist = false;
-        this.assetsStack.forEach(file => {
-            if(file.name == asset.Key) {
-                file.status = status;
-                isExist = true;
-            }
-        });
+    // setAssetsStack(asset: IAsset, status: uploadStatus = "uploading") {
+    //     let isExist = false;
+    //     this.assetsStack.forEach(file => {
+    //         if(file.name == asset.Key) {
+    //             file.status = status;
+    //             isExist = true;
+    //         }
+    //     });
         
-        if(!isExist){
-            this.assetsStack.push({'name': asset.Key, 'status': status});
-            this.addonService.showSnackBar(status, this.assetsStack);
-        }
-    }
+    //     if(!isExist) {
+    //         this.assetsStack.push({ 'name': asset.Key, 'status': status });
+    //         this.addonService.showSnackBar(status, this.assetsStack);
+    //     }
+    // }
 
     async addNewFolder(data){
         let folder = new IAsset();
@@ -638,14 +662,11 @@ export class AddonComponent implements OnInit {
     }
 
     openDialog(comp: any, callBack, data = {}){
-    
         let config = this.dialogService.getDialogConfig({}, 'inline');
             config.disableClose = true;
             config.minWidth = '29rem'; // THE EDIT MODAL WIDTH
 
-        let dialogRef: MatDialogRef<any> = this.dialogService.openDialog(comp, data, config);
-
-        dialogRef.afterClosed().subscribe((value) => {
+        this.dialogService.openDialog(comp, data, config).afterClosed().subscribe((value) => {
             if (value !== undefined && value !== null) {
                 callBack(value);
             }
@@ -653,7 +674,6 @@ export class AddonComponent implements OnInit {
     }
 
     openDialogMsg(dialogData: PepDialogData, callback?: any) {
-    
         this.dialogService.openDefaultDialog(dialogData).afterClosed()
             .subscribe((isDeletePressed) => {
                 if (isDeletePressed) {

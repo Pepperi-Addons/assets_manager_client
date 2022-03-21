@@ -1,4 +1,4 @@
-import { Observable } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
 import jwt from 'jwt-decode';
 import { PapiClient } from '@pepperi-addons/papi-sdk';
 import { Injectable } from '@angular/core';
@@ -18,6 +18,12 @@ export interface IUploadFilesWorker {
     assetsKeyPrefix: string;
     files: any[];
 }
+
+export interface IUploadFilesWorkerResult {
+    filesStatus?: Array<IFile>;
+    isFinish?: boolean;
+}
+
 @Injectable({ providedIn: 'root' })
 export class AddonService {
 
@@ -38,6 +44,12 @@ export class AddonService {
         })
     }
 
+    // This subject is for worker result change.
+    private _workerResultSubject: BehaviorSubject<IUploadFilesWorkerResult> = new BehaviorSubject<IUploadFilesWorkerResult>(null);
+    get workerResultChange$(): Observable<IUploadFilesWorkerResult> {
+        return this._workerResultSubject.asObservable();
+    }
+    
     constructor(
         public sessionService:  PepSessionService,
         private addonService:  PepAddonService,
@@ -197,14 +209,17 @@ export class AddonService {
             files,
         });
       
-        worker.onmessage().subscribe((data) => {
-            console.log(data.data.isFinish ? 'Upload done: ' : 'Upload updated: ', new Date() + ' ' + data.data);
-            let assetsStack: Array<IFile> = data.data.filesStatus;
+        worker.onmessage().subscribe((workerRes) => {
+            const res: IUploadFilesWorkerResult = workerRes.data;
+            console.log(res.isFinish ? 'Upload done: ' : 'Upload updated: ', new Date() + ' ' + res);
+            let assetsStack: Array<IFile> = res.filesStatus;
             this.showSnackBar('Uploading', assetsStack);
             
-            if (data.data.isFinish) {
+            if (res.isFinish) {
                 worker.terminate();
             }
+
+            this._workerResultSubject.next(res);
         });
       
         worker.onerror().subscribe((data) => {

@@ -69,5 +69,9 @@
 
     "DOWNLOAD_PANEL": {
         "TITLE": "Uploading Assets"
+    },
+
+    "MESSAGES": {
+        "FILES_COUNT_LIMIT_MESSAGE": "You exceeded your files number limit ({{files_limit}}) - please contact your administrator."
     }
 }

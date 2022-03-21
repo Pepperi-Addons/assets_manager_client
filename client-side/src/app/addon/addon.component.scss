@@ -103,7 +103,8 @@
         }
     }
 
-    pep-generic-list{
+    pep-generic-list {
+        padding: 0 ngx-variables.$spacing-xs;
         overflow: auto;
         height: 100%;
 
