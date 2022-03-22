@@ -67,8 +67,8 @@
         "UPDATE_ASSET": "Update Asset Info"
     },
 
-    "DOWNLOAD_PANEL": {
-        "TITLE": "Uploading Assets"
+    "ASSETS_PANEL": {
+        "TITLE": "Assets status"
     },
 
     "MESSAGES": {

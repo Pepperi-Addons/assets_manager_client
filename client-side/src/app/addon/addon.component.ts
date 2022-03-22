@@ -6,7 +6,7 @@ import { AddFolderComponent } from '../components/add-folder/add-folder.componen
 import { EditFileComponent } from '../components/edit-file/edit-file.component';
 import { AddonService, IUploadFilesWorkerResult } from "./addon.service";
 import { PepBreadCrumbItem } from "@pepperi-addons/ngx-lib/bread-crumbs";
-import { allowedAssetsTypes, assetProcess, IAsset, selectionType, Thumbnails, uploadStatus } from '../addon/addon.model';
+import { allowedAssetsTypes, assetProcess, Asset, selectionType, Thumbnails } from '../addon/addon.model';
 import { IPepMenuItemClickEvent, PepMenuItem } from "@pepperi-addons/ngx-lib/menu";
 import { PepDialogData, PepDialogService } from "@pepperi-addons/ngx-lib/dialog";
 import { HttpClient } from "@angular/common/http";
@@ -38,14 +38,13 @@ export class AddonComponent implements OnInit {
     breadCrumbsItems = new Array<PepBreadCrumbItem>();
 
     menuActions: Array<PepMenuItem>;
-    assetsStack: Array<assetProcess> = [];
     stackIndex: number = 0;
     linkURL: string = '';
     popUplinkURL: string = '';
     validateMsg: string = '';
     urlValidateMsg = '';
     assetsHeaderTitle = '';
-    selectedAssets: Array<IAsset> = [];
+    selectedAssets: Array<Asset> = [];
     assetsList: Array<any>;
     mimeFilterItems = new Array<PepMenuItem>();
     mimeFilter = "all";
@@ -76,12 +75,40 @@ export class AddonComponent implements OnInit {
 
         this.addonService.workerResultChange$.subscribe((workerResult: IUploadFilesWorkerResult) => {
             if (workerResult?.isFinish) {
+                this.linkURL = this.popUplinkURL = '';
                 this.setDataSource();
             }
         });
     }
 
-    private uploadMultiFiles(files: any[]) {
+    private checkFileSize(size: number) {
+        if(size > this.maxFileSize){
+            this.validateMsg = this.translate.instant('EDIT_FILE.MAXIMUM_FILE_SIZE');
+            return false;
+        }
+        else{
+            this.validateMsg = '';
+            return true;
+        }
+    }
+
+    private checkFileType(type) {
+        //Check mime types is allowed
+        this.validateMsg = '';
+
+        if(type?.indexOf('image/') > -1){
+            if(!['images', 'all'].includes(this.allowedAssetsTypes)){
+                this.validateMsg = this.translate.instant('EDIT_FILE.NOT_ALLOWED_MIME_TYPE');
+            }
+        }
+        else if(!['documents', 'all'].includes(this.allowedAssetsTypes)){
+            this.validateMsg = this.translate.instant('EDIT_FILE.NOT_ALLOWED_MIME_TYPE');
+        }
+        
+        return this.validateMsg === '';
+    }
+
+    private uploadMultiFiles(files: File[]) {
         let isValid = files.length <= this.softFilesCountLimit;
 
         if (isValid) {
@@ -95,12 +122,12 @@ export class AddonComponent implements OnInit {
             
             if (isValid) {
                 const assetsKeyPrefix = (this.currentFolder.key === '/' ? '' : this.getCurrentURL());
-                this.addonService.runUploadWorker(files, assetsKeyPrefix);
+                this.addonService.runUploadWorker({ files, assetsKeyPrefix});
             }
         } else {
             // Show limit error msg.
             const dialogData = new PepDialogData({
-                content: this.translate.instant('MESSAGES.FILES_COUNT_LIMIT_MESSAGE', { files_limit: this.softFilesCountLimit}),
+                content: this.translate.instant('ASSETS_PANEL.FILES_COUNT_LIMIT_MESSAGE', { files_limit: this.softFilesCountLimit}),
                 showHeader: false,
                 showClose: false,
             });
@@ -132,34 +159,15 @@ export class AddonComponent implements OnInit {
         });
     }
 
-    private updateAssetInfo(asset: IAsset) {
+    private updateAssetInfo(asset: Asset) {
         if(asset?.Hidden == true) {
             this.showDeleteAssetMSG(asset);
         }
         else {
             asset.Key = this.getCurrentURL() + '/' + asset.Name;
-            this.upsertAsset(asset);
-           
+            // this.upsertAsset(asset);
+            this.addonService.runUploadWorker({ assets: [asset] });
         }
-    }
-
-    private upsertAsset(asset: IAsset, query = null, status: uploadStatus = 'uploading') {
-        // Show snack bar for the single asset
-        let assetsStack: Array<assetProcess> = [];
-        assetsStack.push({ 'name': asset.Key, 'status': status });
-        this.addonService.showSnackBar('Uploading', assetsStack);
-        
-        this.addonService.upsertAsset(asset).then((res)=> {
-            if(res) {
-                this.linkURL = this.popUplinkURL = '';
-
-                // Update asset status.
-                assetsStack[0].status = 'done';
-                this.addonService.showSnackBar('Uploading', assetsStack);
-                
-                this.setDataSource();
-            }
-        });
     }
 
     private setBreadCrumbs() {
@@ -191,6 +199,15 @@ export class AddonComponent implements OnInit {
             // todo - sort is not supportoted on this version
             whereCluse += state.sorting ? ("&order_by=" + state.sorting.sortBy + " " + state.sorting.isAsc ? 'ASC' : 'DESC') : '';
         return whereCluse;
+    }
+
+    private getCurrentURL() {
+        let path = '';
+        for (let i=1 ; i < this.breadCrumbsItems.length; i++) {
+            path += '/' + this.breadCrumbsItems[i].text;
+        }
+        
+        return path;
     }
 
     async ngOnInit() {
@@ -331,22 +348,23 @@ export class AddonComponent implements OnInit {
     }
     
     async assetURLChange(url: string = '') {
-
         this.urlValidateMsg = '';
        
-        if(url !== ''){
+        if(url !== '') {
             try {
                 let filename = new URL(url).pathname.split('/').pop();
                 let blob = await fetch(url).then(r => r.blob());
 
-                let asset: IAsset = new IAsset();
+                let asset: Asset = new Asset();
 
                 asset.Key = this.getCurrentURL() + '/' + filename;
                 asset.URI = await this.convertURLToBase64(url) as string;
-                asset.fileSize = this.formatFileSize(blob.size,2);
+                // asset.fileSize = this.formatFileSize(blob.size,2);
+                asset.fileSize = blob.size;
                 asset.MIME = blob.type;
             
-                this.upsertAsset(asset);
+                // this.upsertAsset(asset);
+                this.addonService.runUploadWorker({ assets: [asset] });
             }
             catch (e){
                 this.urlValidateMsg = e.message;
@@ -420,7 +438,7 @@ export class AddonComponent implements OnInit {
     }
 
     getSelectedAsset(key?: string) {      
-        return this.assetsList.find(asset => asset.Key === key) || new IAsset();
+        return this.assetsList.find(asset => asset.Key === key) || new Asset();
     }
     
     onCustomizeFieldClick(fieldClickEvent: IPepFormFieldClickEvent) {
@@ -443,7 +461,7 @@ export class AddonComponent implements OnInit {
         }
     }
 
-    showDeleteAssetMSG(asset: IAsset = null) {
+    showDeleteAssetMSG(asset: Asset = null) {
         const dialogData = new PepDialogData({
             content: this.translate.instant('GRID.CONFIRM_DELETE'),
             showHeader: false,
@@ -459,14 +477,15 @@ export class AddonComponent implements OnInit {
         });
     }
 
-    deleteAssets(asset: IAsset = null) {
+    deleteAssets(asset: Asset = null) {
         // TODO - NEED FIX THIS WHEN CHANGING TO MULTIPLE SELECTION MODE 
         asset = asset !== null ? asset : 
                 this.getSelectedAsset(this.genericListService.getSelectedItems().rows[0]);
         
         asset.Hidden = true;
 
-        this.upsertAsset(asset, null, 'deleting');
+        // this.upsertAsset(asset, null, 'deleting');
+        this.addonService.runUploadWorker({ status: 'deleting', assets: [asset] });
     }
 
     onDragOver(event) {
@@ -485,40 +504,13 @@ export class AddonComponent implements OnInit {
         this.uploadMultiFiles(Array.from(e));
     }
 
-    checkFileSize(size: number) {
-        if(size > this.maxFileSize){
-            this.validateMsg = this.translate.instant('EDIT_FILE.MAXIMUM_FILE_SIZE');
-            return false;
-        }
-        else{
-            this.validateMsg = '';
-            return true;
-        }
-    }
-
-    checkFileType(type) {
-        //Check mime types is allowed
-        this.validateMsg = '';
-
-        if(type?.indexOf('image/') > -1){
-            if(!['images', 'all'].includes(this.allowedAssetsTypes)){
-                this.validateMsg = this.translate.instant('EDIT_FILE.NOT_ALLOWED_MIME_TYPE');
-            }
-        }
-        else if(!['documents', 'all'].includes(this.allowedAssetsTypes)){
-            this.validateMsg = this.translate.instant('EDIT_FILE.NOT_ALLOWED_MIME_TYPE');
-        }
-        
-        return this.validateMsg === '';
-    }
-
-    convertFileToBase64(file : File) : Observable<string> {
-        const result = new ReplaySubject<string>(1);
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = (event) => result.next(event.target.result.toString());
-        return result;
-    }
+    // convertFileToBase64(file : File) : Observable<string> {
+    //     const result = new ReplaySubject<string>(1);
+    //     const reader = new FileReader();
+    //     reader.readAsDataURL(file);
+    //     reader.onload = (event) => result.next(event.target.result.toString());
+    //     return result;
+    // }
     
     getThumbnails(url) : Array<Thumbnails> {
         let Thumbnails = [];
@@ -537,46 +529,15 @@ export class AddonComponent implements OnInit {
         img.remove();
         return Thumbnails;
     }
-    
-    // setAssetsStack(asset: IAsset, status: uploadStatus = "uploading") {
-    //     let isExist = false;
-    //     this.assetsStack.forEach(file => {
-    //         if(file.name == asset.Key) {
-    //             file.status = status;
-    //             isExist = true;
-    //         }
-    //     });
-        
-    //     if(!isExist) {
-    //         this.assetsStack.push({ 'name': asset.Key, 'status': status });
-    //         this.addonService.showSnackBar(status, this.assetsStack);
-    //     }
-    // }
 
     async addNewFolder(data) {
-        let folder = new IAsset();
+        let folder = new Asset();
         folder.MIME = 'pepperi/folder';
         folder.URI = ''; // should be empty for folder
         folder.Key = this.getCurrentURL() + '/' + data + "/";
 
-        this.upsertAsset(folder);
+        // this.upsertAsset(folder);
+        this.addonService.runUploadWorker({ assets: [folder] });
     }
 
-    getCurrentURL() {
-        let path = '';
-        for(let i=1 ; i < this.breadCrumbsItems.length; i++){
-            path += '/' + this.breadCrumbsItems[i].text;
-        }
-        
-        return path;
-    }
-
-    formatFileSize(bytes,decimalPoint) {
-        if(bytes == 0) return '0 Bytes';
-        var k = 1000,
-            dm = decimalPoint || 2,
-            sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'],
-            i = Math.floor(Math.log(bytes) / Math.log(k));
-        return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
-    }
 }

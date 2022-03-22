@@ -1,10 +1,11 @@
+import { fileStatus } from "../components/file-status-panel/file-status-panel.model";
 
 export type syncOption = "None" | "Device" | "DeviceThumbnail" | "Always";
 export type allowedAssetsTypes = 'images' | 'documents' | 'all';
 export type selectionType = 'single' | 'multiple';
 export type assetsView = 'list' | 'thumbnail';
 export type sortBy = 'ascending' | 'descending' ;
-export type uploadStatus = 'uploading' | 'done' | 'failed' | 'hidden' | 'deleting';
+// export type uploadStatus = 'uploading' | 'done' | 'failed' | 'hidden' | 'deleting';
 
 export class Thumbnails { 
     Size: string = '200x200';
@@ -14,10 +15,9 @@ export class Thumbnails {
 export class assetProcess {
     key?: number;
     name = '';
-    status: uploadStatus = 'uploading';
+    status: fileStatus = 'uploading';
 }
-export class IAsset {
-
+export class Asset {
     Key: string = ''; // mandatory, unique, /my-images/7535.jpg /'s in the name will organize the files in folders
     Folder: ""; // readonly,
     Name: ""; // readonly,
@@ -38,7 +38,8 @@ export class IAsset {
     modificationDate: number;
     
     ownerUUID : string = '';
-    fileSize: string = '0';
+    // fileSize: string = '0';
+    fileSize: number = 0;
 
     constructor(mimeType = null){
         //this.mimeType = mimeType;
