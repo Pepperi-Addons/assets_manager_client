@@ -81,73 +81,6 @@ export class AddonComponent implements OnInit {
         });
     }
 
-    // result = 0;
-    // runWorkerTest(event) {
-       
-    //     const worker = new InlineWorker(() => {
-    //         // START OF WORKER THREAD CODE
-    //         console.log('Start worker thread, wait for postMessage: ');
-      
-    //         const calculateCountOfPrimeNumbers = (seconds) => {
-    //             let counter = 0;
-
-    //             while (counter < seconds) {
-    //                 // setTimeout(() => {
-    //                     counter++;
-    //                     // nowSeconds = new Date().getTime() / 1000;
-                        
-    //                     // @ts-ignore
-    //                     this.postMessage({
-    //                         primeNumbers: counter,
-    //                         isFinish: false
-    //                     });
-    //                 // }, 1000);
-    //             }
-        
-    //             // // @ts-ignore
-    //             // this.worker.terminate();
-
-    //             // // this is from DedicatedWorkerGlobalScope ( because of that we have postMessage and onmessage methods )
-    //             // // and it can't see methods of this class
-    //             // @ts-ignore
-    //             this.postMessage({
-    //                 primeNumbers: counter,
-    //                 isFinish: true
-    //             });
-    //         };
-      
-    //         // @ts-ignore
-    //         this.onmessage = (evt) => {
-    //             console.log('Calculation started: ' + new Date());
-    //             calculateCountOfPrimeNumbers(evt.data.limit);
-    //         };
-    //         // END OF WORKER THREAD CODE
-    //     });
-      
-    //     const limit = 5000;
-    //     // let nowSeconds = new Date().getTime() / 1000;
-    //     // const limitSeconds = nowSeconds + limit;
-    //     worker.postMessage({ limit: limit });
-      
-    //     worker.onmessage().subscribe((data) => {
-    //         console.log('Calculation done: ', new Date() + ' ' + data.data);
-    //         this.result = data.data.primeNumbers;
-
-    //         this._snackBar?.open(this.result.toString(), 'Splash', {
-    //             horizontalPosition: 'end',
-    //             verticalPosition: 'bottom',
-    //         });
-            
-    //         if (data.data.isFinish) {
-    //             worker.terminate();
-    //         }
-    //     });
-      
-    //     worker.onerror().subscribe((data) => {
-    //         console.log(data);
-    //     });
-    // }
-
     private uploadMultiFiles(files: any[]) {
         let isValid = files.length <= this.softFilesCountLimit;
 
@@ -175,8 +108,92 @@ export class AddonComponent implements OnInit {
             this.dialogService.openDefaultDialog(dialogData);
         }
     }
+    
+    private getEditDialogConfig() {
+        const config = this.dialogService.getDialogConfig({}, 'inline');
+        config.disableClose = true;
+        config.minWidth = '29rem'; // THE EDIT MODAL WIDTH
 
-    async ngOnInit(){
+        return config;
+    }
+
+    private convertURLToBase64(url: string) {
+        return new Promise((resolve, reject) => {
+        this.httpClient.get(url, { responseType: "blob" }).subscribe(blob => {
+                const reader = new FileReader();
+                const binaryString = reader.readAsDataURL(blob);
+                reader.onload = (event: any) => {
+                    resolve(event.target.result);
+                };
+                reader.onerror = (event: any) => {
+                    reject( event.target.error.code);
+                };
+            });
+        });
+    }
+
+    private updateAssetInfo(asset: IAsset) {
+        if(asset?.Hidden == true) {
+            this.showDeleteAssetMSG(asset);
+        }
+        else {
+            asset.Key = this.getCurrentURL() + '/' + asset.Name;
+            this.upsertAsset(asset);
+           
+        }
+    }
+
+    private upsertAsset(asset: IAsset, query = null, status: uploadStatus = 'uploading') {
+        // Show snack bar for the single asset
+        let assetsStack: Array<assetProcess> = [];
+        assetsStack.push({ 'name': asset.Key, 'status': status });
+        this.addonService.showSnackBar('Uploading', assetsStack);
+        
+        this.addonService.upsertAsset(asset).then((res)=> {
+            if(res) {
+                this.linkURL = this.popUplinkURL = '';
+
+                // Update asset status.
+                assetsStack[0].status = 'done';
+                this.addonService.showSnackBar('Uploading', assetsStack);
+                
+                this.setDataSource();
+            }
+        });
+    }
+
+    private setBreadCrumbs() {
+        if(this.currentFolder.key === 'new') {
+            this.currentFolder.key = (this.breadCrumbsItems.length).toString();
+            this.breadCrumbsItems.push( new PepBreadCrumbItem({key: this.currentFolder.key, 
+                                                                text: this.cleanFolderName(this.currentFolder.text), 
+                                                                title: this.cleanFolderName(this.currentFolder.title)}));
+        }
+        else {
+            const folderIndex = this.currentFolder.key === '/' ? 0 : parseInt(this.currentFolder.key);
+            this.breadCrumbsItems.length = (folderIndex + 1);
+        }
+        
+        this.setDataSource();
+    }
+
+    private cleanFolderName (folderName: string) : string {
+        return folderName.replace(/\/$/, '');
+    }
+
+    private setWhereClauseSTR(state) {
+        // + " AND MIME LIKE '%folder%'"
+        // "&where="
+        let whereCluse = state.searchString  ? "Name LIKE '%" + state.searchString + "%'" : '';
+            whereCluse +=  this.mimeFilter != 'all' ? ((whereCluse == '' ? '' : " AND ") + "MIME LIKE '%" + this.mimeFilter + "%'") : '';
+            whereCluse = whereCluse !== '' ? "&where=" + whereCluse : '';
+
+            // todo - sort is not supportoted on this version
+            whereCluse += state.sorting ? ("&order_by=" + state.sorting.sortBy + " " + state.sorting.isAsc ? 'ASC' : 'DESC') : '';
+        return whereCluse;
+    }
+
+    async ngOnInit() {
         this.pager = {
             type: 'pages',
             size: 10,
@@ -197,26 +214,6 @@ export class AddonComponent implements OnInit {
         
     }
     
-    setBreadCrumbs(){
-
-            if(this.currentFolder.key === 'new'){
-                this.currentFolder.key = (this.breadCrumbsItems.length).toString();
-                this.breadCrumbsItems.push( new PepBreadCrumbItem({key: this.currentFolder.key, 
-                                                                   text: this.cleanFolderName(this.currentFolder.text), 
-                                                                   title: this.cleanFolderName(this.currentFolder.title)}));
-            }
-            else{
-                const folderIndex = this.currentFolder.key === '/' ? 0 : parseInt(this.currentFolder.key);
-                this.breadCrumbsItems.length = (folderIndex + 1);
-            }
-            
-            this.setDataSource();
-    }
-
-    cleanFolderName (folderName: string) : string{
-        return folderName.replace(/\/$/, '');
-    }
-
     actions: IPepGenericListActions = {   
         get: async (data: PepSelectionData) => {
             const actions = [];
@@ -253,20 +250,8 @@ export class AddonComponent implements OnInit {
             return actions;
         }
     }
-    setWhereClauseSTR(state){
-        // + " AND MIME LIKE '%folder%'"
-        // "&where="
-        let whereCluse = state.searchString  ? "Name LIKE '%" + state.searchString + "%'" : '';
-            whereCluse +=  this.mimeFilter != 'all' ? ((whereCluse == '' ? '' : " AND ") + "MIME LIKE '%" + this.mimeFilter + "%'") : '';
-            whereCluse = whereCluse !== '' ? "&where=" + whereCluse : '';
-
-            // todo - sort is not supportoted on this version
-            whereCluse += state.sorting ? ("&order_by=" + state.sorting.sortBy + " " + state.sorting.isAsc ? 'ASC' : 'DESC') : '';
-        return whereCluse;
-    }
 
     setDataSource() {
-
         let folder = this.currentFolder.key === '/' ? '/' : this.getCurrentURL();
 
         this.dataSource = {
@@ -341,11 +326,11 @@ export class AddonComponent implements OnInit {
         }
     }
       
-    onSelectedRowChange(event){
+    onSelectedRowChange(event) {
         this.menuActions = event?.length ? event : [];
     }
     
-    async assetURLChange(url: string = ''){
+    async assetURLChange(url: string = '') {
 
         this.urlValidateMsg = '';
        
@@ -369,19 +354,18 @@ export class AddonComponent implements OnInit {
         }
     }
 
-    assetLinkURLChange(event){
+    assetLinkURLChange(event) {
         // emit the new url - the addon/component user need to get the url and use it like a URL ( without upload a file)
         this.linkUrlClick.emit({url: event});
     }    
 
-    onMenuItemClicked(action: IPepMenuItemClickEvent){
+    onMenuItemClicked(action: IPepMenuItemClickEvent) {
         this.mimeFilter = action.source.key;
         this.setDataSource();
-        
     }
 
-    onBreadCrumbItemClick(event){
-        if(this.currentFolder.text === event.source.text){
+    onBreadCrumbItemClick(event) {
+        if(this.currentFolder.text === event.source.text) {
             return false;
         }
 
@@ -389,15 +373,14 @@ export class AddonComponent implements OnInit {
         this.setBreadCrumbs();
     }
 
-    // onSearchStateChanged(searchStateChangeEvent: IPepSearchStateChangeEvent) {
-
-    // }
-
-   
-
     onSearchAutocompleteChanged(value) {
         console.log(value);
     }
+
+    // onSearchStateChanged(searchStateChangeEvent: IPepSearchStateChangeEvent) {
+
+    // }
+  
 
     // sortToggle(event){
     //     this.sortBy = this.sortBy === 'ascending' ? 'ascending' : 'descending';
@@ -409,50 +392,50 @@ export class AddonComponent implements OnInit {
     //     // TODO - REPLACE BETWEEN THE VIEWS IMPLEMENTATION
     // }
 
-    onAddFolderClick(event){
-        this.openDialog(AddFolderComponent,(data) => {
-        this.addNewFolder(data)});
+    onAddFolderClick(event) {
+        let config = this.getEditDialogConfig();
+        this.dialogService.openDialog(AddFolderComponent, {}, config).afterClosed().subscribe((value) => {
+            if (value) {
+                this.addNewFolder(value);
+            }
+        });
     }
 
-    editAsset(key){
-        
+    editAsset(key) {
         let asset = this.getSelectedAsset(key);
         
-        if(asset){
-            this.openDialog(EditFileComponent,(res) => {
-            this.updateAssetInfo(res)}, {'asset': asset , 'breadCrumbs': this.breadCrumbsItems});
+        if(asset) {
+            let config = this.getEditDialogConfig();
+            const data = { 
+                'asset': asset ,
+                'breadCrumbs': this.breadCrumbsItems
+            };
+
+            this.dialogService.openDialog(EditFileComponent, data, config).afterClosed().subscribe((value) => {
+                if (value) {
+                    this.updateAssetInfo(value);
+                }
+            });
         }
     }
 
-    async updateAssetInfo(asset: IAsset){
-       
-        if(asset?.Hidden == true){
-            this.showDeleteAssetMSG(asset);
-        }
-        else{
-            asset.Key = this.getCurrentURL() + '/' + asset.Name;
-            this.upsertAsset(asset);
-           
-        }
-    }
-
-    getSelectedAsset(key?: string){      
+    getSelectedAsset(key?: string) {      
         return this.assetsList.find(asset => asset.Key === key) || new IAsset();
     }
     
-    onCustomizeFieldClick(fieldClickEvent: IPepFormFieldClickEvent){
+    onCustomizeFieldClick(fieldClickEvent: IPepFormFieldClickEvent) {
        
         const asset: any = this.getSelectedAsset(fieldClickEvent.id);
 
-        if(asset.MIME?.indexOf('application/') > -1 && fieldClickEvent.fieldType !== 26){
+        if(asset.MIME?.indexOf('application/') > -1 && fieldClickEvent.fieldType !== 26) {
             return false;
         }   
-        else if(asset?.MIME && asset.MIME === 'pepperi/folder'){
+        else if(asset?.MIME && asset.MIME === 'pepperi/folder') {
             this.currentFolder = { key: 'new', text: asset.Name, title: asset.Name};
             this.setBreadCrumbs();
             return false;
         }
-        else if(fieldClickEvent.fieldType == FIELD_TYPE.Image){
+        else if(fieldClickEvent.fieldType == FIELD_TYPE.Image) {
             this.imageService.openImageDialog( fieldClickEvent.otherData.imageSrc, [], asset.Key );
         }
         else { 
@@ -460,7 +443,7 @@ export class AddonComponent implements OnInit {
         }
     }
 
-    showDeleteAssetMSG(asset: IAsset = null){
+    showDeleteAssetMSG(asset: IAsset = null) {
         const dialogData = new PepDialogData({
             content: this.translate.instant('GRID.CONFIRM_DELETE'),
             showHeader: false,
@@ -468,12 +451,15 @@ export class AddonComponent implements OnInit {
             showClose: false,
         });
 
-        this.openDialogMsg(dialogData,() => {
-            this.deleteAssets(asset)
-        });  
+        this.dialogService.openDefaultDialog(dialogData).afterClosed()
+            .subscribe((isDeletePressed) => {
+                if (isDeletePressed) {
+                    this.deleteAssets(asset)
+                }
+        });
     }
 
-    deleteAssets(asset: IAsset = null){
+    deleteAssets(asset: IAsset = null) {
         // TODO - NEED FIX THIS WHEN CHANGING TO MULTIPLE SELECTION MODE 
         asset = asset !== null ? asset : 
                 this.getSelectedAsset(this.genericListService.getSelectedItems().rows[0]);
@@ -499,22 +485,7 @@ export class AddonComponent implements OnInit {
         this.uploadMultiFiles(Array.from(e));
     }
 
-    convertURLToBase64(url: string) {
-        return new Promise((resolve, reject) => {
-        this.httpClient.get(url, { responseType: "blob" }).subscribe(blob => {
-                const reader = new FileReader();
-                const binaryString = reader.readAsDataURL(blob);
-                reader.onload = (event: any) => {
-                    resolve(event.target.result);
-                };
-                reader.onerror = (event: any) => {
-                    reject( event.target.error.code);
-                };
-            });
-        });
-    }
-
-    checkFileSize(size: number){
+    checkFileSize(size: number) {
         if(size > this.maxFileSize){
             this.validateMsg = this.translate.instant('EDIT_FILE.MAXIMUM_FILE_SIZE');
             return false;
@@ -525,7 +496,7 @@ export class AddonComponent implements OnInit {
         }
     }
 
-    checkFileType(type){
+    checkFileType(type) {
         //Check mime types is allowed
         this.validateMsg = '';
 
@@ -549,7 +520,7 @@ export class AddonComponent implements OnInit {
         return result;
     }
     
-    getThumbnails(url) : Array<Thumbnails>{
+    getThumbnails(url) : Array<Thumbnails> {
         let Thumbnails = [];
 
         var img = new Image();
@@ -565,58 +536,6 @@ export class AddonComponent implements OnInit {
         }
         img.remove();
         return Thumbnails;
-    }
-
-    // TODO: remove this
-    // async addNewFile(f){
-    //     //Check if file size & type are allowed
-    //     if(!this.checkFileSize(f.size) || !this.checkFileType(f.type)){
-    //         return false;
-    //     }
-
-    //     // create new asset object
-    //     let asset = new IAsset('file');
-
-    //     this.convertFileToBase64(f).subscribe(async base64 => {
-    //         asset.URI = base64;
-    //         asset.Key = (this.currentFolder.key === '/' ? '' : this.breadCrumbsItems[1].text) + '/' +  f.name;
-    //         asset.MIME = f.type;
-    //         asset.creationDate = new Date().getTime(); 
-    //         asset.modificationDate = f.lastModified;
-    //         asset.fileSize = f.size; //this.assetsService.formatFileSize(f.size,2);
-
-    //         // if(asset.MIME.indexOf('image/') > -1){ 
-    //         //     const url = URL.createObjectURL(f);
-    //         //     asset.Thumbnails = await this.getThumbnails(url);
-    //         // }
-    //         //this.setAssetsStack(asset);
-    //         this.upsertAsset(asset);
-    //     });
-    // }
-
-    upsertAsset(asset: IAsset, query = null, status: uploadStatus = 'uploading') {
-        // Show snack bar for the single asset
-        let assetsStack: Array<assetProcess> = [];
-        assetsStack.push({ 'name': asset.Key, 'status': status });
-        this.addonService.showSnackBar('Uploading', assetsStack);
-        
-        this.addonService.upsertAsset(asset).then((res)=> {
-            if(res) {
-                this.linkURL = this.popUplinkURL = '';
-
-                // Update asset status.
-                assetsStack[0].status = 'done';
-                this.addonService.showSnackBar('Uploading', assetsStack);
-                
-                this.setDataSource();
-
-                // TODO: just update the data.
-                // this.dataSource.update({
-                //     fromIndex: 0,
-                //     toIndex: 100,
-                // });
-            }
-        });
     }
     
     // setAssetsStack(asset: IAsset, status: uploadStatus = "uploading") {
@@ -634,16 +553,16 @@ export class AddonComponent implements OnInit {
     //     }
     // }
 
-    async addNewFolder(data){
+    async addNewFolder(data) {
         let folder = new IAsset();
         folder.MIME = 'pepperi/folder';
         folder.URI = ''; // should be empty for folder
         folder.Key = this.getCurrentURL() + '/' + data + "/";
 
         this.upsertAsset(folder);
-    };
+    }
 
-    getCurrentURL(){
+    getCurrentURL() {
         let path = '';
         for(let i=1 ; i < this.breadCrumbsItems.length; i++){
             path += '/' + this.breadCrumbsItems[i].text;
@@ -659,26 +578,5 @@ export class AddonComponent implements OnInit {
             sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'],
             i = Math.floor(Math.log(bytes) / Math.log(k));
         return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
-    }
-
-    openDialog(comp: any, callBack, data = {}){
-        let config = this.dialogService.getDialogConfig({}, 'inline');
-            config.disableClose = true;
-            config.minWidth = '29rem'; // THE EDIT MODAL WIDTH
-
-        this.dialogService.openDialog(comp, data, config).afterClosed().subscribe((value) => {
-            if (value !== undefined && value !== null) {
-                callBack(value);
-            }
-        });
-    }
-
-    openDialogMsg(dialogData: PepDialogData, callback?: any) {
-        this.dialogService.openDefaultDialog(dialogData).afterClosed()
-            .subscribe((isDeletePressed) => {
-                if (isDeletePressed) {
-                    callback();
-                }
-        });
     }
 }

@@ -23,6 +23,7 @@ export class EditFileComponent implements OnInit {
        
                     
     }
+
     ngOnInit(): void {
         this.breadCrumbsItems = this.data?.breadCrumbs || [];
         this.isImageFile = this.data?.asset?.MIME.toLowerCase().indexOf('image') > -1 ? true : false;
@@ -30,26 +31,24 @@ export class EditFileComponent implements OnInit {
         this.creationDate = new Date(this.data.asset.ModificationDateTime).toUTCString() || '';
     }
 
-    close(event){
+    close(event) {
         this.dialogRef?.close(null);
     }
 
-
-    assetsElementClick(event){
+    assetsElementClick(event) {
 
     }
 
-    assetsFileChange(event){
+    assetsFileChange(event) {
         this.data.asset.URI = event?.fileStr || '';
         //we dont change the file name , this is the key by now
         //this.data.asset.Key = event.fileName;
         this.data.asset.ModificationDateTime = new Date();
         this.data.asset.MIME = event?.fileStr.match(/[^:]\w+\/[\w-+\d.]+(?=;|,)/)[0] || '';
-
     }
 
-    updateAssetInfo(event){
-        if(event.source.key == 'delete'){
+    updateAssetInfo(event) {
+        if(event.source.key == 'delete') {
             this.data.asset.Hidden = true;
         }
 
