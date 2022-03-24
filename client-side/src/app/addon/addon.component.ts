@@ -17,7 +17,9 @@ import { IPepFormFieldClickEvent } from "@pepperi-addons/ngx-lib/form";
 import { PepImageService } from "@pepperi-addons/ngx-lib/image";
 import { MatSnackBar } from "@angular/material/snack-bar";
 import { InlineWorker} from '../inline-worker';
-
+import { Promise } from 'bluebird';
+import { JSZipObject } from 'jszip';
+import { FileSaver } from 'file-saver';
 @Component({
     selector: 'addon-module',
     templateUrl: './addon.component.html',
@@ -222,6 +224,17 @@ export class AddonComponent implements OnInit {
                                 this.editAsset(objs.rows[0]);
                             }
                         }
+                    },
+                    {
+                        title: this.translate.instant("ACTIONS.DOWNLOAD"),
+                        handler: async (objs) => {
+                            if(objs.rows[0]?.MIME && objs.rows[0].MIME === 'pepperi/folder'){
+                                this.onAddFolderClick(null);
+                            }
+                            else{
+                                this.download(objs.rows[0]);
+                            }
+                        }
                     });
             } 
             if (data?.rows.length >= 1 || data?.selectionType === 0) {
@@ -372,10 +385,55 @@ export class AddonComponent implements OnInit {
         this.setBreadCrumbs();
     }
 
-    // onSearchStateChanged(searchStateChangeEvent: IPepSearchStateChangeEvent) {
+    download(key) {
 
-    // }
+        let asset = this.getSelectedAsset(key);
+        
+        //e.preventDefault();
+				
+		//window.location.href = ;
+        this.downloadResource(asset.URL,asset.Name);
+    
 
+        /*var downloadfile = document.createElement('a');
+        
+        downloadfile.setAttribute('href', asset.URL);
+        downloadfile.setAttribute('download', asset.Name);
+      
+        downloadfile.style.display = 'none';
+        document.body.appendChild(downloadfile);
+      
+        downloadfile.click();
+      
+        document.body.removeChild(downloadfile);*/
+      }
+
+       forceDownload(blob, filename) {
+        var a = document.createElement('a');
+        a.download = filename;
+        a.href = blob;
+        // For Firefox https://stackoverflow.com/a/32226068
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+      }
+      
+      // Current blob size limit is around 500MB for browsers
+    downloadResource(url, filename) {
+        if (!filename) filename = url.split('\\').pop().split('/').pop();
+        fetch(url, {
+            headers: new Headers({
+              'Origin': location.origin
+            }),
+            mode: 'cors'
+          })
+          .then(response => response.blob())
+          .then(blob => {
+            let blobUrl = window.URL.createObjectURL(blob);
+            this.forceDownload(blobUrl, filename);
+          })
+          .catch(e => console.error(e));
+      }
    
 
     onSearchAutocompleteChanged(value) {
