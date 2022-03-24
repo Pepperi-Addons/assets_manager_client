@@ -4,12 +4,11 @@ import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { IPepGenericListDataSource, IPepGenericListPager, IPepGenericListActions, IPepGenericListInitData, PepGenericListService } from "@pepperi-addons/ngx-composite-lib/generic-list";
 import { AddFolderComponent } from '../components/add-folder/add-folder.component';
 import { EditFileComponent } from '../components/edit-file/edit-file.component';
-import { AddonService } from "./addon.service";
+import { AddonService, IUploadFilesWorkerResult } from "./addon.service";
 import { PepBreadCrumbItem } from "@pepperi-addons/ngx-lib/bread-crumbs";
-import { allowedAssetsTypes, assetProcess, IAsset, selectionType, Thumbnails, uploadStatus } from '../addon/addon.model';
+import { allowedAssetsTypes, assetProcess, Asset, selectionType, Thumbnails } from '../addon/addon.model';
 import { IPepMenuItemClickEvent, PepMenuItem } from "@pepperi-addons/ngx-lib/menu";
 import { PepDialogData, PepDialogService } from "@pepperi-addons/ngx-lib/dialog";
-import { MatDialogRef } from "@angular/material/dialog";
 import { HttpClient } from "@angular/common/http";
 import { Observable, ReplaySubject } from "rxjs";
 import { PepSelectionData } from "@pepperi-addons/ngx-lib/list";
@@ -17,9 +16,7 @@ import { IPepFormFieldClickEvent } from "@pepperi-addons/ngx-lib/form";
 import { PepImageService } from "@pepperi-addons/ngx-lib/image";
 import { MatSnackBar } from "@angular/material/snack-bar";
 import { InlineWorker} from '../inline-worker';
-import { Promise } from 'bluebird';
-import { JSZipObject } from 'jszip';
-import { FileSaver } from 'file-saver';
+
 @Component({
     selector: 'addon-module',
     templateUrl: './addon.component.html',
@@ -41,17 +38,17 @@ export class AddonComponent implements OnInit {
     breadCrumbsItems = new Array<PepBreadCrumbItem>();
 
     menuActions: Array<PepMenuItem>;
-    assetsStack: Array<assetProcess> = [];
     stackIndex: number = 0;
     linkURL: string = '';
     popUplinkURL: string = '';
     validateMsg: string = '';
     urlValidateMsg = '';
     assetsHeaderTitle = '';
-    selectedAssets: Array<IAsset> = [];
+    selectedAssets: Array<Asset> = [];
     assetsList: Array<any>;
     mimeFilterItems = new Array<PepMenuItem>();
     mimeFilter = "all";
+    softFilesCountLimit = 10;
 
     @Input() currentFolder: PepBreadCrumbItem;
     @Input() maxFileSize: number = 1250000;
@@ -75,93 +72,145 @@ export class AddonComponent implements OnInit {
         this.layoutService.onResize$.subscribe(size => {
             this.screenSize = size;
         });
+
+        this.addonService.workerResultChange$.subscribe((workerResult: IUploadFilesWorkerResult) => {
+            if (workerResult?.isFinish) {
+                this.linkURL = this.popUplinkURL = '';
+                this.setDataSource();
+            }
+        });
     }
 
-    // result = 0;
-    // runWorkerTest(event) {
-       
-    //     const worker = new InlineWorker(() => {
-    //         // START OF WORKER THREAD CODE
-    //         console.log('Start worker thread, wait for postMessage: ');
-      
-    //         const calculateCountOfPrimeNumbers = (seconds) => {
-    //             let counter = 0;
+    private checkFileSize(size: number) {
+        if(size > this.maxFileSize){
+            this.validateMsg = this.translate.instant('EDIT_FILE.MAXIMUM_FILE_SIZE');
+            return false;
+        }
+        else{
+            this.validateMsg = '';
+            return true;
+        }
+    }
 
-    //             while (counter < seconds) {
-    //                 // setTimeout(() => {
-    //                     counter++;
-    //                     // nowSeconds = new Date().getTime() / 1000;
-                        
-    //                     // @ts-ignore
-    //                     this.postMessage({
-    //                         primeNumbers: counter,
-    //                         isFinish: false
-    //                     });
-    //                 // }, 1000);
-    //             }
-        
-    //             // // @ts-ignore
-    //             // this.worker.terminate();
+    private checkFileType(type) {
+        //Check mime types is allowed
+        this.validateMsg = '';
 
-    //             // // this is from DedicatedWorkerGlobalScope ( because of that we have postMessage and onmessage methods )
-    //             // // and it can't see methods of this class
-    //             // @ts-ignore
-    //             this.postMessage({
-    //                 primeNumbers: counter,
-    //                 isFinish: true
-    //             });
-    //         };
-      
-    //         // @ts-ignore
-    //         this.onmessage = (evt) => {
-    //             console.log('Calculation started: ' + new Date());
-    //             calculateCountOfPrimeNumbers(evt.data.limit);
-    //         };
-    //         // END OF WORKER THREAD CODE
-    //     });
-      
-    //     const limit = 5000;
-    //     // let nowSeconds = new Date().getTime() / 1000;
-    //     // const limitSeconds = nowSeconds + limit;
-    //     worker.postMessage({ limit: limit });
-      
-    //     worker.onmessage().subscribe((data) => {
-    //         console.log('Calculation done: ', new Date() + ' ' + data.data);
-    //         this.result = data.data.primeNumbers;
-
-    //         this._snackBar?.open(this.result.toString(), 'Splash', {
-    //             horizontalPosition: 'end',
-    //             verticalPosition: 'bottom',
-    //         });
-            
-    //         if (data.data.isFinish) {
-    //             worker.terminate();
-    //         }
-    //     });
-      
-    //     worker.onerror().subscribe((data) => {
-    //         console.log(data);
-    //     });
-    // }
-
-    private uploadMultiFiles(files: any[]) {
-        let isValid = true;
-
-        for (let index = 0; index < files.length; index++) {
-            const file = files[index];
-            if(!this.checkFileSize(file.size) || !this.checkFileType(file.type)){
-                isValid = false;
-                break;
+        if(type?.indexOf('image/') > -1){
+            if(!['images', 'all'].includes(this.allowedAssetsTypes)){
+                this.validateMsg = this.translate.instant('EDIT_FILE.NOT_ALLOWED_MIME_TYPE');
             }
         }
+        else if(!['documents', 'all'].includes(this.allowedAssetsTypes)){
+            this.validateMsg = this.translate.instant('EDIT_FILE.NOT_ALLOWED_MIME_TYPE');
+        }
+        
+        return this.validateMsg === '';
+    }
+
+    private uploadMultiFiles(files: File[]) {
+        let isValid = files.length <= this.softFilesCountLimit;
 
         if (isValid) {
-            const assetsKeyPrefix = (this.currentFolder.key === '/' ? '' : this.getCurrentURL());
-            this.addonService.runUploadWorker(files, assetsKeyPrefix);
+            for (let index = 0; index < files.length; index++) {
+                const file = files[index];
+                if(!this.checkFileSize(file.size) || !this.checkFileType(file.type)) {
+                    isValid = false;
+                    break;
+                }
+            }
+            
+            if (isValid) {
+                const assetsKeyPrefix = (this.currentFolder.key === '/' ? '' : this.getCurrentURL());
+                this.addonService.runUploadWorker({ files, assetsKeyPrefix});
+            }
+        } else {
+            // Show limit error msg.
+            const dialogData = new PepDialogData({
+                content: this.translate.instant('ASSETS_PANEL.FILES_COUNT_LIMIT_MESSAGE', { files_limit: this.softFilesCountLimit}),
+                showHeader: false,
+                showClose: false,
+            });
+
+            this.dialogService.openDefaultDialog(dialogData);
+        }
+    }
+    
+    private getEditDialogConfig() {
+        const config = this.dialogService.getDialogConfig({}, 'inline');
+        config.disableClose = true;
+        config.minWidth = '29rem'; // THE EDIT MODAL WIDTH
+
+        return config;
+    }
+
+    private convertURLToBase64(url: string) {
+        return new Promise((resolve, reject) => {
+        this.httpClient.get(url, { responseType: "blob" }).subscribe(blob => {
+                const reader = new FileReader();
+                const binaryString = reader.readAsDataURL(blob);
+                reader.onload = (event: any) => {
+                    resolve(event.target.result);
+                };
+                reader.onerror = (event: any) => {
+                    reject( event.target.error.code);
+                };
+            });
+        });
+    }
+
+    private updateAssetInfo(asset: Asset) {
+        if(asset?.Hidden == true) {
+            this.showDeleteAssetMSG(asset);
+        }
+        else {
+            asset.Key = this.getCurrentURL() + '/' + asset.Name;
+            // this.upsertAsset(asset);
+            this.addonService.runUploadWorker({ assets: [asset] });
         }
     }
 
-    async ngOnInit(){
+    private setBreadCrumbs() {
+        if(this.currentFolder.key === 'new') {
+            this.currentFolder.key = (this.breadCrumbsItems.length).toString();
+            this.breadCrumbsItems.push( new PepBreadCrumbItem({key: this.currentFolder.key, 
+                                                                text: this.cleanFolderName(this.currentFolder.text), 
+                                                                title: this.cleanFolderName(this.currentFolder.title)}));
+        }
+        else {
+            const folderIndex = this.currentFolder.key === '/' ? 0 : parseInt(this.currentFolder.key);
+            this.breadCrumbsItems.length = (folderIndex + 1);
+        }
+        
+        this.setDataSource();
+    }
+
+    private cleanFolderName (folderName: string) : string {
+        return folderName.replace(/\/$/, '');
+    }
+
+    private setWhereClauseSTR(state) {
+        // + " AND MIME LIKE '%folder%'"
+        // "&where="
+        let whereCluse = state.searchString  ? "Name LIKE '%" + state.searchString + "%'" : '';
+            whereCluse +=  this.mimeFilter != 'all' ? ((whereCluse == '' ? '' : " AND ") + "MIME LIKE '%" + this.mimeFilter + "%'") : '';
+            whereCluse = whereCluse !== '' ? "&where=" + whereCluse : '';
+
+            // todo - sort is not supportoted on this version
+            whereCluse += state.sorting ? ("&order_by=" + state.sorting.sortBy + " " + state.sorting.isAsc ? 'ASC' : 'DESC') : '';
+        return whereCluse;
+    }
+
+    private getCurrentURL() {
+        let path = '';
+        for (let i=1 ; i < this.breadCrumbsItems.length; i++) {
+            path += '/' + this.breadCrumbsItems[i].text;
+        }
+        
+        return path;
+    }
+
+    async ngOnInit() {
         this.pager = {
             type: 'pages',
             size: 10,
@@ -182,26 +231,6 @@ export class AddonComponent implements OnInit {
         
     }
     
-    setBreadCrumbs(){
-
-            if(this.currentFolder.key === 'new'){
-                this.currentFolder.key = (this.breadCrumbsItems.length).toString();
-                this.breadCrumbsItems.push( new PepBreadCrumbItem({key: this.currentFolder.key, 
-                                                                   text: this.cleanFolderName(this.currentFolder.text), 
-                                                                   title: this.cleanFolderName(this.currentFolder.title)}));
-            }
-            else{
-                const folderIndex = this.currentFolder.key === '/' ? 0 : parseInt(this.currentFolder.key);
-                this.breadCrumbsItems.length = (folderIndex + 1);
-            }
-            
-            this.setDataSource();
-    }
-
-    cleanFolderName (folderName: string) : string{
-        return folderName.replace(/\/$/, '');
-    }
-
     actions: IPepGenericListActions = {   
         get: async (data: PepSelectionData) => {
             const actions = [];
@@ -224,17 +253,6 @@ export class AddonComponent implements OnInit {
                                 this.editAsset(objs.rows[0]);
                             }
                         }
-                    },
-                    {
-                        title: this.translate.instant("ACTIONS.DOWNLOAD"),
-                        handler: async (objs) => {
-                            if(objs.rows[0]?.MIME && objs.rows[0].MIME === 'pepperi/folder'){
-                                this.onAddFolderClick(null);
-                            }
-                            else{
-                                this.download(objs.rows[0]);
-                            }
-                        }
                     });
             } 
             if (data?.rows.length >= 1 || data?.selectionType === 0) {
@@ -249,20 +267,8 @@ export class AddonComponent implements OnInit {
             return actions;
         }
     }
-    setWhereClauseSTR(state){
-        // + " AND MIME LIKE '%folder%'"
-        // "&where="
-        let whereCluse = state.searchString  ? "Name LIKE '%" + state.searchString + "%'" : '';
-            whereCluse +=  this.mimeFilter != 'all' ? ((whereCluse == '' ? '' : " AND ") + "MIME LIKE '%" + this.mimeFilter + "%'") : '';
-            whereCluse = whereCluse !== '' ? "&where=" + whereCluse : '';
-
-            // todo - sort is not supportoted on this version
-            whereCluse += state.sorting ? ("&order_by=" + state.sorting.sortBy + " " + state.sorting.isAsc ? 'ASC' : 'DESC') : '';
-        return whereCluse;
-    }
 
     setDataSource() {
-
         let folder = this.currentFolder.key === '/' ? '/' : this.getCurrentURL();
 
         this.dataSource = {
@@ -337,27 +343,28 @@ export class AddonComponent implements OnInit {
         }
     }
       
-    onSelectedRowChange(event){
+    onSelectedRowChange(event) {
         this.menuActions = event?.length ? event : [];
     }
     
-    async assetURLChange(url: string = ''){
-
+    async assetURLChange(url: string = '') {
         this.urlValidateMsg = '';
        
-        if(url !== ''){
+        if(url !== '') {
             try {
                 let filename = new URL(url).pathname.split('/').pop();
                 let blob = await fetch(url).then(r => r.blob());
 
-                let asset: IAsset = new IAsset();
+                let asset: Asset = new Asset();
 
                 asset.Key = this.getCurrentURL() + '/' + filename;
                 asset.URI = await this.convertURLToBase64(url) as string;
-                asset.fileSize = this.formatFileSize(blob.size,2);
+                // asset.fileSize = this.formatFileSize(blob.size,2);
+                asset.fileSize = blob.size;
                 asset.MIME = blob.type;
             
-                this.upsertAsset(asset);
+                // this.upsertAsset(asset);
+                this.addonService.runUploadWorker({ assets: [asset] });
             }
             catch (e){
                 this.urlValidateMsg = e.message;
@@ -365,19 +372,18 @@ export class AddonComponent implements OnInit {
         }
     }
 
-    assetLinkURLChange(event){
+    assetLinkURLChange(event) {
         // emit the new url - the addon/component user need to get the url and use it like a URL ( without upload a file)
         this.linkUrlClick.emit({url: event});
     }    
 
-    onMenuItemClicked(action: IPepMenuItemClickEvent){
+    onMenuItemClicked(action: IPepMenuItemClickEvent) {
         this.mimeFilter = action.source.key;
         this.setDataSource();
-        
     }
 
-    onBreadCrumbItemClick(event){
-        if(this.currentFolder.text === event.source.text){
+    onBreadCrumbItemClick(event) {
+        if(this.currentFolder.text === event.source.text) {
             return false;
         }
 
@@ -385,60 +391,14 @@ export class AddonComponent implements OnInit {
         this.setBreadCrumbs();
     }
 
-    download(key) {
-
-        let asset = this.getSelectedAsset(key);
-        
-        //e.preventDefault();
-				
-		//window.location.href = ;
-        this.downloadResource(asset.URL,asset.Name);
-    
-
-        /*var downloadfile = document.createElement('a');
-        
-        downloadfile.setAttribute('href', asset.URL);
-        downloadfile.setAttribute('download', asset.Name);
-      
-        downloadfile.style.display = 'none';
-        document.body.appendChild(downloadfile);
-      
-        downloadfile.click();
-      
-        document.body.removeChild(downloadfile);*/
-      }
-
-       forceDownload(blob, filename) {
-        var a = document.createElement('a');
-        a.download = filename;
-        a.href = blob;
-        // For Firefox https://stackoverflow.com/a/32226068
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-      }
-      
-      // Current blob size limit is around 500MB for browsers
-    downloadResource(url, filename) {
-        if (!filename) filename = url.split('\\').pop().split('/').pop();
-        fetch(url, {
-            headers: new Headers({
-              'Origin': location.origin
-            }),
-            mode: 'cors'
-          })
-          .then(response => response.blob())
-          .then(blob => {
-            let blobUrl = window.URL.createObjectURL(blob);
-            this.forceDownload(blobUrl, filename);
-          })
-          .catch(e => console.error(e));
-      }
-   
-
     onSearchAutocompleteChanged(value) {
         console.log(value);
     }
+
+    // onSearchStateChanged(searchStateChangeEvent: IPepSearchStateChangeEvent) {
+
+    // }
+  
 
     // sortToggle(event){
     //     this.sortBy = this.sortBy === 'ascending' ? 'ascending' : 'descending';
@@ -450,50 +410,50 @@ export class AddonComponent implements OnInit {
     //     // TODO - REPLACE BETWEEN THE VIEWS IMPLEMENTATION
     // }
 
-    onAddFolderClick(event){
-        this.openDialog(AddFolderComponent,(data) => {
-        this.addNewFolder(data)});
+    onAddFolderClick(event) {
+        let config = this.getEditDialogConfig();
+        this.dialogService.openDialog(AddFolderComponent, {}, config).afterClosed().subscribe((value) => {
+            if (value) {
+                this.addNewFolder(value);
+            }
+        });
     }
 
-    editAsset(key){
-        
+    editAsset(key) {
         let asset = this.getSelectedAsset(key);
         
-        if(asset){
-            this.openDialog(EditFileComponent,(res) => {
-            this.updateAssetInfo(res)}, {'asset': asset , 'breadCrumbs': this.breadCrumbsItems});
+        if(asset) {
+            let config = this.getEditDialogConfig();
+            const data = { 
+                'asset': asset ,
+                'breadCrumbs': this.breadCrumbsItems
+            };
+
+            this.dialogService.openDialog(EditFileComponent, data, config).afterClosed().subscribe((value) => {
+                if (value) {
+                    this.updateAssetInfo(value);
+                }
+            });
         }
     }
 
-    async updateAssetInfo(asset: IAsset){
-       
-        if(asset?.Hidden == true){
-            this.showDeleteAssetMSG(asset);
-        }
-        else{
-            asset.Key = this.getCurrentURL() + '/' + asset.Name;
-            this.upsertAsset(asset);
-           
-        }
-    }
-
-    getSelectedAsset(key?: string){      
-        return this.assetsList.find(asset => asset.Key === key) || new IAsset();
+    getSelectedAsset(key?: string) {      
+        return this.assetsList.find(asset => asset.Key === key) || new Asset();
     }
     
-    onCustomizeFieldClick(fieldClickEvent: IPepFormFieldClickEvent){
+    onCustomizeFieldClick(fieldClickEvent: IPepFormFieldClickEvent) {
        
         const asset: any = this.getSelectedAsset(fieldClickEvent.id);
 
-        if(asset.MIME?.indexOf('application/') > -1 && fieldClickEvent.fieldType !== 26){
+        if(asset.MIME?.indexOf('application/') > -1 && fieldClickEvent.fieldType !== 26) {
             return false;
         }   
-        else if(asset?.MIME && asset.MIME === 'pepperi/folder'){
+        else if(asset?.MIME && asset.MIME === 'pepperi/folder') {
             this.currentFolder = { key: 'new', text: asset.Name, title: asset.Name};
             this.setBreadCrumbs();
             return false;
         }
-        else if(fieldClickEvent.fieldType == FIELD_TYPE.Image){
+        else if(fieldClickEvent.fieldType == FIELD_TYPE.Image) {
             this.imageService.openImageDialog( fieldClickEvent.otherData.imageSrc, [], asset.Key );
         }
         else { 
@@ -501,7 +461,7 @@ export class AddonComponent implements OnInit {
         }
     }
 
-    showDeleteAssetMSG(asset: IAsset = null){
+    showDeleteAssetMSG(asset: Asset = null) {
         const dialogData = new PepDialogData({
             content: this.translate.instant('GRID.CONFIRM_DELETE'),
             showHeader: false,
@@ -509,19 +469,23 @@ export class AddonComponent implements OnInit {
             showClose: false,
         });
 
-        this.openDialogMsg(dialogData,() => {
-            this.deleteAssets(asset)
-        });  
+        this.dialogService.openDefaultDialog(dialogData).afterClosed()
+            .subscribe((isDeletePressed) => {
+                if (isDeletePressed) {
+                    this.deleteAssets(asset)
+                }
+        });
     }
 
-    deleteAssets(asset: IAsset = null){
+    deleteAssets(asset: Asset = null) {
         // TODO - NEED FIX THIS WHEN CHANGING TO MULTIPLE SELECTION MODE 
         asset = asset !== null ? asset : 
                 this.getSelectedAsset(this.genericListService.getSelectedItems().rows[0]);
         
         asset.Hidden = true;
 
-        this.upsertAsset(asset, null, 'deleting');
+        // this.upsertAsset(asset, null, 'deleting');
+        this.addonService.runUploadWorker({ status: 'deleting', assets: [asset] });
     }
 
     onDragOver(event) {
@@ -540,57 +504,15 @@ export class AddonComponent implements OnInit {
         this.uploadMultiFiles(Array.from(e));
     }
 
-    convertURLToBase64(url: string) {
-        return new Promise((resolve, reject) => {
-        this.httpClient.get(url, { responseType: "blob" }).subscribe(blob => {
-                const reader = new FileReader();
-                const binaryString = reader.readAsDataURL(blob);
-                reader.onload = (event: any) => {
-                    resolve(event.target.result);
-                };
-                reader.onerror = (event: any) => {
-                    reject( event.target.error.code);
-                };
-            });
-        });
-    }
-
-    checkFileSize(size: number){
-        if(size > this.maxFileSize){
-            this.validateMsg = this.translate.instant('EDIT_FILE.MAXIMUM_FILE_SIZE');
-            return false;
-        }
-        else{
-            this.validateMsg = '';
-            return true;
-        }
-    }
-
-    checkFileType(type){
-        //Check mime types is allowed
-        this.validateMsg = '';
-
-        if(type?.indexOf('image/') > -1){
-            if(!['images', 'all'].includes(this.allowedAssetsTypes)){
-                this.validateMsg = this.translate.instant('EDIT_FILE.NOT_ALLOWED_MIME_TYPE');
-            }
-        }
-        else if(!['documents', 'all'].includes(this.allowedAssetsTypes)){
-            this.validateMsg = this.translate.instant('EDIT_FILE.NOT_ALLOWED_MIME_TYPE');
-        }
-        
-        return this.validateMsg === '';
-    }
-
-    convertFileToBase64(file : File) : Observable<string> {
-        const result = new ReplaySubject<string>(1);
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = (event) => result.next(event.target.result.toString());
-        return result;
-    }
+    // convertFileToBase64(file : File) : Observable<string> {
+    //     const result = new ReplaySubject<string>(1);
+    //     const reader = new FileReader();
+    //     reader.readAsDataURL(file);
+    //     reader.onload = (event) => result.next(event.target.result.toString());
+    //     return result;
+    // }
     
-    getThumbnails(url) : Array<Thumbnails>{
+    getThumbnails(url) : Array<Thumbnails> {
         let Thumbnails = [];
 
         var img = new Image();
@@ -608,115 +530,14 @@ export class AddonComponent implements OnInit {
         return Thumbnails;
     }
 
-    // TODO: remove this
-    // async addNewFile(f){
-    //     //Check if file size & type are allowed
-    //     if(!this.checkFileSize(f.size) || !this.checkFileType(f.type)){
-    //         return false;
-    //     }
-
-    //     // create new asset object
-    //     let asset = new IAsset('file');
-
-    //     this.convertFileToBase64(f).subscribe(async base64 => {
-    //         asset.URI = base64;
-    //         asset.Key = (this.currentFolder.key === '/' ? '' : this.breadCrumbsItems[1].text) + '/' +  f.name;
-    //         asset.MIME = f.type;
-    //         asset.creationDate = new Date().getTime(); 
-    //         asset.modificationDate = f.lastModified;
-    //         asset.fileSize = f.size; //this.assetsService.formatFileSize(f.size,2);
-
-    //         // if(asset.MIME.indexOf('image/') > -1){ 
-    //         //     const url = URL.createObjectURL(f);
-    //         //     asset.Thumbnails = await this.getThumbnails(url);
-    //         // }
-    //         //this.setAssetsStack(asset);
-    //         this.upsertAsset(asset);
-    //     });
-    // }
-
-    upsertAsset(asset: IAsset, query = null, status: uploadStatus = 'uploading') {
-        this.setAssetsStack(asset,status);
-        this.addonService.upsertAsset(asset).then((res)=> {
-            if(res) {
-                this.setAssetsStack(asset, 'done');
-                this.setDataSource();
-
-                this.linkURL = this.popUplinkURL = '';
-
-                // TODO: just update the data.
-                // this.dataSource.update({
-                //     fromIndex: 0,
-                //     toIndex: 100,
-                // });
-            }
-        }); 
-    }
-    
-    setAssetsStack(asset: IAsset, status: uploadStatus = "uploading"){
-        let isExist = false;
-        this.assetsStack.forEach(file => {
-            if(file.name == asset.Key) {
-                file.status = status;
-                isExist = true;
-            }
-        });
-        
-        if(!isExist){
-            this.assetsStack.push({'name': asset.Key, 'status': status});
-            this.addonService.showSnackBar(status, this.assetsStack);
-        }
-    }
-
-    async addNewFolder(data){
-        let folder = new IAsset();
+    async addNewFolder(data) {
+        let folder = new Asset();
         folder.MIME = 'pepperi/folder';
         folder.URI = ''; // should be empty for folder
         folder.Key = this.getCurrentURL() + '/' + data + "/";
 
-        this.upsertAsset(folder);
-    };
-
-    getCurrentURL(){
-        let path = '';
-        for(let i=1 ; i < this.breadCrumbsItems.length; i++){
-            path += '/' + this.breadCrumbsItems[i].text;
-        }
-        
-        return path;
+        // this.upsertAsset(folder);
+        this.addonService.runUploadWorker({ assets: [folder] });
     }
 
-    formatFileSize(bytes,decimalPoint) {
-        if(bytes == 0) return '0 Bytes';
-        var k = 1000,
-            dm = decimalPoint || 2,
-            sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'],
-            i = Math.floor(Math.log(bytes) / Math.log(k));
-        return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
-    }
-
-    openDialog(comp: any, callBack, data = {}){
-    
-        let config = this.dialogService.getDialogConfig({}, 'inline');
-            config.disableClose = true;
-            config.minWidth = '29rem'; // THE EDIT MODAL WIDTH
-
-        let dialogRef: MatDialogRef<any> = this.dialogService.openDialog(comp, data, config);
-
-        dialogRef.afterClosed().subscribe((value) => {
-            if (value !== undefined && value !== null) {
-                callBack(value);
-            }
-        });
-    }
-
-    openDialogMsg(dialogData: PepDialogData, callback?: any) {
-    
-        this.dialogService.openDefaultDialog(dialogData).afterClosed()
-            .subscribe((isDeletePressed) => {
-                if (isDeletePressed) {
-                    callback();
-                }
-        });
-    }
 }

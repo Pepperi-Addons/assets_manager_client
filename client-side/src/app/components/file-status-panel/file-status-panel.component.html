@@ -9,7 +9,7 @@
                 <ng-container *ngIf="file?.status !== 'hidden'">
                     <span class="color-dimmed body-sm ellipsis">{{file.name}}</span>
                     <pep-icon class="pep-spacing-element" name="arrow_right_alt"></pep-icon>
-                    <span class="body-sm">{{file.status}}</span>
+                    <span class="body-sm" title="{{file.statusMessage}}">{{file.status}}</span>
                 </ng-container>
             </li>
         </ul>
