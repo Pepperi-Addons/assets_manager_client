@@ -10,12 +10,9 @@ import { allowedAssetsTypes, assetProcess, Asset, selectionType, Thumbnails } fr
 import { IPepMenuItemClickEvent, PepMenuItem } from "@pepperi-addons/ngx-lib/menu";
 import { PepDialogData, PepDialogService } from "@pepperi-addons/ngx-lib/dialog";
 import { HttpClient } from "@angular/common/http";
-import { Observable, ReplaySubject } from "rxjs";
 import { PepSelectionData } from "@pepperi-addons/ngx-lib/list";
 import { IPepFormFieldClickEvent } from "@pepperi-addons/ngx-lib/form";
 import { PepImageService } from "@pepperi-addons/ngx-lib/image";
-import { MatSnackBar } from "@angular/material/snack-bar";
-import { InlineWorker} from '../inline-worker';
 
 @Component({
     selector: 'addon-module',
@@ -65,8 +62,7 @@ export class AddonComponent implements OnInit {
         private pepAddonService: PepAddonService,
         public translate: TranslateService,
         public dialogService: PepDialogService,
-        private httpClient: HttpClient,
-        private _snackBar: MatSnackBar
+        private httpClient: HttpClient
     ) {
         this.imagesPath = this.pepAddonService.getAddonStaticFolder() + 'assets/images/';
         this.layoutService.onResize$.subscribe(size => {

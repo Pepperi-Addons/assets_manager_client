@@ -1,4 +1,4 @@
-import { fileStatus } from "../components/file-status-panel/file-status-panel.model";
+import { FileStatusType } from "@pepperi-addons/ngx-composite-lib/file-status-panel";
 
 export type syncOption = "None" | "Device" | "DeviceThumbnail" | "Always";
 export type allowedAssetsTypes = 'images' | 'documents' | 'all';
@@ -15,7 +15,7 @@ export class Thumbnails {
 export class assetProcess {
     key?: number;
     name = '';
-    status: fileStatus = 'uploading';
+    status: FileStatusType = 'uploading';
 }
 export class Asset {
     Key: string = ''; // mandatory, unique, /my-images/7535.jpg /'s in the name will organize the files in folders

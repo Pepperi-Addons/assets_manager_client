@@ -9,18 +9,20 @@ import { PepNgxLibModule, PepAddonService, PepFileService } from '@pepperi-addon
 import { PepTopBarModule } from '@pepperi-addons/ngx-lib/top-bar';
 import { PepSizeDetectorModule } from '@pepperi-addons/ngx-lib/size-detector';
 import { PepPageLayoutModule } from '@pepperi-addons/ngx-lib/page-layout';
-import { pepIconSystemClose, pepIconArrowDownAlt, pepIconSystemBin,PepIconModule, pepIconArrowTwoWaysVerT, PepIconRegistry, pepIconSystemDoc, pepIconSystemFolder, pepIconViewCardSm, pepIconViewLine, pepIconViewTable } from '@pepperi-addons/ngx-lib/icon';
-
 import { PepButtonModule } from '@pepperi-addons/ngx-lib/button';
 import { PepDialogModule } from '@pepperi-addons/ngx-lib/dialog';
 import { PepMenuModule } from '@pepperi-addons/ngx-lib/menu';
 import { PepDraggableItemsModule } from '@pepperi-addons/ngx-lib/draggable-items';
-import { PepGenericListModule } from '@pepperi-addons/ngx-composite-lib/generic-list';
 import { PepTextboxModule } from '@pepperi-addons/ngx-lib/textbox';
 import { PepSelectModule } from '@pepperi-addons/ngx-lib/select';
-import { PepFileStatusPanelModule }  from '../components/file-status-panel';
 import { PepListModule } from '@pepperi-addons/ngx-lib/list';
 import { PepBreadCrumbsModule } from '@pepperi-addons/ngx-lib/bread-crumbs';
+import { PepSearchModule } from '@pepperi-addons/ngx-lib/search';
+import { PepSnackBarModule } from '@pepperi-addons/ngx-lib/snack-bar';
+import { pepIconSystemClose, pepIconArrowDownAlt, pepIconSystemBin,PepIconModule, pepIconArrowTwoWaysVerT, PepIconRegistry, pepIconSystemDoc, pepIconSystemFolder, pepIconViewCardSm, pepIconViewLine, pepIconViewTable } from '@pepperi-addons/ngx-lib/icon';
+
+import { PepGenericListModule } from '@pepperi-addons/ngx-composite-lib/generic-list';
+import { PepFileStatusPanelModule }  from '@pepperi-addons/ngx-composite-lib/file-status-panel';
 
 import { TranslateLoader, TranslateModule, TranslateService, TranslateStore } from '@ngx-translate/core';
 
@@ -31,7 +33,6 @@ import { config } from './addon.config';
 import { AddFolderModule } from '../components/add-folder/add-folder.module';
 import { EditFileModule } from '../components/edit-file/edit-file.module';
 
-import { PepSearchModule } from '@pepperi-addons/ngx-lib/search';
 
 const pepIcons = [
     pepIconViewTable,
@@ -77,6 +78,7 @@ export const routes: Routes = [
         EditFileModule,
         PepIconModule,
         PepSearchModule,
+        PepSnackBarModule,
         TranslateModule.forChild({
             loader: {
                 provide: TranslateLoader,
