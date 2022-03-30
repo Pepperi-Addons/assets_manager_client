@@ -15,7 +15,7 @@
     </ul>
     <pep-textbox [label]="'EDIT_FILE.ASSET_URL' | translate" type="link" [(value)]="data.asset.URL" sizeType="xs"></pep-textbox>
     <label class="body-xs normal ellipsis">{{'EDIT_FILE.SYNCABLE' | translate}}</label>
-    <pep-checkbox  [value]="data.asset.Sync !== 'None'" [label]="'EDIT_FILE.SYNCABLE_EXPLAIN' | translate"  [renderTitle]="false"></pep-checkbox>
+    <pep-checkbox  [value]="data.asset.Sync !== 'None'" [label]="'EDIT_FILE.SYNCABLE_EXPLAIN' | translate"  [renderTitle]="false" (valueChange)="syncValueChange($event)"></pep-checkbox>
     <pep-separator class="pep-field-no-spacing"></pep-separator>
     <div class="gridContainer">
         <pep-textbox [label]="'EDIT_FILE.ASSET_NAME' | translate" [disabled]="true" type="text" [(value)]="data.asset.Key" sizeType="xs"></pep-textbox>

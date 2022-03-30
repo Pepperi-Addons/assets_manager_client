@@ -62,4 +62,8 @@ export class EditFileComponent implements OnInit {
 
         this.dialogRef?.close(this.data.asset);
     }
+
+    syncValueChange(event){
+        this.data.asset.Sync = event ? "Device" : 'None';
+    }
 }
