@@ -4,17 +4,18 @@ import { PapiClient } from '@pepperi-addons/papi-sdk';
 import { Injectable } from '@angular/core';
 
 import { PepAddonService, PepHttpService, PepSessionService } from '@pepperi-addons/ngx-lib';
+import { PepSnackBarService } from '@pepperi-addons/ngx-lib/snack-bar';
 import { HttpClient } from '@angular/common/http';
 import { config } from './addon.config';
 import { assetProcess, Asset } from './addon.model';
 import { ActivatedRoute } from '@angular/router';
 import { MatSnackBar, MatSnackBarRef, TextOnlySnackBar } from '@angular/material/snack-bar';
 import { InlineWorker } from '../inline-worker';
-import { fileStatus, FileStatusPanelComponent, IFile } from '../components/file-status-panel';
+import { FileStatusType, FileStatusPanelComponent, FileStatus } from '@pepperi-addons/ngx-composite-lib/file-status-panel';
 import { TranslateService } from '@ngx-translate/core';
 
 export interface IUploadFilesWorkerOptions {
-    status?: fileStatus;
+    status?: FileStatusType;
     files?: File[];
     assetsKeyPrefix?: string;
     assets?: Asset[];
@@ -27,7 +28,7 @@ export interface IUploadFilesWorkerData {
 }
 
 export interface IUploadFilesWorkerResult {
-    filesStatus?: Array<IFile>;
+    filesStatus?: Array<FileStatus>;
     isFinish?: boolean;
 }
 
@@ -39,7 +40,6 @@ export class AddonService {
     parsedToken: any
     papiBaseURL = ''
     addonUUID;
-    snackBarRef: MatSnackBarRef<TextOnlySnackBar>;
     currentSnackBar: MatSnackBarRef<FileStatusPanelComponent>;
 
     get papiClient(): PapiClient {
@@ -62,7 +62,8 @@ export class AddonService {
         private addonService:  PepAddonService,
         private httpClient: HttpClient,
         private httpService: PepHttpService,
-        private snackBar: MatSnackBar,
+        // private snackBar: MatSnackBar,
+        private pepSnackBarService: PepSnackBarService,
         private translate: TranslateService,
     ) {
         this.addonUUID = config.AddonUUID;
@@ -118,18 +119,17 @@ export class AddonService {
 
     showSnackBar(title, assetsStack) {
         if (this.currentSnackBar?.instance) {
-            this.currentSnackBar.instance.title = title;
-            this.currentSnackBar.instance.filesList = assetsStack;
+            this.currentSnackBar.instance.data = {
+                title: title, 
+                content: assetsStack
+            }
         } else {
-            this.currentSnackBar = this.snackBar.openFromComponent(FileStatusPanelComponent, {
-                horizontalPosition: 'end',
-                verticalPosition: 'bottom',
+            this.currentSnackBar = this.pepSnackBarService.openSnackBarFromComponent(FileStatusPanelComponent, {
+                title: title, 
+                content: assetsStack
             });
-            this.currentSnackBar.instance.title = title;
-            this.currentSnackBar.instance.filesList = assetsStack;
-
+            
             this.currentSnackBar.instance.closeClick.subscribe(() => {
-                this.currentSnackBar.dismiss();
                 this.currentSnackBar = null;
             });
         }
@@ -265,7 +265,7 @@ export class AddonService {
         worker.onmessage().subscribe((workerRes) => {
             const res: IUploadFilesWorkerResult = workerRes.data;
             console.log(res.isFinish ? 'Upload done: ' : 'Upload updated: ', new Date() + ' ' + res);
-            let assetsStack: Array<IFile> = res.filesStatus;
+            let assetsStack: Array<FileStatus> = res.filesStatus;
             this.showSnackBar(this.translate.instant('ASSETS_PANEL.TITLE'), assetsStack);
             
             if (res.isFinish) {
