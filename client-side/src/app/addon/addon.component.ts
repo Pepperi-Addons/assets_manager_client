@@ -15,7 +15,7 @@ import { IPepFormFieldClickEvent } from "@pepperi-addons/ngx-lib/form";
 import { PepImageService } from "@pepperi-addons/ngx-lib/image";
 
 @Component({
-    selector: 'addon-module',
+    selector: 'assets-manager-addon',
     templateUrl: './addon.component.html',
     styleUrls: ['./addon.component.scss'],
     providers: [TranslatePipe,AddFolderComponent,EditFileComponent]
@@ -24,7 +24,6 @@ export class AddonComponent implements OnInit {
     @Input() hostObject: any;
     
     @Output() hostEvents: EventEmitter<any> = new EventEmitter<any>();
-    @Output() linkUrlClick: EventEmitter<any> = new EventEmitter();
 
     screenSize: PepScreenSizeType;
     
@@ -370,7 +369,10 @@ export class AddonComponent implements OnInit {
 
     assetLinkURLChange(event) {
         // emit the new url - the addon/component user need to get the url and use it like a URL ( without upload a file)
-        this.linkUrlClick.emit({url: event});
+        this.hostEvents.emit({
+            action: 'link-url',
+            url: event
+        });
     }    
 
     onMenuItemClicked(action: IPepMenuItemClickEvent) {
