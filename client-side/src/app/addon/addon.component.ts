@@ -48,7 +48,7 @@ export class AddonComponent implements OnInit {
 
     @Input() currentFolder: PepBreadCrumbItem;
     @Input() maxFileSize: number = 1250000;
-    @Input() isOnPopUp: boolean = true;
+    @Input() isOnPopUp: boolean = false;
     @Input() allowedAssetsTypes: allowedAssetsTypes = 'all';
     @Input() selectionType: selectionType = 'multiple';
     
@@ -74,6 +74,36 @@ export class AddonComponent implements OnInit {
                 this.setDataSource();
             }
         });
+    }
+
+    async ngOnInit() {
+
+        if(this.hostObject){
+            this.isOnPopUp = this.hostObject.isOnPopUp || this.isOnPopUp;
+            this.maxFileSize = this.hostObject.maxFileSize || this.maxFileSize;
+            this.allowedAssetsTypes = this.hostObject.allowedAssetsTypes || this.allowedAssetsTypes;
+            this.selectionType = this.hostObject.selectionType || this.selectionType;
+            this.currentFolder = this.hostObject.currentFolder || this.currentFolder;
+        }
+
+        this.pager = {
+            type: 'pages',
+            size: 10,
+            index: 0
+        };
+        const folder = await this.translate.get('ADD_FOLDER.FOLDER').toPromise();
+
+        this.mimeFilterItems= [{ key: 'all', text: this.translate.instant('TOP_BAR.FILTER_TYPE.ALL') },
+                               { key: 'image', text: this.translate.instant('TOP_BAR.FILTER_TYPE.IMG')},
+                               { key: 'application', text: this.translate.instant('TOP_BAR.FILTER_TYPE.DOC')}];
+
+        
+        this.breadCrumbsItems = new Array<PepBreadCrumbItem>();
+        this.currentFolder = new PepBreadCrumbItem({key: '/', text: 'Main', title: 'Main'});
+        this.breadCrumbsItems.push(this.currentFolder); 
+
+        this.setDataSource();
+        
     }
 
     private checkFileSize(size: number) {
@@ -203,27 +233,6 @@ export class AddonComponent implements OnInit {
         }
         
         return path;
-    }
-
-    async ngOnInit() {
-        this.pager = {
-            type: 'pages',
-            size: 10,
-            index: 0
-        };
-        const folder = await this.translate.get('ADD_FOLDER.FOLDER').toPromise();
-
-        this.mimeFilterItems= [{ key: 'all', text: this.translate.instant('TOP_BAR.FILTER_TYPE.ALL') },
-                               { key: 'image', text: this.translate.instant('TOP_BAR.FILTER_TYPE.IMG')},
-                               { key: 'application', text: this.translate.instant('TOP_BAR.FILTER_TYPE.DOC')}];
-
-        
-        this.breadCrumbsItems = new Array<PepBreadCrumbItem>();
-        this.currentFolder = new PepBreadCrumbItem({key: '/', text: 'Main', title: 'Main'});
-        this.breadCrumbsItems.push(this.currentFolder); 
-
-        this.setDataSource();
-        
     }
     
     actions: IPepGenericListActions = {   
