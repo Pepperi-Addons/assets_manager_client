@@ -3,6 +3,7 @@
     
     "UPLOAD_ASSET": {
         "TITLE": "Upload an asset",
+        "SEC_TITLE": "Add Assets",
         "SUB_TITLE": "By clicking or darging & droping",
         "UPLOAD_FILE": "Upload File or Files",
         "UPLOAD_URL": "Or by typing a URL",
@@ -56,7 +57,8 @@
         "DESCRIPTION": "Description",
         "PREVIEW": "Preview",
         "NOT_ALLOWED_MIME_TYPE": "This file format is not supported",
-        "MAXIMUM_FILE_SIZE":"Maximum 10MB per file"
+        "MAXIMUM_FILE_SIZE":"Maximum 10MB per file",
+        "PLEASE_CHOOSE_ASSET": "Please choose asset"
     },
 
     "ACTIONS": {
@@ -64,7 +66,9 @@
         "CANCEL": "Cancel",
         "EDIT": "Edit Asset info",
         "DELETE": "Delete",
-        "UPDATE_ASSET": "Update Asset Info"
+        "UPDATE_ASSET": "Update Asset Info",
+        "CLOSE": "Close",
+        "DONE": "Done"
     },
 
     "ASSETS_PANEL": {
