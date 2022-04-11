@@ -9,10 +9,15 @@
     </ng-container>
 
     <ng-container pep-main-area>
-        <div class="uploader-content" [ngClass]="isOnPopUp === true ? 'popUpView' : ''">
+        <div class="inDialogCollapseHeader pep-border-bottom">
+            <pep-button #toggleBtn class="pep-spacing-element toggleBtn pull-left flip" [styleType]="'weak'" [styleStateType]="'system'" [sizeType]="'xs'"
+                    (buttonClick)="toggleContentView($event)" iconName="arrow_down" [ngClass]="inDialog === true ? 'rotate' : ''"></pep-button>
+                    <label class="body-md ellipsis pull-left flip pep-spacing-element">{{'UPLOAD_ASSET.SEC_TITLE' | translate}}</label>
+        </div>
+        <div #uploaderCont class="uploader-content expand" [ngClass]="inDialog === true ? 'popUpView collapse' : ''">
             <div class="upload-asset">
-                <div class="file-section">
-                    <label class="body-md ellipsis">{{'UPLOAD_ASSET.TITLE' | translate}}</label>
+                <div class="file-section"> 
+                    <label class="body-md ellipsis pull-left flip">{{'UPLOAD_ASSET.TITLE' | translate}}</label>
                     <span class="body-xs ellipsis">{{'UPLOAD_ASSET.SUB_TITLE' | translate}}</span>
     
                     <div class="fileupload" (click)="fileField.click()" (dragover)="onDragOver($event)" 
@@ -30,7 +35,7 @@
                     <div *ngIf="urlValidateMsg !== ''" class="body-xs validationMsg">{{urlValidateMsg}}</div>
                 </div>
             </div>
-            <div *ngIf="isOnPopUp" class="link-asset">
+            <div *ngIf="inDialog" class="link-asset">
                     <label class="body-md">{{'UPLOAD_ASSET.LINK_TITLE' | translate}}</label>
                     <pep-textbox [label]="'UPLOAD_ASSET.LINK_SUB_TITLE' | translate" type="link" [(value)]="popUplinkURL" sizeType="md"></pep-textbox>
                     <pep-button [value]="'UPLOAD_ASSET.LINK_URL' | translate" [styleType]="'regular'" [sizeType]="'md'"  (buttonClick)="assetLinkURLChange(popUplinkURL);"></pep-button>
@@ -38,7 +43,7 @@
         </div>
 
         <pep-generic-list [dataSource]="dataSource" [actions]="actions" (onSelectedRowChange)="onSelectedRowChange($event)" 
-            [uuidMapping]="'Key'" [pager]="pager" [breadCrumbsItems]="breadCrumbsItems" (breadCrumbItemClick)="onBreadCrumbItemClick($event)"
+            [uuidMapping]="'Key'"  [breadCrumbsItems]="breadCrumbsItems" (breadCrumbItemClick)="onBreadCrumbItemClick($event)"
             [inline]="true" [selectionType]="'single'" [supportSorting]="false" [showSearch]="true"
             [showTopBar]="true" [title]="assetsHeaderTitle" [noDataFoundMsg]="'GRID.FILE_NOT_FOUND' | translate"
             (fieldClick)="onCustomizeFieldClick($event)">
@@ -48,6 +53,10 @@
         </pep-generic-list>
 
         <!-- <pep-file-status-panel [title]="'File download'" [filesList]="assetsStack"></pep-file-status-panel> -->
+        <div *ngIf="inDialog" id="actionBtns" class="pep-border-top">
+            <pep-button value="{{'ACTIONS.CLOSE' | translate}}" styleType="weak" sizeType="md" classNames="pep-spacing-element" (buttonClick)="closeDialogClick($event)"></pep-button>
+            <pep-button value="{{'ACTIONS.DONE' | translate}}" styleType="strong" sizeType="md" classNames="pep-spacing-element" (buttonClick)="doneAssetsClick($event)"></pep-button>
+        </div>
     </ng-container>
 </pep-page-layout>
 

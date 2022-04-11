@@ -2,17 +2,50 @@
 @use '~@pepperi-addons/ngx-lib/src/core/style/abstracts/functions' as ngx-functions;
 @use '~@pepperi-addons/ngx-lib/src/core/style/abstracts/mixins' as ngx-mixins;
 
+::ng-deep .pep-top-area{
+    .left-container{
+        align-items: center !important;
+    }
+    .pep-button{
+        height: 1.75rem !important;
+    }
+}
 ::ng-deep .pep-main-area{
 
     display: grid !important;
-    grid-template-rows: auto 1fr;
+    grid-template-rows: min-content min-content auto min-content;
    
+    .inDialogCollapseHeader{
+        height: 3rem;
+        line-height: 3rem;
+        padding-top: 0.75rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .toggleBtn{
+        &.rotate{
+            transform: rotate(-90deg);
+        }
+    }
+
     .uploader-content{
         margin: 1rem 0;
         display: flex;
         flex-direction: row;
         gap: 1rem;
+        transition: max-height 2000ms ease-in;
 
+        // &.expand{
+        //     max-height:fit-content;
+
+        // }
+
+        &.collapse{
+            max-height: 0;
+            overflow: hidden;
+            margin: 0;
+            
+        }
         .upload-asset,
         .link-asset{
             height: 153px;
@@ -30,6 +63,8 @@
                 border-radius: .25rem;
                 padding: 1rem;
             }
+
+          
         }
 
         .upload-asset{
@@ -37,10 +72,15 @@
 
             .file-section{
 
+              
                 label {
                     display: block;
                 }
 
+                span{
+                    display: block;
+                    clear: left;
+                }
                 .fileupload {
                     width: 240px;
                     height: 6rem;
@@ -122,5 +162,14 @@
             }
         }
     }
+
+    #actionBtns{
+        display: flex;
+        align-items: center;
+        justify-content: end;
+        height: 4rem;
+        margin-bottom: -0.75rem;
+    }
 }
+
 

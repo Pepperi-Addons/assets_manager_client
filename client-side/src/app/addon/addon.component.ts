@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from "@angular/core";
+import { Component, ElementRef, EventEmitter, Input, OnInit, Output, Renderer2, ViewChild } from "@angular/core";
 import { FIELD_TYPE, PepAddonService, PepLayoutService, PepScreenSizeType, PepSessionService } from '@pepperi-addons/ngx-lib';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { IPepGenericListDataSource, IPepGenericListPager, IPepGenericListActions, IPepGenericListInitData, PepGenericListService } from "@pepperi-addons/ngx-composite-lib/generic-list";
@@ -21,8 +21,17 @@ import { PepImageService } from "@pepperi-addons/ngx-lib/image";
     providers: [TranslatePipe,AddFolderComponent,EditFileComponent]
 })
 export class AddonComponent implements OnInit {
-    @Input() hostObject: any;
     
+    @ViewChild('uploaderCont', { static: false }) uploaderCont: ElementRef;
+    @ViewChild('toggleBtn', { static: false }) toggleBtn: ElementRef;
+    
+    @Input() hostObject: any;
+    @Input() currentFolder: PepBreadCrumbItem;
+    @Input() maxFileSize: number = 1250000;
+    @Input() inDialog: boolean = false;
+    @Input() allowedAssetsTypes: allowedAssetsTypes = 'images';
+    @Input() selectionType: selectionType = 'multiple';
+
     @Output() hostEvents: EventEmitter<any> = new EventEmitter<any>();
 
     screenSize: PepScreenSizeType;
@@ -46,12 +55,6 @@ export class AddonComponent implements OnInit {
     mimeFilter = "all";
     softFilesCountLimit = 10;
 
-    @Input() currentFolder: PepBreadCrumbItem;
-    @Input() maxFileSize: number = 1250000;
-    @Input() isOnPopUp: boolean = false;
-    @Input() allowedAssetsTypes: allowedAssetsTypes = 'all';
-    @Input() selectionType: selectionType = 'multiple';
-    
     constructor(
         public addonService: AddonService,
         private sessionService: PepSessionService,
@@ -61,7 +64,8 @@ export class AddonComponent implements OnInit {
         private pepAddonService: PepAddonService,
         public translate: TranslateService,
         public dialogService: PepDialogService,
-        private httpClient: HttpClient
+        private httpClient: HttpClient,
+        private renderer: Renderer2
     ) {
         this.imagesPath = this.pepAddonService.getAddonStaticFolder() + 'assets/images/';
         this.layoutService.onResize$.subscribe(size => {
@@ -79,7 +83,7 @@ export class AddonComponent implements OnInit {
     async ngOnInit() {
 
         if(this.hostObject){
-            this.isOnPopUp = this.hostObject.isOnPopUp || this.isOnPopUp;
+            this.inDialog = this.hostObject.inDialog || this.inDialog;
             this.maxFileSize = this.hostObject.maxFileSize || this.maxFileSize;
             this.allowedAssetsTypes = this.hostObject.allowedAssetsTypes || this.allowedAssetsTypes;
             this.selectionType = this.hostObject.selectionType || this.selectionType;
@@ -117,20 +121,40 @@ export class AddonComponent implements OnInit {
         }
     }
 
-    private checkFileType(type) {
+    private checkFileType(type, showMsgOnModal: boolean = false) {
         //Check mime types is allowed
         this.validateMsg = '';
+        let tmpMsg = '';
 
         if(type?.indexOf('image/') > -1){
             if(!['images', 'all'].includes(this.allowedAssetsTypes)){
-                this.validateMsg = this.translate.instant('EDIT_FILE.NOT_ALLOWED_MIME_TYPE');
+                tmpMsg = this.translate.instant('EDIT_FILE.NOT_ALLOWED_MIME_TYPE');
             }
         }
         else if(!['documents', 'all'].includes(this.allowedAssetsTypes)){
-            this.validateMsg = this.translate.instant('EDIT_FILE.NOT_ALLOWED_MIME_TYPE');
+            tmpMsg = this.translate.instant('EDIT_FILE.NOT_ALLOWED_MIME_TYPE');
         }
         
-        return this.validateMsg === '';
+        if(!showMsgOnModal){
+            this.validateMsg = tmpMsg;
+            return this.validateMsg === '';
+        }
+        else{
+            if(tmpMsg !== ''){
+                const dialogData = new PepDialogData({
+                    content: tmpMsg,
+                    showHeader: false,
+                    actionsType: 'close',
+                    showClose: false
+                });
+        
+                this.dialogService.openDefaultDialog(dialogData);
+            }
+
+            return tmpMsg === '';
+        
+        }
+
     }
 
     private uploadMultiFiles(files: File[]) {
@@ -382,7 +406,35 @@ export class AddonComponent implements OnInit {
             action: 'link-url',
             url: event
         });
-    }    
+    }
+    
+    doneAssetsClick(event){
+        const selectedAssets = this.getSelectedAsset(this.genericListService.getSelectedItems().rows[0]);
+        if(selectedAssets){
+            let isValid = this.checkFileType(selectedAssets.MIME,true);
+            if(isValid){
+                    this.hostEvents.emit({
+                    action: 'link-url',
+                    url: selectedAssets.URL
+                });
+            }
+        }
+        else{
+            const dialogData = new PepDialogData({
+                content: this.translate.instant('EDIT_FILE.PLEASE_CHOOSE_ASSET'),
+                showHeader: false,
+                showClose: false,
+            });
+            this.dialogService.openDefaultDialog(dialogData);
+        }
+       
+    }
+
+    closeDialogClick(event){
+        this.hostEvents.emit({
+            action: 'close-dialog'
+        });
+    }
 
     onMenuItemClicked(action: IPepMenuItemClickEvent) {
         this.mimeFilter = action.source.key;
@@ -416,6 +468,26 @@ export class AddonComponent implements OnInit {
     //     this.currentView = this.currentView === 'list' ? 'thumbnail' : 'list';
     //     // TODO - REPLACE BETWEEN THE VIEWS IMPLEMENTATION
     // }
+    toggleContentView(event){
+
+        let btnElem = (this.toggleBtn['element']).nativeElement;
+
+        if(btnElem.className.indexOf('rotate') > -1){
+            this.renderer.removeClass(this.uploaderCont.nativeElement,'collapse');
+            this.renderer.removeClass( btnElem,'rotate');
+            this.renderer.addClass(this.uploaderCont.nativeElement,'expand');
+        }
+        else{
+            this.renderer.addClass(this.uploaderCont.nativeElement,'collapse');
+            this.renderer.addClass( btnElem,'rotate');
+            this.renderer.removeClass(this.uploaderCont.nativeElement,'expand');
+        }
+       
+       
+        //this.renderer.removeClass(this.uploaderCont.nativeElement,'collapse');
+
+
+    }
 
     onAddFolderClick(event) {
         let config = this.getEditDialogConfig();
@@ -445,7 +517,7 @@ export class AddonComponent implements OnInit {
     }
 
     getSelectedAsset(key?: string) {      
-        return this.assetsList.find(asset => asset.Key === key) || new Asset();
+        return this.assetsList.find(asset => asset.Key === key);
     }
     
     onCustomizeFieldClick(fieldClickEvent: IPepFormFieldClickEvent) {
@@ -488,11 +560,12 @@ export class AddonComponent implements OnInit {
         // TODO - NEED FIX THIS WHEN CHANGING TO MULTIPLE SELECTION MODE 
         asset = asset !== null ? asset : 
                 this.getSelectedAsset(this.genericListService.getSelectedItems().rows[0]);
-        
-        asset.Hidden = true;
+        if(asset){
+            asset.Hidden = true;
 
-        // this.upsertAsset(asset, null, 'deleting');
-        this.addonService.runUploadWorker({ status: 'deleting', assets: [asset] });
+            // this.upsertAsset(asset, null, 'deleting');
+            this.addonService.runUploadWorker({ status: 'deleting', assets: [asset] });
+        }
     }
 
     onDragOver(event) {
