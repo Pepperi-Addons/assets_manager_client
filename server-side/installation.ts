@@ -34,8 +34,8 @@ async function addAddonBlockRelation(client) {
     try {
         const addonBlockRelation: Relation = {
             RelationName: "AddonBlock",
-            Name: "AssetPicker",
-            Description: "AssetPicker addon block",
+            Name: "Assets",
+            Description: "Assets Manager addon block",
             Type: "NgComponent",
             SubType: "NG11",
             AddonUUID: client.AddonUUID,
