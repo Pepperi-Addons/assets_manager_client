@@ -27,7 +27,7 @@ export class AddonComponent implements OnInit {
     
     @Input() hostObject: any;
     @Input() currentFolder: PepBreadCrumbItem;
-    @Input() maxFileSize: number = 1250000;
+    @Input() maxFileSize: number = 10000000;
     @Input() inDialog: boolean = false;
     @Input() allowedAssetsTypes: allowedAssetsTypes = 'images';
     @Input() selectionType: selectionType = 'multiple';

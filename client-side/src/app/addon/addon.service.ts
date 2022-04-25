@@ -152,11 +152,11 @@ export class AddonService {
             const getAsset = (data: IUploadFilesWorkerData, file: File, uri: string): Asset => {
                 let asset: any = {};
                 asset.Key = data.workerOptions.assetsKeyPrefix + '/' +  file.name;
-                asset.URI = uri;
+                asset.URI =  file.size > 150000 ? '' : uri;  
                 asset.MIME = file.type;
                 asset.fileSize = file.size;
-
-                return asset;
+                
+                return asset;  
             };
 
             const getAssetBody = (asset: Asset): string => {
