@@ -170,8 +170,22 @@ export class AddonComponent implements OnInit {
             }
             
             if (isValid) {
-                const assetsKeyPrefix = (this.currentFolder.key === '/' ? '' : this.getCurrentURL());
-                this.addonService.runUploadWorker({ files, assetsKeyPrefix});
+                if(false){
+                    // const requestOptions = {
+                    //     method: 'PUT',
+                    //     headers: { 'Content-Type': 'multipart/form-data' },
+                    //     body: files[0]
+                    // };
+
+                    // const preSignedURL = 'https://staging-pepperi-file-storage.s3.us-west-2.amazonaws.com/4a3399a0-8d53-4b5d-8008-052cdc59502d/ad909780-0c23-401e-8e8e-f514cc4f6aa2/Nicolas0022.jpg?AWSAccessKeyId=ASIA3SWCYKQB2BIX7H5P&Content-Type=image%2Fjpeg&Expires=1651061835&Signature=UtMsRy7kqY0pIAt8uHBdxyPvY8o%3D&x-amz-security-token=IQoJb3JpZ2luX2VjEOz%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FwEaCXVzLXdlc3QtMiJIMEYCIQDYPwZzJIG5we2oZP%2FUE%2FkZxdCq0G0VQtkWnyT2bZ%2BNogIhAPgXj2cfOwOV6tQyxJoIVWfxgdEXUGHMCik%2BlJFIyyXXKqcCCKX%2F%2F%2F%2F%2F%2F%2F%2…RB1xW1GDy0%2BATelozOivi9wePaZM1IAAue51Vr4OAjz0anlvT37nlvAtRqVYGTOwgXyCQC2EwPRyqK2EHCpOahF9DCxBJIyTsJyH%2Bk7kj5EO%2BxF%2F3AGwGKB%2Fn8NriIpcRyZ0%2B7AzTIq3x4IL0K7qxZZqdygAtLe0Z%2B4xkllEVlaI56DudTzxSmgArVY6q23Opz4S2kktlEfBcVSTIo16aXoLSr8MMS7tZgRl1Js4Gdyg1QbWUDDiw5%2BTBjqZAe1aESfNYN%2BvYTVY6y8S7kyI2K1enT%2BN%2FxCw8NxPlP%2FYmYORjXk4W%2F01RfddFjWIpdSN63FcDkP3XZ3GlnDcUWXfsMWWsLgyumyHy52FD8Wvygn8qBC83c6Un5CObULn5wQgPuA%2FB63HUylEoY%2BDgmIC22nb3Ed%2FmzXxrIFwZ500cnrWT4dE%2B8nI3CValiIu7Wr1lnQsXmVpaA%3D%3D';
+                    // debugger;
+                    // const res = await fetch(preSignedURL, requestOptions);
+                    // debugger;
+                }
+                else{
+                    const assetsKeyPrefix = (this.currentFolder.key === '/' ? '' : this.getCurrentURL());
+                    this.addonService.runUploadWorker({ files, assetsKeyPrefix});
+                }
             }
         } else {
             // Show limit error msg.
