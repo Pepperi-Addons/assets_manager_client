@@ -53,7 +53,7 @@
         </pep-generic-list>
 
         <!-- <pep-file-status-panel [title]="'File download'" [filesList]="assetsStack"></pep-file-status-panel> -->
-        <div *ngIf="inDialog" id="actionBtns" class="pep-border-top">
+        <div *ngIf="inDialog" class="pep-border-top mat-dialog-actions">
             <pep-button value="{{'ACTIONS.CLOSE' | translate}}" styleType="weak" sizeType="md" classNames="pep-spacing-element" (buttonClick)="closeDialogClick($event)"></pep-button>
             <pep-button value="{{'ACTIONS.DONE' | translate}}" styleType="strong" sizeType="md" classNames="pep-spacing-element" (buttonClick)="doneAssetsClick($event)"></pep-button>
         </div>

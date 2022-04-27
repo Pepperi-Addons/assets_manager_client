@@ -11,9 +11,8 @@
     }
 }
 ::ng-deep .pep-main-area{
-
     display: grid !important;
-    grid-template-rows: min-content min-content auto min-content;
+    grid-template-rows: auto auto 1fr auto;
    
     .inDialogCollapseHeader{
         height: 3rem;
@@ -161,14 +160,6 @@
                 background-color: rgba(21, 24, 26, 0.15);
             }
         }
-    }
-
-    #actionBtns{
-        display: flex;
-        align-items: center;
-        justify-content: end;
-        height: 4rem;
-        margin-bottom: -0.75rem;
     }
 }
 
