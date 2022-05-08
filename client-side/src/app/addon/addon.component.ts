@@ -20,7 +20,7 @@ import { PepImageService } from "@pepperi-addons/ngx-lib/image";
     styleUrls: ['./addon.component.scss'],
     providers: [TranslatePipe,AddFolderComponent,EditFileComponent]
 })
-export class AddonComponent implements OnInit {
+export class AssetsComponent implements OnInit {
     
     @ViewChild('uploaderCont', { static: false }) uploaderCont: ElementRef;
     @ViewChild('toggleBtn', { static: false }) toggleBtn: ElementRef;
