@@ -157,7 +157,7 @@ export class AssetsComponent implements OnInit {
 
     }
 
-    private uploadMultiFiles(files: File[]) {
+    private async uploadMultiFiles(files: File[]) {
         let isValid = files.length <= this.softFilesCountLimit;
 
         if (isValid) {
@@ -170,17 +170,16 @@ export class AssetsComponent implements OnInit {
             }
             
             if (isValid) {
+                
                 if(false){
-                    // const requestOptions = {
-                    //     method: 'PUT',
-                    //     headers: { 'Content-Type': 'multipart/form-data' },
-                    //     body: files[0]
-                    // };
 
-                    // const preSignedURL = 'https://staging-pepperi-file-storage.s3.us-west-2.amazonaws.com/4a3399a0-8d53-4b5d-8008-052cdc59502d/ad909780-0c23-401e-8e8e-f514cc4f6aa2/Nicolas0022.jpg?AWSAccessKeyId=ASIA3SWCYKQB2BIX7H5P&Content-Type=image%2Fjpeg&Expires=1651061835&Signature=UtMsRy7kqY0pIAt8uHBdxyPvY8o%3D&x-amz-security-token=IQoJb3JpZ2luX2VjEOz%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FwEaCXVzLXdlc3QtMiJIMEYCIQDYPwZzJIG5we2oZP%2FUE%2FkZxdCq0G0VQtkWnyT2bZ%2BNogIhAPgXj2cfOwOV6tQyxJoIVWfxgdEXUGHMCik%2BlJFIyyXXKqcCCKX%2F%2F%2F%2F%2F%2F%2F%2…RB1xW1GDy0%2BATelozOivi9wePaZM1IAAue51Vr4OAjz0anlvT37nlvAtRqVYGTOwgXyCQC2EwPRyqK2EHCpOahF9DCxBJIyTsJyH%2Bk7kj5EO%2BxF%2F3AGwGKB%2Fn8NriIpcRyZ0%2B7AzTIq3x4IL0K7qxZZqdygAtLe0Z%2B4xkllEVlaI56DudTzxSmgArVY6q23Opz4S2kktlEfBcVSTIo16aXoLSr8MMS7tZgRl1Js4Gdyg1QbWUDDiw5%2BTBjqZAe1aESfNYN%2BvYTVY6y8S7kyI2K1enT%2BN%2FxCw8NxPlP%2FYmYORjXk4W%2F01RfddFjWIpdSN63FcDkP3XZ3GlnDcUWXfsMWWsLgyumyHy52FD8Wvygn8qBC83c6Un5CObULn5wQgPuA%2FB63HUylEoY%2BDgmIC22nb3Ed%2FmzXxrIFwZ500cnrWT4dE%2B8nI3CValiIu7Wr1lnQsXmVpaA%3D%3D';
-                    // debugger;
-                    // const res = await fetch(preSignedURL, requestOptions);
-                    // debugger;
+                    const preSignedURL = 'https://staging-pepperi-file-storage.s3.us-west-2.amazonaws.com/4a3399a0-8d53-4b5d-8008-052cdc59502d/ad909780-0c23-401e-8e8e-f514cc4f6aa2/Nicolas0025.jpg?AWSAccessKeyId=ASIA3SWCYKQBSXFQZXQG&Content-Type=image%2Fjpeg&Expires=1651663483&Signature=7HMYAhYbYH8vR5zwwnQlUSHDwS4%3D&x-amz-security-token=IQoJb3JpZ2luX2VjEJP%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FwEaCXVzLXdlc3QtMiJIMEYCIQCL3xJiQKV0etN0Yb0SSekGSgp4R%2BFysZhCVbMbiWOapQIhANdEw%2B0BVCnwrgdIPnz%2F1yEo4L5XdZ%2BNlywpBEIdW5LHKp4CCFwQAhoMNzk2MDUxMTMzNDQzIgyvsyYiRobWSQKlvJwq%2BwFuDoRJ8tVCdQTIF6kGN5D%2FtMz7CrEiyu%2FXpk91K%2BfMkGrigVw%2Bo7f%2BVaEnN3nobC8ID4BeF7yoPnNBwXsYO5APfKs%2Fzawk6w79n6XnEVHDSbcm6IigCVzpsMxqHnE2MhYoFRjO%2FyUPf%2FfbWhBMfmz72DZOaH2uXrnV8uCV5EtZVDf%2FCDLwOVrRxNtjGAlm25ySWkmB%2BjJB6kjlrLlnJJzzC7E8amJXjYBSDcVrQbWEnTGfyeXlkXGpmwWHTO8tgkhHbveUVOAOYoO%2BPK1Gm7OGUQa160q165j7dAdBEED204PMujYVgsRVo1Cbuc5To9lDfSKyKM0oLnq%2FZzCXnsSTBjqZAYQmVsS4LHFCyTQydclG9Z81EP%2B8nSL4maLzWGJsoF%2FI924FueQnO0Z%2BDJwQKRE3t2ODabVZ2LQb10dwsTur%2BlUVgdXVYuMx3lcOsFvEjnC6Dr25Ez5QnGtAyfCDXD30kTYAjTA4qsgmmpmsxuu44wFPCN4XCGobkNbfXNzzZVWwA970rQtRr4UezY%2FDGc9kuV7wyOqVaJgeGQ%3D%3D';
+                    
+                    var fr = new FileReader();
+                    fr.readAsArrayBuffer(files[0]);
+                    fr.onload = function () {
+                        uploadTest(fr.result, preSignedURL,files[0].type); 
+                    }
                 }
                 else{
                     const assetsKeyPrefix = (this.currentFolder.key === '/' ? '' : this.getCurrentURL());
@@ -635,3 +634,25 @@ export class AssetsComponent implements OnInit {
     }
 
 }
+async function uploadTest(bufferFile: String | ArrayBuffer, preSignedURL: string, mimeType: string) {
+    var buffer = new Uint8Array(bufferFile as ArrayBuffer);
+        //var myHeaders = new Headers();
+        var requestOptions = {
+            method: 'PUT',
+            body: buffer,
+            headers: {
+                "Content-Type": mimeType,
+                "Content-Length": buffer.length.toString()
+            }
+        };
+       
+        await fetch( preSignedURL, requestOptions)
+            .then(response => {
+                console.log(response);
+                alert(JSON.stringify(response));
+            })
+            .catch(error => {
+                console.log('error', error)
+            });
+}
+
