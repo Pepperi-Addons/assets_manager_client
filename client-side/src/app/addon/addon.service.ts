@@ -13,6 +13,7 @@ import { MatSnackBar, MatSnackBarRef, TextOnlySnackBar } from '@angular/material
 import { InlineWorker } from '../inline-worker';
 import { FileStatusType, FileStatusPanelComponent, FileStatus } from '@pepperi-addons/ngx-composite-lib/file-status-panel';
 import { TranslateService } from '@ngx-translate/core';
+import { file } from 'jszip';
 
 export interface IUploadFilesWorkerOptions {
     status?: FileStatusType;
@@ -35,6 +36,7 @@ export interface IUploadFilesWorkerResult {
 @Injectable({ providedIn: 'root' })
 export class AddonService {
 
+    smallFileLimit = 150000;
     addonURL = '';
     accessToken = '';
     parsedToken: any
@@ -152,7 +154,7 @@ export class AddonService {
             const getAsset = (data: IUploadFilesWorkerData, file: File, uri: string): Asset => {
                 let asset: any = {};
                 asset.Key = data.workerOptions.assetsKeyPrefix + '/' +  file.name;
-                asset.URI =  file.size > 150000 ? '' : uri;  
+                asset.URI =  uri;  
                 asset.MIME = file.type;
                 asset.fileSize = file.size;
                 
@@ -170,6 +172,79 @@ export class AddonService {
                     Hidden: asset.Hidden
                 });
             };
+
+            const sendPresignedURLRequest= (baseServerUrl: string, token: string, asset: Asset, helperObject: any, bufferFile: any) => {
+                let xhr = new XMLHttpRequest();
+                xhr.open('POST', `${baseServerUrl}/upsert_asset`, true);
+                xhr.setRequestHeader("Authorization", 'Bearer ' + token);
+                xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+                xhr.onreadystatechange = () => {
+                    let fileStatus = helperObject['filesStatus'].find(fs => fs.name === asset.Key);
+
+                    if (xhr.readyState === 4 && xhr.status === 200) {
+                        const res = JSON.parse(xhr.responseText);
+                        if(res && res.PresignedURL){
+                            var buffer = new Uint8Array(bufferFile as ArrayBuffer);
+
+                            var requestOptions = {
+                                method: 'PUT',
+                                body: buffer,
+                                headers: {
+                                    "Content-Type": asset.MIME,
+                                    "Content-Length": buffer.length.toString()
+                                }
+                            };
+                           
+                            fetch( res.PresignedURL, requestOptions)
+                                .then(response => {
+                                    if(response.status === 200)
+                                        requestSuccess(helperObject,asset,xhr);
+                                    else{
+                                        requestFailed(xhr, file);
+                                    }
+                                    
+                                })
+                                .catch(error => {
+                                    requestFailed(xhr, file);
+                                })
+                                .finally(() => {
+                                    console.log('file upload done');
+                                });
+                        } else{
+                            requestSuccess(helperObject,asset,xhr);
+                            
+                        }
+                    } else if (xhr.status !== 200) {
+                        requestFailed(xhr, file);
+                    }
+                }
+
+                const body = getAssetBody(asset);
+                xhr.send(body);
+            };
+
+            const requestSuccess = (helperObject: any, asset: Asset, xhr: XMLHttpRequest ) => {
+                let fileStatus = helperObject['filesStatus'].find(fs => fs.name === asset.Key);
+                
+                helperObject['filesUploadedCount']++;
+                console.log(`${asset.Key} is uploaded - index ${helperObject['fileIndex']}, files uploaded count ${helperObject['filesUploadedCount']}`);
+                const isFinish = helperObject['filesUploadedCount'] === helperObject['filesToUploadLength'];
+                fileStatus.status = 'done';
+                fileStatus.statusMessage = xhr.statusText;
+
+                // @ts-ignore
+                this.postMessage({ filesStatus: helperObject['filesStatus'], isFinish: isFinish });
+
+                // Close only if finish.
+                if (isFinish) {
+                    close();
+                }
+            }
+            
+            const requestFailed = (xhr: XMLHttpRequest, fileStatus: any) => {
+                fileStatus.status = 'failed';
+                fileStatus.statusMessage = xhr.statusText;
+            }
 
             const sendXMLHttpRequest = (baseServerUrl: string, token: string, asset: Asset, helperObject: any) => {
                 // Declare the XMLHttpRequest for upload the files.
@@ -225,20 +300,39 @@ export class AddonService {
                         }
                     } else if (data?.workerOptions?.files?.length > 0) {
                         // Go for all the files and upload each one.
+                        
                         for (let index = 0; index < data.workerOptions.files.length; index++) {
                             const file = data.workerOptions.files[index];
                             const reader = new FileReader();
-                            reader.readAsDataURL(file);
-                            reader.onload = (event) => {
-                                if (event.target.result) {
-                                    const asset = getAsset(data, file, event.target.result.toString());
-                                    helperObject['filesToUploadLength'] = data.workerOptions.files.length;
-                                    helperObject['filesStatus'].push({ key: index, name: asset.Key, status: data.workerOptions.status || 'uploading' });
-                                    helperObject['fileIndex'] = index;
 
-                                    // @ts-ignore
-                                    this.postMessage({ filesStatus: helperObject['filesStatus'], isFinish: false });
-                                    sendXMLHttpRequest(data.baseServerUrl, data.token, asset, helperObject);
+                            if(file.size <= this.smallFileLimit){
+                                reader.readAsDataURL(file);
+                                reader.onload = (event) => {
+                                    if (event.target.result) {
+                                        const asset = getAsset(data, file, event.target.result.toString());
+                                        helperObject['filesToUploadLength'] = data.workerOptions.files.length;
+                                        helperObject['filesStatus'].push({ key: index, name: asset.Key, status: data.workerOptions.status || 'uploading' });
+                                        helperObject['fileIndex'] = index;
+
+                                        // @ts-ignore
+                                        this.postMessage({ filesStatus: helperObject['filesStatus'], isFinish: false });
+                                        sendXMLHttpRequest(data.baseServerUrl, data.token, asset, helperObject);
+                                    }
+                                }
+                            }
+                            else{
+                                reader.readAsArrayBuffer(file);
+                                reader.onload = (event) => {
+                                    if (event.target.result) {
+                                        const asset = getAsset(data, file, '');
+                                        helperObject['filesToUploadLength'] = data.workerOptions.files.length;
+                                        helperObject['filesStatus'].push({ key: index, name: asset.Key, status: data.workerOptions.status || 'uploading' });
+                                        helperObject['fileIndex'] = index;
+                                        
+                                        // @ts-ignore
+                                        this.postMessage({ filesStatus: helperObject['filesStatus'], isFinish: false });
+                                        sendPresignedURLRequest(data.baseServerUrl, data.token, asset, helperObject, event.target.result);
+                                    }
                                 }
                             }
                         }

@@ -636,7 +636,7 @@ export class AddonComponent implements OnInit {
 }
 async function uploadTest(bufferFile: String | ArrayBuffer, preSignedURL: string, mimeType: string) {
     var buffer = new Uint8Array(bufferFile as ArrayBuffer);
-        //var myHeaders = new Headers();
+
         var requestOptions = {
             method: 'PUT',
             body: buffer,
