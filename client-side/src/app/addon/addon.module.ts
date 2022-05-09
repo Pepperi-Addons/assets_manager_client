@@ -27,7 +27,7 @@ import { PepFileStatusPanelModule }  from '@pepperi-addons/ngx-composite-lib/fil
 import { TranslateLoader, TranslateModule, TranslateService, TranslateStore } from '@ngx-translate/core';
 
 import { AddonService } from './addon.service';
-import { AddonComponent } from './index';
+import { AssetsComponent } from './index';
 import { config } from './addon.config';
 
 import { AddFolderModule } from '../components/add-folder/add-folder.module';
@@ -48,13 +48,13 @@ const pepIcons = [
 export const routes: Routes = [
     {
         path: '',
-        component: AddonComponent
+        component: AssetsComponent
     }
 ];
 
 @NgModule({
     declarations: [
-        AddonComponent,
+        AssetsComponent,
     ],
     imports: [
         CommonModule,
@@ -89,14 +89,14 @@ export const routes: Routes = [
         }),
         RouterModule.forChild(routes)
     ],
-    exports:[AddonComponent],
+    exports:[AssetsComponent],
     providers: [
         TranslateStore,
         // When loading this module from route we need to add this here (because only this module is loading).
         AddonService
     ]
 })
-export class AddonModule {
+export class AssetsModule {
     constructor(
         translate: TranslateService,
         private pepIconRegistry: PepIconRegistry,

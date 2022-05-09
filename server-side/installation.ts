@@ -32,16 +32,19 @@ export async function downgrade(client: Client, request: Request): Promise<any> 
 
 async function addAddonBlockRelation(client) {
     try {
+        const blockName = 'Assets';
+        const filename = `file_${client.AddonUUID.replace(/-/g, '_').toLowerCase()}`;
+
         const addonBlockRelation: Relation = {
             RelationName: "AddonBlock",
-            Name: "Assets",
-            Description: "Assets Manager addon block",
+            Name: blockName,
+            Description: `${blockName} addon block`,
             Type: "NgComponent",
             SubType: "NG11",
             AddonUUID: client.AddonUUID,
-            AddonRelativeURL: "addon",
-            ComponentName: 'AddonComponent',
-            ModuleName: 'AddonModule',
+            AddonRelativeURL: filename,
+            ComponentName: `${blockName}Component`,
+            ModuleName: `${blockName}Module`,
         }; 
         
         const service = new MyService(client);

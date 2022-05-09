@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { Component } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
-import { AddonComponent } from './addon/addon.component';
+import { AssetsComponent } from './addon/addon.component';
 
 // Important for single spa
 @Component({
@@ -16,10 +16,10 @@ const routes: Routes = [
         children: [
             {
                 path: ':editor',
-                component: AddonComponent
+                component: AssetsComponent
                 // TODO: solve routing
                 // path: '**',
-                // loadChildren: () => import('./addon/addon.module').then(m => m.AddonModule)
+                // loadChildren: () => import('./addon/addon.module').then(m => m.AssetsModule)
             }
         ]
     },
