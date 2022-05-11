@@ -180,9 +180,10 @@ export class AddonService {
                 xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
                 xhr.onreadystatechange = () => {
                     let fileStatus = helperObject['filesStatus'].find(fs => fs.name === asset.Key);
-
+                    console.log('XHR: ' + xhr.status + ' ' + xhr.readyState);
                     if (xhr.readyState === 4 && xhr.status === 200) {
                         const res = JSON.parse(xhr.responseText);
+                        console.log('PresignedURL: ' + res.PresignedURL);
                         if(res && res.PresignedURL){
                             var buffer = new Uint8Array(bufferFile as ArrayBuffer);
 
