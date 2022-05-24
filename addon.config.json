@@ -20,7 +20,9 @@
         "Description": "New Assets Manager"
       }
     ],
-    "Dependencies": {},
+    "Dependencies": {
+      "pfs": "0.5.11"
+    },
     "CPISide": []
   }
 }

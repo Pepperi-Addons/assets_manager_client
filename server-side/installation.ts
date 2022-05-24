@@ -12,10 +12,18 @@ import { Client, Request } from '@pepperi-addons/debug-server'
 import { Relation } from '@pepperi-addons/papi-sdk';
 import MyService from './my.service';
 
+const blockName = 'Assets';
+
 export async function install(client: Client, request: Request): Promise<any> {
-    const res = await addAddonBlockRelation(client);
-    return res;
-    // return {success:true,resultObject:{}}
+   
+    const assetsRelationsRes = await addAddonBlockRelation(client);
+    const dimxImportRes = await addDimxImportRelation(client);
+    const dimxExportRes = await addDimxExportRelation(client);
+   
+    return {
+        success: assetsRelationsRes.success && dimxImportRes.success && dimxExportRes.success,
+        errorMessage: `galleryRelationsRes: ${assetsRelationsRes.errorMessage}, userDeviceResourceRes: ${dimxImportRes.errorMessage}, userDeviceResourceRes: ${dimxExportRes.errorMessage}`
+    };
 }
 
 export async function uninstall(client: Client, request: Request): Promise<any> {
@@ -32,7 +40,6 @@ export async function downgrade(client: Client, request: Request): Promise<any> 
 
 async function addAddonBlockRelation(client) {
     try {
-        const blockName = 'Assets';
         const filename = `file_${client.AddonUUID.replace(/-/g, '_').toLowerCase()}`;
 
         const addonBlockRelation: Relation = {
@@ -49,8 +56,49 @@ async function addAddonBlockRelation(client) {
         
         const service = new MyService(client);
         const result = await service.upsertRelation(addonBlockRelation);
-        return {success:true, resultObject: {result} };
+        return {success:true, errorMessage: {result} };
     } catch(e) {
-        return { success: false, resultObject: {e} };
+        return { success: false, errorMessage: {e} };
     }
 }
+
+async function addDimxImportRelation(client) {
+    try {
+        const importRelation: Relation = {
+            RelationName: 'DataImportResource',
+            Name: blockName,
+            Description: `${blockName} import`,
+            Type: 'AddonAPI',
+            AddonUUID: client.addonUUID,
+            AddonRelativeURL: '/api/import_fix_object',
+            MappingRelativeURL: ''
+        }; 
+
+        const service = new MyService(client);
+        const result = await service.upsertRelation(importRelation);
+        return {success:true, errorMessage: {result} };
+    } catch(e) {
+        return { success: false, errorMessage: {e} };
+    }
+}
+
+async function addDimxExportRelation(client) {
+    try {
+
+        const exportRelation: Relation = {
+            RelationName: 'DataExportResource',
+            Name: blockName,
+            Description: `${blockName} export`,
+            Type: 'AddonAPI',
+            AddonUUID: client.addonUUID,
+            AddonRelativeURL: ''
+        };
+
+        const service = new MyService(client);
+        const result = await service.upsertRelation(exportRelation);
+        return {success:true, errorMessage: {result} };
+    } catch(e) {
+        return { success: false, errorMessage: {e} };
+    }
+}
+
