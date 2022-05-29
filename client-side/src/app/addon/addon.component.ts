@@ -428,7 +428,8 @@ export class AssetsComponent implements OnInit {
             if(isValid){
                     this.hostEvents.emit({
                     action: 'link-url',
-                    url: selectedAssets.URL
+                    url: selectedAssets.URL,
+                    key: selectedAssets.Key
                 });
             }
         }
