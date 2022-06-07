@@ -21,6 +21,7 @@ module.exports = (config, options, env) => {
         output: {
             uniqueName: `${filename}`,
             publicPath: "auto",
+            chunkFilename: `${filename}.[name].js`
         },
         optimization: {
             // Only needed to bypass a temporary bug
