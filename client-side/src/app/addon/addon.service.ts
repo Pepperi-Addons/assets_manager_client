@@ -62,9 +62,7 @@ export class AddonService {
     constructor(
         public sessionService:  PepSessionService,
         private addonService:  PepAddonService,
-        private httpClient: HttpClient,
         private httpService: PepHttpService,
-        // private snackBar: MatSnackBar,
         private pepSnackBarService: PepSnackBarService,
         private translate: TranslateService,
     ) {

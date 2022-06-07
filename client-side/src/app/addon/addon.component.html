@@ -42,7 +42,7 @@
             </div>
         </div>
 
-        <pep-generic-list [dataSource]="dataSource" [actions]="actions" (onSelectedRowChange)="onSelectedRowChange($event)" 
+        <pep-generic-list #genericList [dataSource]="dataSource" [actions]="actions" (onSelectedRowChange)="onSelectedRowChange($event)" 
             [uuidMapping]="'Key'"  [breadCrumbsItems]="breadCrumbsItems" (breadCrumbItemClick)="onBreadCrumbItemClick($event)"
             [inline]="true" [selectionType]="'single'" [supportSorting]="false" [showSearch]="true"
             [showTopBar]="true" [title]="assetsHeaderTitle" [noDataFoundMsg]="'GRID.FILE_NOT_FOUND' | translate"

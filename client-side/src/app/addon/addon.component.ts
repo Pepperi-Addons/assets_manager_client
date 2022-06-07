@@ -1,7 +1,7 @@
 import { Component, ElementRef, EventEmitter, Input, OnInit, Output, Renderer2, ViewChild } from "@angular/core";
 import { FIELD_TYPE, PepAddonService, PepLayoutService, PepScreenSizeType, PepSessionService } from '@pepperi-addons/ngx-lib';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
-import { IPepGenericListDataSource, IPepGenericListPager, IPepGenericListActions, IPepGenericListInitData, PepGenericListService } from "@pepperi-addons/ngx-composite-lib/generic-list";
+import { IPepGenericListDataSource, IPepGenericListPager, IPepGenericListActions, IPepGenericListInitData, GenericListComponent } from "@pepperi-addons/ngx-composite-lib/generic-list";
 import { AddFolderComponent } from '../components/add-folder/add-folder.component';
 import { EditFileComponent } from '../components/edit-file/edit-file.component';
 import { AddonService, IUploadFilesWorkerResult } from "./addon.service";
@@ -21,7 +21,7 @@ import { PepImageService } from "@pepperi-addons/ngx-lib/image";
     providers: [TranslatePipe,AddFolderComponent,EditFileComponent]
 })
 export class AssetsComponent implements OnInit {
-    
+    @ViewChild('genericList') genericList: GenericListComponent | undefined;
     @ViewChild('uploaderCont', { static: false }) uploaderCont: ElementRef;
     @ViewChild('toggleBtn', { static: false }) toggleBtn: ElementRef;
     
@@ -57,10 +57,8 @@ export class AssetsComponent implements OnInit {
 
     constructor(
         public addonService: AddonService,
-        private sessionService: PepSessionService,
         private imageService: PepImageService,
         public layoutService: PepLayoutService,
-        private genericListService: PepGenericListService,
         private pepAddonService: PepAddonService,
         public translate: TranslateService,
         public dialogService: PepDialogService,
@@ -422,7 +420,7 @@ export class AssetsComponent implements OnInit {
     }
     
     doneAssetsClick(event){
-        const selectedAssets = this.getSelectedAsset(this.genericListService.getSelectedItems().rows[0]);
+        const selectedAssets = this.getSelectedAsset(this.genericList.getSelectedItems().rows[0]);
         if(selectedAssets){
             let isValid = this.checkFileType(selectedAssets.MIME,true);
             if(isValid){
@@ -573,7 +571,7 @@ export class AssetsComponent implements OnInit {
     deleteAssets(asset: Asset = null) {
         // TODO - NEED FIX THIS WHEN CHANGING TO MULTIPLE SELECTION MODE 
         asset = asset !== null ? asset : 
-                this.getSelectedAsset(this.genericListService.getSelectedItems().rows[0]);
+                this.getSelectedAsset(this.genericList.getSelectedItems().rows[0]);
         if(asset){
             asset.Hidden = true;
 

@@ -33,13 +33,12 @@ import { PepImageModule  } from '@pepperi-addons/ngx-lib/image';
         PepAttachmentModule,
         PepImageModule,
         PepTextareaModule,
-        
         TranslateModule.forChild({
             loader: {
                 provide: TranslateLoader,
-                useFactory: (http: HttpClient, fileService: PepFileService, addonService: PepAddonService) => 
-                    PepAddonService.createDefaultMultiTranslateLoader(http, fileService, addonService, config.AddonUUID),
-                deps: [HttpClient, PepFileService, PepAddonService],
+                useFactory: (addonService: PepAddonService) => 
+                    PepAddonService.createMultiTranslateLoader(addonService, ['ngx-lib', 'ngx-composite-lib'], config.AddonUUID),
+                deps: [PepAddonService]
             }, isolate: false
         }),
     ],
