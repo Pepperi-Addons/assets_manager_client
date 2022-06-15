@@ -22,7 +22,7 @@ export async function install(client: Client, request: Request): Promise<any> {
    
     return {
         success: assetsRelationsRes.success && dimxImportRes.success && dimxExportRes.success,
-        errorMessage: `galleryRelationsRes: ${assetsRelationsRes.errorMessage}, userDeviceResourceRes: ${dimxImportRes.errorMessage}, userDeviceResourceRes: ${dimxExportRes.errorMessage}`
+        errorMessage: `assetsRelationsRes: ${assetsRelationsRes.errorMessage}, dimxImportRes: ${dimxImportRes.errorMessage}, dimxExportRes: ${dimxExportRes.errorMessage}`
     };
 }
 
