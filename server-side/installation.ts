@@ -17,13 +17,18 @@ const blockName = 'Assets';
 export async function install(client: Client, request: Request): Promise<any> {
    
     const assetsRelationsRes = await addAddonBlockRelation(client);
-    const dimxImportRes = await addDimxImportRelation(client);
-    const dimxExportRes = await addDimxExportRelation(client);
+    //const dimxImportRes = await addDimxImportRelation(client);
+    //const dimxExportRes = await addDimxExportRelation(client);
    
+    // return {
+    //     success: assetsRelationsRes.success && dimxImportRes.success && dimxExportRes.success,
+    //    errorMessage: `assetsRelationsRes: ${assetsRelationsRes.errorMessage}, dimxImportRes: ${dimxImportRes.errorMessage}, dimxExportRes: ${dimxExportRes.errorMessage}`
+    // };
+
     return {
-        success: assetsRelationsRes.success && dimxImportRes.success && dimxExportRes.success,
-        errorMessage: `assetsRelationsRes: ${assetsRelationsRes.errorMessage}, dimxImportRes: ${dimxImportRes.errorMessage}, dimxExportRes: ${dimxExportRes.errorMessage}`
-    };
+        success: assetsRelationsRes.success,
+        errorMessage: `assetsRelationsRes: ${assetsRelationsRes.errorMessage}`
+    }
 }
 
 export async function uninstall(client: Client, request: Request): Promise<any> {
