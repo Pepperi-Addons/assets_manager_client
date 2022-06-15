@@ -56,9 +56,9 @@ async function addAddonBlockRelation(client) {
         
         const service = new MyService(client);
         const result = await service.upsertRelation(addonBlockRelation);
-        return {success:true, errorMessage: {result} };
+        return {success:true, errorMessage: '' };
     } catch(e) {
-        return { success: false, errorMessage: {e} };
+        return { success: false, errorMessage: e.message || ''  };
     }
 }
 
@@ -76,9 +76,9 @@ async function addDimxImportRelation(client) {
 
         const service = new MyService(client);
         const result = await service.upsertRelation(importRelation);
-        return {success:true, errorMessage: {result} };
+        return {success:true, errorMessage: '' };
     } catch(e) {
-        return { success: false, errorMessage: {e} };
+        return { success: false, errorMessage: e.message || ''  };
     }
 }
 
@@ -96,9 +96,9 @@ async function addDimxExportRelation(client) {
 
         const service = new MyService(client);
         const result = await service.upsertRelation(exportRelation);
-        return {success:true, errorMessage: {result} };
+        return {success:true, errorMessage: '' };
     } catch(e) {
-        return { success: false, errorMessage: {e} };
+        return { success: false, errorMessage: e.message || ''  };
     }
 }
 
