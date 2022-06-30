@@ -1,5 +1,6 @@
 import { PapiClient, InstalledAddon } from '@pepperi-addons/papi-sdk'
 import { Client } from '@pepperi-addons/debug-server';
+import { AssetsScheme } from '../shared/metadata';
 
 class MyService {
 
@@ -19,7 +20,7 @@ class MyService {
     }
 
     async upsertAsset(body: Object) {
-        let url = `/addons/files/${this.addonUUID}`
+        let url = `/addons/pfs/${this.addonUUID}/${AssetsScheme.Name}`
         const headers = {
             'X-Pepperi-SecretKey' :  this.addonSecretKey,      
         }
@@ -34,6 +35,15 @@ class MyService {
     getAddons(): Promise<InstalledAddon[]> {
         return this.papiClient.addons.installedAddons.find({});
     }
+
+    async createSchemes() {
+        await this.upsertScheme(AssetsScheme)
+    }
+    private async upsertScheme(schemes) {
+        await this.papiClient.addons.data.schemes.post(schemes);
+    }
+
+    
 }
 
 export default MyService;

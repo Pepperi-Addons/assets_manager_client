@@ -2,6 +2,7 @@ import { BehaviorSubject, Observable } from 'rxjs';
 import jwt from 'jwt-decode';
 import { PapiClient } from '@pepperi-addons/papi-sdk';
 import { Injectable } from '@angular/core';
+import { AssetsSchemeName } from '../../../../shared/metadata';
 
 import { PepAddonService, PepHttpService, PepSessionService } from '@pepperi-addons/ngx-lib';
 import { PepSnackBarService } from '@pepperi-addons/ngx-lib/snack-bar';
@@ -67,7 +68,7 @@ export class AddonService {
         private translate: TranslateService,
     ) {
         this.addonUUID = config.AddonUUID;
-        this.addonURL = `/addons/files/${this.addonUUID}`;
+        this.addonURL = `/addons/pfs/${this.addonUUID}/${AssetsSchemeName}`;
         this.accessToken = this.sessionService.getIdpToken();
         this.parsedToken = jwt(this.accessToken);
         this.papiBaseURL = this.parsedToken["pepperi.baseurl"];
@@ -75,13 +76,11 @@ export class AddonService {
     }
 
     getAssets(query?: string) {
-        let url = `/addons/files/${this.addonUUID}`
-       //query = '?order_by="UID"';
-       //query = '?folder=/&Name=orange.jpg';
-       if (query) {
-            url = url + query;
-        }
-        // https://papi.pepperi.com/V1.0/addons/files/714671a5-5274-4668-97fa-e122dd3fc542?folder='/'
+       debugger;
+        //HACK - NEED TO BE REMOVE AFTER BUG FIX 
+        query = query === "?folder=/" ? '' : query;
+        let url =  query ? this.addonURL + query : this.addonURL;
+       
         return this.papiClient.get(encodeURI(url));
         //return this.pepGet(encodeURI(url)).toPromise();
     }
@@ -304,7 +303,7 @@ export class AddonService {
                             const file = data.workerOptions.files[index];
                             const reader = new FileReader();
 
-                            if(file.size <= this.smallFileLimit){
+                            if(file.size <= 150000){ //this.smallFileLimit){
                                 reader.readAsDataURL(file);
                                 reader.onload = (event) => {
                                     if (event.target.result) {

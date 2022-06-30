@@ -9,10 +9,10 @@ The error Message is importent! it will be written in the audit log and help the
 */
 
 import { Client, Request } from '@pepperi-addons/debug-server'
-import { Relation } from '@pepperi-addons/papi-sdk';
+import { AddonDataScheme, Relation } from '@pepperi-addons/papi-sdk';
+import { blockName } from '../shared/metadata';
 import MyService from './my.service';
 
-const blockName = 'Assets';
 
 export async function install(client: Client, request: Request): Promise<any> {
    
@@ -56,16 +56,20 @@ async function addAddonBlockRelation(client) {
             AddonUUID: client.AddonUUID,
             AddonRelativeURL: filename,
             ComponentName: `${blockName}Component`,
-            ModuleName: `${blockName}Module`,
+            ModuleName: `${blockName}Module`
         }; 
         
         const service = new MyService(client);
         const result = await service.upsertRelation(addonBlockRelation);
+        const schemesRes = await service.createSchemes();
         return {success:true, errorMessage: '' };
-    } catch(e) {
-        return { success: false, errorMessage: e.message || ''  };
+    } catch(err) {
+        return { success: false, errorMessage: err };
     }
 }
+
+
+
 
 async function addDimxImportRelation(client) {
     try {
@@ -82,8 +86,8 @@ async function addDimxImportRelation(client) {
         const service = new MyService(client);
         const result = await service.upsertRelation(importRelation);
         return {success:true, errorMessage: '' };
-    } catch(e) {
-        return { success: false, errorMessage: e.message || ''  };
+    }catch(err) {
+        return { success: false, errorMessage: err };
     }
 }
 
@@ -102,8 +106,9 @@ async function addDimxExportRelation(client) {
         const service = new MyService(client);
         const result = await service.upsertRelation(exportRelation);
         return {success:true, errorMessage: '' };
-    } catch(e) {
-        return { success: false, errorMessage: e.message || ''  };
+        
+    } catch(err) {
+        return { success: false, errorMessage: err };
     }
 }
 
