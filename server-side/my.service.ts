@@ -1,25 +1,93 @@
 import { PapiClient, InstalledAddon } from '@pepperi-addons/papi-sdk'
 import { Client } from '@pepperi-addons/debug-server';
-import { AssetsScheme } from '../shared/metadata';
+import { AssetsScheme, AssetsSchemeName } from '../shared/metadata';
+import { Relation } from '@pepperi-addons/papi-sdk';
+import { assetsBlockName } from '../shared/metadata';
 
 class MyService {
-
     papiClient: PapiClient
     addonUUID;
     addonSecretKey;
+    bundleFileName;
+
     constructor(private client: Client) {
         this.papiClient = new PapiClient({
             baseURL: client.BaseURL,
             token: client.OAuthAccessToken,
             addonUUID: client.AddonUUID,
             addonSecretKey: client.AddonSecretKey,
-            actionUUID: client["ActionUUID"]
+            actionUUID: client.ActionUUID
         });
         this.addonUUID = client.AddonUUID;
-        this.addonSecretKey = client.AddonSecretKey
+        this.addonSecretKey = client.AddonSecretKey;
+        this.bundleFileName = `file_${this.addonUUID.replace(/-/g, '_').toLowerCase()}`;
     }
 
-    async upsertAsset(body: Object) {
+    private async upsertScheme(schemes) {
+        await this.papiClient.addons.data.schemes.post(schemes);
+    }
+    
+    private upsertAddonBlockRelation() {
+        const addonBlockRelation: Relation = {
+            RelationName: "AddonBlock",
+            Name: assetsBlockName,
+            Description: `${assetsBlockName} addon block`,
+            Type: "NgComponent",
+            SubType: "NG14",
+            AddonUUID: this.addonUUID,
+            AddonRelativeURL: this.bundleFileName,
+            ComponentName: `${assetsBlockName}Component`,
+            ModuleName: `${assetsBlockName}Module`
+        }; 
+        
+        this.upsertRelation(addonBlockRelation);
+    }
+
+    private upsertSettingsRelation() {
+        const addonBlockRelation: Relation = {
+            RelationName: "SettingsBlock",
+            GroupName: 'Pages',
+            Name: assetsBlockName,
+            Description: 'New Assets Manager',
+            Type: "NgComponent",
+            SubType: "NG14",
+            AddonUUID: this.addonUUID,
+            AddonRelativeURL: this.bundleFileName,
+            ComponentName: `${assetsBlockName}Component`,
+            ModuleName: `${assetsBlockName}Module`
+        }; 
+        
+        this.upsertRelation(addonBlockRelation);
+    }
+
+    private async addDimxImportRelation() {
+        const importRelation: Relation = {
+            RelationName: 'DataImportResource',
+            Name: assetsBlockName,
+            Description: `${assetsBlockName} import`,
+            Type: 'AddonAPI',
+            AddonUUID: this.addonUUID,
+            AddonRelativeURL: '/api/import_fix_object',
+            MappingRelativeURL: ''
+        }; 
+
+        this.upsertRelation(importRelation);
+    }
+
+    private async addDimxExportRelation() {
+        const exportRelation: Relation = {
+            RelationName: 'DataExportResource',
+            Name: assetsBlockName,
+            Description: `${assetsBlockName} export`,
+            Type: 'AddonAPI',
+            AddonUUID: this.addonUUID,
+            AddonRelativeURL: ''
+        };
+
+        this.upsertRelation(exportRelation);
+    }
+
+    private async upsertAsset(body: Object) {
         let url = `/addons/pfs/${this.addonUUID}/${AssetsScheme.Name}`
         const headers = {
             'X-Pepperi-SecretKey' :  this.addonSecretKey,      
@@ -28,22 +96,27 @@ class MyService {
         return res;
     }
 
-    upsertRelation(relation): Promise<any> {
+    private upsertRelation(relation): Promise<any> {
         return this.papiClient.post('/addons/data/relations', relation);
     }
-  
-    getAddons(): Promise<InstalledAddon[]> {
-        return this.papiClient.addons.installedAddons.find({});
+
+    createRelationsAndScheme(): void {
+        this.upsertScheme(AssetsScheme);
+
+        this.upsertAddonBlockRelation();
+        this.upsertSettingsRelation();
+        // this.addDimxImportRelation();
+        // this.addDimxExportRelation();
     }
 
-    async createSchemes() {
-        await this.upsertScheme(AssetsScheme)
-    }
-    private async upsertScheme(schemes) {
-        await this.papiClient.addons.data.schemes.post(schemes);
-    }
+    updateRelationsAndScheme(): void {
+        this.upsertScheme(AssetsScheme);
 
-    
+        this.upsertAddonBlockRelation();
+        this.upsertSettingsRelation();
+        // this.addDimxImportRelation();
+        // this.addDimxExportRelation();
+    }
 }
 
 export default MyService;

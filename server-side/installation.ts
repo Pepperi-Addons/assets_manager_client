@@ -9,26 +9,19 @@ The error Message is importent! it will be written in the audit log and help the
 */
 
 import { Client, Request } from '@pepperi-addons/debug-server'
-import { AddonDataScheme, Relation } from '@pepperi-addons/papi-sdk';
-import { blockName } from '../shared/metadata';
 import MyService from './my.service';
 
 
 export async function install(client: Client, request: Request): Promise<any> {
-   
-    const assetsRelationsRes = await addAddonBlockRelation(client);
-    //const dimxImportRes = await addDimxImportRelation(client);
-    //const dimxExportRes = await addDimxExportRelation(client);
-   
-    // return {
-    //     success: assetsRelationsRes.success && dimxImportRes.success && dimxExportRes.success,
-    //    errorMessage: `assetsRelationsRes: ${assetsRelationsRes.errorMessage}, dimxImportRes: ${dimxImportRes.errorMessage}, dimxExportRes: ${dimxExportRes.errorMessage}`
-    // };
-
-    return {
-        success: assetsRelationsRes.success,
-        errorMessage: `assetsRelationsRes: ${assetsRelationsRes.errorMessage}`
+    try {
+        const service = new MyService(client)
+        service.createRelationsAndScheme();
+        
+    } catch (err) {
+        throw new Error(`Failed to create ADAL Tables. error - ${err}`);
     }
+
+    return { success: true, resultObject: {} };
 }
 
 export async function uninstall(client: Client, request: Request): Promise<any> {
@@ -36,79 +29,17 @@ export async function uninstall(client: Client, request: Request): Promise<any> 
 }
 
 export async function upgrade(client: Client, request: Request): Promise<any> {
-    return {success:true,resultObject:{}}
+    try {
+        const service = new MyService(client)
+        service.createRelationsAndScheme();
+    } catch (err) {
+        throw new Error(`Failed to update ADAL Tables. error - ${err}`);
+    }
+
+    return { success: true, resultObject: {} };
 }
 
 export async function downgrade(client: Client, request: Request): Promise<any> {
     return {success:true,resultObject:{}}
-}
-
-async function addAddonBlockRelation(client) {
-    try {
-        const filename = `file_${client.AddonUUID.replace(/-/g, '_').toLowerCase()}`;
-
-        const addonBlockRelation: Relation = {
-            RelationName: "AddonBlock",
-            Name: blockName,
-            Description: `${blockName} addon block`,
-            Type: "NgComponent",
-            SubType: "NG11",
-            AddonUUID: client.AddonUUID,
-            AddonRelativeURL: filename,
-            ComponentName: `${blockName}Component`,
-            ModuleName: `${blockName}Module`
-        }; 
-        
-        const service = new MyService(client);
-        const result = await service.upsertRelation(addonBlockRelation);
-        const schemesRes = await service.createSchemes();
-        return {success:true, errorMessage: '' };
-    } catch(err) {
-        return { success: false, errorMessage: err };
-    }
-}
-
-
-
-
-async function addDimxImportRelation(client) {
-    try {
-        const importRelation: Relation = {
-            RelationName: 'DataImportResource',
-            Name: blockName,
-            Description: `${blockName} import`,
-            Type: 'AddonAPI',
-            AddonUUID: client.addonUUID,
-            AddonRelativeURL: '/api/import_fix_object',
-            MappingRelativeURL: ''
-        }; 
-
-        const service = new MyService(client);
-        const result = await service.upsertRelation(importRelation);
-        return {success:true, errorMessage: '' };
-    }catch(err) {
-        return { success: false, errorMessage: err };
-    }
-}
-
-async function addDimxExportRelation(client) {
-    try {
-
-        const exportRelation: Relation = {
-            RelationName: 'DataExportResource',
-            Name: blockName,
-            Description: `${blockName} export`,
-            Type: 'AddonAPI',
-            AddonUUID: client.addonUUID,
-            AddonRelativeURL: ''
-        };
-
-        const service = new MyService(client);
-        const result = await service.upsertRelation(exportRelation);
-        return {success:true, errorMessage: '' };
-        
-    } catch(err) {
-        return { success: false, errorMessage: err };
-    }
 }
 
