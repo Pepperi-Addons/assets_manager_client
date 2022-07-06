@@ -76,7 +76,7 @@ export class AddonService {
     }
 
     getAssets(query?: string) {
-    //    debugger;
+       debugger;
         //HACK - NEED TO BE REMOVE AFTER BUG FIX 
         query = query === "?folder=/" ? '' : query;
         let url =  query ? this.addonURL + query : this.addonURL;

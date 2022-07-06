@@ -1,4 +1,4 @@
-<pep-page-layout class="add-padding">
+<pep-page-layout>
     <ng-container pep-top-area>
         <pep-top-bar [title]="('TITLE' | translate)">
             <div header-start-content>
@@ -64,10 +64,10 @@
 
 <ng-template #topBarEnd>
     <pep-button class="pep-spacing-element" value="{{'TOP_BAR.ADD_FOLDER' | translate}}" [styleType]="'weak'"
-        styleStateType="system" [sizeType]="'sm'" iconName="system_folder" iconPosition="end"
+    [styleStateType]="'system'" [sizeType]="'sm'" iconName="system_folder" iconPosition="end"
         (buttonClick)="onAddFolderClick($event)"></pep-button>
     <pep-menu text="{{'TOP_BAR.FILTERS' | translate }}" [type]="'action-select'" [class]="'pep-spacing-element'" [items]="mimeFilterItems"
-              styleType="weak" styleStateType="system" sizeType="sm" classNames="mat-button" 
+              [styleType]="'weak'" [styleStateType]="'system'" [sizeType]="'sm'" [c]lassNames]="mat-button" 
               (menuItemClick)="onMenuItemClicked($event)">
     </pep-menu>
     <!-- <pep-search sizeType="sm" [triggerOn]="'click'" class="pep-spacing-element" [autoCompleteValues]="searchAutoCompleteValues" [value]="searchString"

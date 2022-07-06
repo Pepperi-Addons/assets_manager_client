@@ -1,14 +1,6 @@
-@use '@pepperi-addons/ngx-lib/src/core/style/abstracts/variables' as ngx-variables;
-@use '@pepperi-addons/ngx-lib/src/core/style/abstracts/functions' as ngx-functions;
-@use '@pepperi-addons/ngx-lib/src/core/style/abstracts/mixins' as ngx-mixins;
-
-.add-padding {
-    padding-inline: ngx-variables.$content-padding;
-
-    @media (max-width: ngx-variables.$screen-max-size-xs) {
-        padding-inline: 0;
-    }
-}
+@use '~@pepperi-addons/ngx-lib/src/core/style/abstracts/variables' as ngx-variables;
+@use '~@pepperi-addons/ngx-lib/src/core/style/abstracts/functions' as ngx-functions;
+@use '~@pepperi-addons/ngx-lib/src/core/style/abstracts/mixins' as ngx-mixins;
 
 ::ng-deep .pep-top-area{
     .left-container{

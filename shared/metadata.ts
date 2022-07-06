@@ -1,5 +1,5 @@
 import { AddonDataScheme } from "@pepperi-addons/papi-sdk";
-export const assetsBlockName = 'Assets';
+export const blockName = 'Assets';
 export const AssetsSchemeName = 'Assets';
 
 
