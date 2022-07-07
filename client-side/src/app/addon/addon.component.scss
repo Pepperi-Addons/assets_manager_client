@@ -2,173 +2,173 @@
 @use '@pepperi-addons/ngx-lib/src/core/style/abstracts/functions' as ngx-functions;
 @use '@pepperi-addons/ngx-lib/src/core/style/abstracts/mixins' as ngx-mixins;
 
-.add-padding {
-    padding-inline: ngx-variables.$content-padding;
+.assets-container {
+    &.add-padding {
+        padding-inline: ngx-variables.$content-padding;
 
-    @media (max-width: ngx-variables.$screen-max-size-xs) {
-        padding-inline: 0;
-    }
-}
-
-::ng-deep .pep-top-area{
-    .left-container{
-        align-items: center !important;
-    }
-    .pep-button{
-        height: 1.75rem !important;
-    }
-}
-::ng-deep .pep-main-area{
-    display: grid !important;
-    grid-template-rows: auto auto 1fr auto;
-   
-    .inDialogCollapseHeader{
-        height: 3rem;
-        line-height: 3rem;
-        padding-top: 0.75rem;
-        margin-bottom: 0.75rem;
-    }
-
-    .toggleBtn{
-        &.rotate{
-            transform: rotate(-90deg);
+        @media (max-width: ngx-variables.$screen-max-size-xs) {
+            padding-inline: 0;
         }
     }
 
-    .uploader-content{
-        margin: 1rem 0;
-        display: flex;
-        flex-direction: row;
-        gap: 1rem;
-        transition: max-height 2000ms ease-in;
-
-        // &.expand{
-        //     max-height:fit-content;
-
-        // }
-
-        &.collapse{
-            max-height: 0;
-            overflow: hidden;
-            margin: 0;
-            
+    ::ng-deep .pep-top-area{
+        .left-container{
+            align-items: center !important;
         }
-        .upload-asset,
-        .link-asset{
-            height: 153px;
+        .pep-button{
+            height: 1.75rem !important;
+        }
+    }
+    ::ng-deep .pep-main-area{
+        display: grid !important;
+        grid-template-rows: auto auto 1fr auto;
+    
+        .inDialogCollapseHeader{
+            height: 3rem;
+            line-height: 3rem;
+            padding-top: 0.75rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .toggleBtn{
+            &.rotate{
+                transform: rotate(-90deg);
+            }
+        }
+
+        .uploader-content{
+            margin: 1rem 0;
             display: flex;
-        }
-        
-        &.popUpView{
+            flex-direction: row;
+            gap: 1rem;
+            transition: max-height 2000ms ease-in;
 
+            // &.expand{
+            //     max-height:fit-content;
+
+            // }
+
+            &.collapse{
+                max-height: 0;
+                overflow: hidden;
+                margin: 0;
+                
+            }
             .upload-asset,
             .link-asset{
-                height: 11.5rem;
-                background: rgb(247, 247, 247);
-                border: 1px solid rgb(204, 204, 204);
-                box-shadow: 0px 4px 16px 0px rgba(0, 0, 0, 0.08);
-                border-radius: .25rem;
-                padding: 1rem;
-            }
-
-          
-        }
-
-        .upload-asset{
-            column-gap: 1rem;
-
-            .file-section{
-
-              
-                label {
-                    display: block;
-                }
-
-                span{
-                    display: block;
-                    clear: left;
-                }
-                .fileupload {
-                    width: 240px;
-                    height: 6rem;
-                    border: 1px dashed rgb(153, 153, 153);
-                    border-radius: .25rem;
-                    background-color: ngx-functions.get-pep-color(color-system-primary, color-tran-30);
-                    cursor: pointer;
-                    display: flex;
-                    justify-content: center;
-                    align-items: center;
-                    flex-direction: column;
-                    margin-top: .5rem;
-            
-                    pep-icon{
-                        height: 1.5rem;
-                        width: 1.5rem;
-                    }
-            
-                    input[type="file"]{
-                        display: none;
-                    }
-
-                    &.validationErrMsg{
-                        border-color: rgb(230, 38, 0);
-                        background-color: #fff;
-                        height: 4.5rem;
-                        border-radius: .25rem .25rem 0 0;
-                        border-bottom: none;
-                    }
-                }
-
-                .validationMsg{
-                    background: rgb(230, 38, 0);
-                    border-radius: 0 0 4px 4px;
-                    color: #fff;
-                    padding: .25rem .5rem;
-                    line-height: 1.5rem;
-                }
-            }
-
-            .url-section{
+                height: 153px;
                 display: flex;
+            }
+            
+            &.popUpView{
+
+                .upload-asset,
+                .link-asset{
+                    height: 11.5rem;
+                    background: rgb(247, 247, 247);
+                    border: 1px solid rgb(204, 204, 204);
+                    box-shadow: 0px 4px 16px 0px rgba(0, 0, 0, 0.08);
+                    border-radius: .25rem;
+                    padding: 1rem;
+                }
+
+            
+            }
+
+            .upload-asset{
+                column-gap: 1rem;
+
+                .file-section{
+
+                
+                    label {
+                        display: block;
+                    }
+
+                    span{
+                        display: block;
+                        clear: left;
+                    }
+                    .fileupload {
+                        width: 240px;
+                        height: 6rem;
+                        border: 1px dashed rgb(153, 153, 153);
+                        border-radius: .25rem;
+                        background-color: ngx-functions.get-pep-color(color-system-primary, color-tran-30);
+                        cursor: pointer;
+                        display: flex;
+                        justify-content: center;
+                        align-items: center;
+                        flex-direction: column;
+                        margin-top: .5rem;
+                
+                        pep-icon{
+                            height: 1.5rem;
+                            width: 1.5rem;
+                        }
+                
+                        input[type="file"]{
+                            display: none;
+                        }
+
+                        &.validationErrMsg{
+                            border-color: rgb(230, 38, 0);
+                            background-color: #fff;
+                            height: 4.5rem;
+                            border-radius: .25rem .25rem 0 0;
+                            border-bottom: none;
+                        }
+                    }
+
+                    .validationMsg{
+                        background: rgb(230, 38, 0);
+                        border-radius: 0 0 4px 4px;
+                        color: #fff;
+                        padding: .25rem .5rem;
+                        line-height: 1.5rem;
+                    }
+                }
+
+                .url-section{
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: end;
+
+                    .validationMsg{
+                        background: rgb(230, 38, 0);
+                        border-radius: 0 0 4px 4px;
+                        color: #fff;
+                        padding: .25rem .5rem;
+                        line-height: 1.5rem;
+                    }
+                }
+            
+            }
+
+            .link-asset{
                 flex-direction: column;
-                justify-content: end;
+                width: 17rem;
+            }
+        }
 
-                .validationMsg{
-                    background: rgb(230, 38, 0);
-                    border-radius: 0 0 4px 4px;
-                    color: #fff;
-                    padding: .25rem .5rem;
-                    line-height: 1.5rem;
+        pep-generic-list {
+            padding: 0 ngx-variables.$spacing-xs;
+            overflow: auto;
+            height: 100%;
+
+            pep-menu{
+                ::ng-deep{
+                    button{
+                        font-weight:  500;
+                    }
                 }
             }
-        
-        }
-
-        .link-asset{
-            flex-direction: column;
-            width: 17rem;
-        }
-    }
-
-    pep-generic-list {
-        padding: 0 ngx-variables.$spacing-xs;
-        overflow: auto;
-        height: 100%;
-
-        pep-menu{
+            
             ::ng-deep{
-                button{
-                    font-weight:  500;
+                img{
+                    background-color: rgba(21, 24, 26, 0.15);
                 }
-            }
-        }
-        
-        ::ng-deep{
-            img{
-                background-color: rgba(21, 24, 26, 0.15);
             }
         }
     }
 }
-
-
