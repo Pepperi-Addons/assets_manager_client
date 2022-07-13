@@ -10,6 +10,7 @@ import { TranslateModule, TranslateLoader, TranslateStore } from '@ngx-translate
 import { AppRoutingModule } from './app.routes';
 import { AssetsModule } from './addon/addon.module';
 import { AppComponent } from './app.component';
+import { config } from './addon/addon.config';
 
 @NgModule({
     declarations: [
@@ -25,7 +26,7 @@ import { AppComponent } from './app.component';
             loader: {
                 provide: TranslateLoader,
                 useFactory: (addonService: PepAddonService) => 
-                    PepAddonService.createMultiTranslateLoader(addonService, ['ngx-lib', 'ngx-composite-lib']),
+                    PepAddonService.createMultiTranslateLoader(config.AddonUUID, addonService, ['ngx-lib', 'ngx-composite-lib']),
                 deps: [PepAddonService]
             }
         })

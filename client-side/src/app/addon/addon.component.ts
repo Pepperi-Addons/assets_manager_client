@@ -65,7 +65,7 @@ export class AssetsComponent implements OnInit {
         private httpClient: HttpClient,
         private renderer: Renderer2
     ) {
-        this.imagesPath = this.pepAddonService.getAddonStaticFolder() + 'assets/images/';
+        this.imagesPath = this.pepAddonService.getAddonStaticFolder(this.addonService.addonUUID) + 'assets/images/';
         this.layoutService.onResize$.subscribe(size => {
             this.screenSize = size;
         });
