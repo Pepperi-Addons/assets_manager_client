@@ -9,7 +9,7 @@
                     "style": "scss"
                 }
             },
-            "root": "./",
+            "root": "",
             "sourceRoot": "src",
             "prefix": "addon",
             "architect": {

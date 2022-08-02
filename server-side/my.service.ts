@@ -37,7 +37,9 @@ class MyService {
             AddonUUID: this.addonUUID,
             AddonRelativeURL: this.bundleFileName,
             ComponentName: `${assetsBlockName}Component`,
-            ModuleName: `${assetsBlockName}Module`
+            ModuleName: `${assetsBlockName}Module`,
+            ElementsModule: 'WebComponents',
+            ElementName: `${assetsBlockName.toLocaleLowerCase()}-element`,
         }; 
         
         this.upsertRelation(addonBlockRelation);
@@ -47,7 +49,7 @@ class MyService {
         const addonBlockRelation: Relation = {
             RelationName: "SettingsBlock",
             GroupName: 'Pages',
-            Name: assetsBlockName,
+            Name: 'assets_manager',
             Description: 'New Assets Manager',
             Type: "NgComponent",
             SubType: "NG14",
