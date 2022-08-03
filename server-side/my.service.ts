@@ -39,7 +39,7 @@ class MyService {
             ComponentName: `${assetsBlockName}Component`,
             ModuleName: `${assetsBlockName}Module`,
             ElementsModule: 'WebComponents',
-            ElementName: `${assetsBlockName.toLocaleLowerCase()}-element`,
+            ElementName: `assets-element`,
         }; 
         
         this.upsertRelation(addonBlockRelation);
@@ -56,7 +56,9 @@ class MyService {
             AddonUUID: this.addonUUID,
             AddonRelativeURL: this.bundleFileName,
             ComponentName: `${assetsBlockName}Component`,
-            ModuleName: `${assetsBlockName}Module`
+            ModuleName: `${assetsBlockName}Module`,
+            ElementsModule: 'WebComponents',
+            ElementName: `settings-element`,
         }; 
         
         this.upsertRelation(addonBlockRelation);

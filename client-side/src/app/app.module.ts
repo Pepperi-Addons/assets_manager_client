@@ -9,7 +9,7 @@ import { PepAddonService } from '@pepperi-addons/ngx-lib';
 
 import { TranslateModule, TranslateLoader, TranslateStore, TranslateService } from '@ngx-translate/core';
 
-// import { AppRoutingModule } from './app.routes';
+import { AppRoutingModule } from './app.routes';
 import { AssetsModule } from './addon/addon.module';
 import { AppComponent } from './app.component';
 import { config } from './addon/addon.config';
@@ -24,7 +24,7 @@ import { AssetsComponent } from './addon';
         BrowserAnimationsModule,
         HttpClientModule,
         AssetsModule,
-        // AppRoutingModule,
+        AppRoutingModule,
         TranslateModule.forRoot({
             loader: {
                 provide: TranslateLoader,
@@ -52,9 +52,7 @@ export class AppModule implements DoBootstrap {
     }
 
     ngDoBootstrap() {
-        // const ce = createCustomElement(AppComponent, {injector: this.injector});
-        // customElements.define('assets', ce);
-    
         customElements.define('assets-element', createCustomElement(AssetsComponent, {injector: this.injector}));
+        customElements.define('settings-element', createCustomElement(AssetsComponent, {injector: this.injector}));
     }
 }
