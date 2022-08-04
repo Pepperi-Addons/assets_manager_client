@@ -23,14 +23,10 @@ const routes: Routes = [
     //         }
     //     ]
     // },
-    {
-        path: ':settingsSectionName/:addonUUID/:blockName',
-        loadChildren: () => import('./addon/addon.module').then(m => m.AssetsModule),
-    },
-    {
-        path: '**',
-        component: EmptyRouteComponent
-    }
+    // {
+    //     path: '**',
+    //     component: EmptyRouteComponent
+    // }
 ];
 
 @NgModule({

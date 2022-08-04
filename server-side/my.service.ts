@@ -50,7 +50,8 @@ class MyService {
         const addonBlockRelation: Relation = {
             RelationName: "SettingsBlock",
             GroupName: 'Pages',
-            Name: 'assets_manager',
+            SlugName: 'assets_manager',
+            Name: assetsBlockName,
             Description: 'New Assets Manager',
             Type: "NgComponent",
             SubType: "NG14",
