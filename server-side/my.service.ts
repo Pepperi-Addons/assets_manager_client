@@ -20,7 +20,8 @@ class MyService {
         });
         this.addonUUID = client.AddonUUID;
         this.addonSecretKey = client.AddonSecretKey;
-        this.bundleFileName = `file_${this.addonUUID.replace(/-/g, '_').toLowerCase()}`;
+        // this.bundleFileName = `file_${this.addonUUID.replace(/-/g, '_').toLowerCase()}`;
+        this.bundleFileName = `file_${this.addonUUID}`;
     }
 
     private async upsertScheme(schemes) {
@@ -39,7 +40,7 @@ class MyService {
             ComponentName: `${assetsBlockName}Component`,
             ModuleName: `${assetsBlockName}Module`,
             ElementsModule: 'WebComponents',
-            ElementName: `assets-element`,
+            ElementName: `assets-element-${this.addonUUID}`,
         }; 
         
         this.upsertRelation(addonBlockRelation);
@@ -58,7 +59,7 @@ class MyService {
             ComponentName: `${assetsBlockName}Component`,
             ModuleName: `${assetsBlockName}Module`,
             ElementsModule: 'WebComponents',
-            ElementName: `settings-element`,
+            ElementName: `settings-element-${this.addonUUID}`,
         }; 
         
         this.upsertRelation(addonBlockRelation);

@@ -31,7 +31,7 @@
         "@ngx-translate/http-loader": "^7.0.0",
         "@pepperi-addons/data-views": "^0.0.2",
         "@pepperi-addons/ngx-composite-lib": "^0.4.0-angular14.4",
-        "@pepperi-addons/ngx-lib": "^0.4.0-angular14.23",
+        "@pepperi-addons/ngx-lib": "^0.4.0-angular14.57",
         "@pepperi-addons/papi-sdk": "*",
         "@tweenjs/tween.js": "^17.1.1",
         "hammerjs": "^2.0.8",
@@ -50,7 +50,7 @@
     },
     "devDependencies": {
         "@angular-architects/module-federation": "^14.3.8",
-        "@angular-architects/module-federation-tools": "^14.3.0",
+        "@angular-architects/module-federation-tools": "^14.3.10",
         "@angular-builders/custom-webpack": "^14.0.0",
         "@angular-devkit/build-angular": "14.0.2",
         "@angular/cli": "^14.0.2",

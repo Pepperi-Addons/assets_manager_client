@@ -52,7 +52,7 @@ export class AppModule implements DoBootstrap {
     }
 
     ngDoBootstrap() {
-        customElements.define('assets-element', createCustomElement(AssetsComponent, {injector: this.injector}));
-        customElements.define('settings-element', createCustomElement(AssetsComponent, {injector: this.injector}));
+        customElements.define(`assets-element-${config.AddonUUID}`, createCustomElement(AssetsComponent, {injector: this.injector}));
+        customElements.define(`settings-element-${config.AddonUUID}`, createCustomElement(AssetsComponent, {injector: this.injector}));
     }
 }

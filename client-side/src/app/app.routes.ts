@@ -11,17 +11,21 @@ import { AssetsComponent } from './addon/addon.component';
 export class EmptyRouteComponent {}
 
 const routes: Routes = [
+    // {
+    //     path: `settings/:addon_uuid`,
+    //     children: [
+    //         {
+    //             path: ':editor',
+    //             component: AssetsComponent
+    //             // TODO: solve routing
+    //             // path: '**',
+    //             // loadChildren: () => import('./addon/addon.module').then(m => m.AssetsModule)
+    //         }
+    //     ]
+    // },
     {
-        path: `settings/:addon_uuid`,
-        children: [
-            {
-                path: ':editor',
-                component: AssetsComponent
-                // TODO: solve routing
-                // path: '**',
-                // loadChildren: () => import('./addon/addon.module').then(m => m.AssetsModule)
-            }
-        ]
+        path: ':settingsSectionName/:addonUUID/:blockName',
+        loadChildren: () => import('./addon/addon.module').then(m => m.AssetsModule),
     },
     {
         path: '**',
@@ -30,7 +34,7 @@ const routes: Routes = [
 ];
 
 @NgModule({
-    imports: [RouterModule.forRoot(routes, { relativeLinkResolution: 'legacy' })],
+    imports: [RouterModule.forRoot(routes)],
     exports: [RouterModule]
 })
 export class AppRoutingModule { }
