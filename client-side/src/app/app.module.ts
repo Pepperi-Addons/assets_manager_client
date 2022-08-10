@@ -1,4 +1,4 @@
-import { DoBootstrap, Injector, NgModule } from '@angular/core';
+import { DoBootstrap, Injector, NgModule, Type } from '@angular/core';
 import { HttpClientModule } from '@angular/common/http';
 import { createCustomElement } from '@angular/elements';
 
@@ -51,8 +51,14 @@ export class AppModule implements DoBootstrap {
         this.pepAddonService.setDefaultTranslateLang(translate);
     }
 
+    private defineCustomElement(elementName: string, component: Type<any>) {
+        if (!customElements.get(elementName)) {  
+            customElements.define(elementName, createCustomElement(component, {injector: this.injector}));
+        }
+    }
+
     ngDoBootstrap() {
-        customElements.define(`assets-element-${config.AddonUUID}`, createCustomElement(AssetsComponent, {injector: this.injector}));
-        customElements.define(`settings-element-${config.AddonUUID}`, createCustomElement(AssetsComponent, {injector: this.injector}));
+        this.defineCustomElement(`assets-element-${config.AddonUUID}`, AssetsComponent);
+        this.defineCustomElement(`settings-element-${config.AddonUUID}`, AssetsComponent);
     }
 }
