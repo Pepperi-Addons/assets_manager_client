@@ -33,13 +33,12 @@ export class Asset {
     URL: string = ""; // Read only. the CDN URL
     URI: string = ""; // mandatory on create/update , empty "URI" means a creation of a folder , Can be a http URL or base64 data URI
     Hidden: boolean = false;
-
     creationDate: number;
     modificationDate: number;
-    
     ownerUUID : string = '';
     // fileSize: string = '0';
     fileSize: number = 0;
+    isUpdateAsset: boolean = false;
 
     constructor(mimeType = null){
         //this.mimeType = mimeType;

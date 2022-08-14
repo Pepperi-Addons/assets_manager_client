@@ -76,28 +76,20 @@ export class AddonService {
     }
 
     getAssets(query?: string) {
-       debugger;
-        //HACK - NEED TO BE REMOVE AFTER BUG FIX 
-        query = query === "?folder=/" ? '' : query;
         let url =  query ? this.addonURL + query : this.addonURL;
        
         return this.papiClient.get(encodeURI(url));
         //return this.pepGet(encodeURI(url)).toPromise();
     }
 
-    // async upsertAsset(asset: Asset, query?: string): Promise<any> {
-    //     let body = {
-    //             Key: asset.Key,
-    //             Description: asset.Description,
-    //             MIME: asset.MIME,
-    //             Sync: asset.Sync,
-    //             //Thumbnails: asset.Thumbnails,
-    //             URI: asset.URI || '',
-    //             Hidden: asset.Hidden
-    //     };
-
-    //     return this.addonService.postAddonApiCall(this.addonUUID, 'api', 'upsert_asset', body).toPromise();
-    // }
+    async invalidateAsset(asset: Asset){
+        
+        const body = {
+            Key: asset.Key
+        };
+       
+        return this.addonService.postAddonApiCall(this.addonUUID, 'api', 'invalidate_asset', body).toPromise();
+    }
     
     async get(endpoint: string): Promise<any> {
         return await this.papiClient.get(endpoint);
@@ -150,7 +142,7 @@ export class AddonService {
 
             const getAsset = (data: IUploadFilesWorkerData, file: File, uri: string): Asset => {
                 let asset: any = {};
-                asset.Key = data.workerOptions.assetsKeyPrefix + '/' +  file.name;
+                asset.Key = data.workerOptions.assetsKeyPrefix +  file.name;
                 asset.URI =  uri;  
                 asset.MIME = file.type;
                 asset.fileSize = file.size;
@@ -166,7 +158,8 @@ export class AddonService {
                     Sync: asset.Sync,
                     //Thumbnails: asset.Thumbnails,
                     URI: asset.URI || '',
-                    Hidden: asset.Hidden
+                    Hidden: asset.Hidden,
+                    isUpdateAsset: asset.isUpdateAsset || false
                 });
             };
 
@@ -177,10 +170,10 @@ export class AddonService {
                 xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
                 xhr.onreadystatechange = () => {
                     let fileStatus = helperObject['filesStatus'].find(fs => fs.name === asset.Key);
-                    console.log('XHR: ' + xhr.status + ' ' + xhr.readyState);
+                    //console.log('XHR: ' + xhr.status + ' ' + xhr.readyState);
                     if (xhr.readyState === 4 && xhr.status === 200) {
                         const res = JSON.parse(xhr.responseText);
-                        console.log('PresignedURL: ' + res.PresignedURL);
+                        //console.log('PresignedURL: ' + res.PresignedURL);
                         if(res && res.PresignedURL){
                             var buffer = new Uint8Array(bufferFile as ArrayBuffer);
 

@@ -24,6 +24,21 @@ class MyService {
         const headers = {
             'X-Pepperi-SecretKey' :  this.addonSecretKey,      
         }
+        
+        let res = await this.papiClient.post(encodeURI(url),body, headers );
+        
+        if(body['isUpdateAsset']=== true){
+             res = await this.invalidateAsset(body);
+        }
+
+        return res;
+    }
+
+    async invalidateAsset(body: any) {
+        let url = `/addons/pfs/${this.addonUUID}/${AssetsScheme.Name}/${body.Key}/invalidate`;
+        const headers = {
+            'X-Pepperi-SecretKey' :  this.addonSecretKey,      
+        }
         const res = await this.papiClient.post(encodeURI(url),body, headers );
         return res;
     }
