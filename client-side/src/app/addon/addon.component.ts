@@ -214,7 +214,6 @@ export class AssetsComponent implements OnInit {
             this.showDeleteAssetMSG(asset);
         }
         else {
-           debugger;
             asset.Key = this.getCurrentURL() + asset.Name;
             asset.isUpdateAsset = true;
             this.addonService.runUploadWorker({ assets: [asset] });
@@ -326,7 +325,7 @@ export class AssetsComponent implements OnInit {
                 this.assetsList.forEach( (asset, index) =>  {
                             asset.Name = asset.MIME === 'pepperi/folder' && asset.Key !== '/' ? this.cleanFolderName(asset.Name) : asset.Name;
                             asset.Thumbnail = asset.MIME === 'pepperi/folder' ?  this.imagesPath + 'system-folder.svg' : 
-                                              asset.MIME.toLowerCase().indexOf('application/') > -1 ? this.imagesPath + 'system-doc.svg'  : asset.URL; 
+                                              asset.MIME.toLowerCase().indexOf('application/') > -1 ? this.imagesPath + 'system-doc.svg'  : (asset.URL + '?versionId=' + asset.FileVersion); 
                 });
 
                 if (state.searchString != "") {
