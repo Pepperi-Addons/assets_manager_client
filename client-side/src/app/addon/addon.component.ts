@@ -73,10 +73,7 @@ export class AssetsComponent implements OnInit {
         this.addonService.workerResultChange$.subscribe((workerResult: IUploadFilesWorkerResult) => {
             if (workerResult?.isFinish) {
                 this.linkURL = this.popUplinkURL = '';
-                this.setDataSource();
-               
-                
-                
+                this.setDataSource();   
             }
         });
     }
@@ -324,8 +321,11 @@ export class AssetsComponent implements OnInit {
                 
                 this.assetsList.forEach( (asset, index) =>  {
                             asset.Name = asset.MIME === 'pepperi/folder' && asset.Key !== '/' ? this.cleanFolderName(asset.Name) : asset.Name;
+
+                            const assetURL = asset.URL + (this.hostObject ?  '' : '?versionId=' + asset.FileVersion);
+
                             asset.Thumbnail = asset.MIME === 'pepperi/folder' ?  this.imagesPath + 'system-folder.svg' : 
-                                              asset.MIME.toLowerCase().indexOf('application/') > -1 ? this.imagesPath + 'system-doc.svg'  : (asset.URL + '?versionId=' + asset.FileVersion); 
+                                              asset.MIME.toLowerCase().indexOf('application/') > -1 ? this.imagesPath + 'system-doc.svg'  : assetURL; 
                 });
 
                 if (state.searchString != "") {
