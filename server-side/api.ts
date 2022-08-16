@@ -12,7 +12,14 @@ export async function foo(client: Client, request: Request) {
 
 export async function upsert_asset(client: Client, request: Request) {
     const service = new MyService(client)
-    const res = await service.upsertAsset(request.body)
+    const res = await service.upsertAsset(request.body);
+    
+    return res
+};
+
+export async function invalidate_asset(client: Client, request: Request) {
+    const service = new MyService(client)
+    const res = await service.invalidateAsset(request.body)
     return res
 };
 

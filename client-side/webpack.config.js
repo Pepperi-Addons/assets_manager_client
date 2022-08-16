@@ -7,7 +7,6 @@ const webpackConfig = withModuleFederationPlugin({
     name: filename,
     filename: `${filename}.js`,
     exposes: {
-        // './AssetsModule': './src/app/addon/index.ts',
         './WebComponents': './src/bootstrap.ts',
     },
     shared: {

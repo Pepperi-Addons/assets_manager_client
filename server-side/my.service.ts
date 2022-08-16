@@ -20,7 +20,6 @@ class MyService {
         });
         this.addonUUID = client.AddonUUID;
         this.addonSecretKey = client.AddonSecretKey;
-        // this.bundleFileName = `file_${this.addonUUID.replace(/-/g, '_').toLowerCase()}`;
         this.bundleFileName = `file_${this.addonUUID}`;
     }
 
@@ -93,15 +92,6 @@ class MyService {
         this.upsertRelation(exportRelation);
     }
 
-    private async upsertAsset(body: Object) {
-        let url = `/addons/pfs/${this.addonUUID}/${AssetsScheme.Name}`
-        const headers = {
-            'X-Pepperi-SecretKey' :  this.addonSecretKey,      
-        }
-        const res = await this.papiClient.post(encodeURI(url),body, headers );
-        return res;
-    }
-
     private upsertRelation(relation): Promise<any> {
         return this.papiClient.post('/addons/data/relations', relation);
     }
@@ -122,6 +112,34 @@ class MyService {
         this.upsertSettingsRelation();
         // this.addDimxImportRelation();
         // this.addDimxExportRelation();
+    }
+
+    getAddons(): Promise<InstalledAddon[]> {
+        return this.papiClient.addons.installedAddons.find({});
+    }
+
+    async upsertAsset(body: Object) {
+        let url = `/addons/pfs/${this.addonUUID}/${AssetsScheme.Name}`
+        const headers = {
+            'X-Pepperi-SecretKey' :  this.addonSecretKey,      
+        }
+        
+        let res = await this.papiClient.post(encodeURI(url),body, headers );
+        
+        if(body['isUpdateAsset']=== true){
+             res = await this.invalidateAsset(body);
+        }
+
+        return res;
+    }
+
+    async invalidateAsset(body: any) {
+        let url = `/addons/pfs/${this.addonUUID}/${AssetsScheme.Name}/${body.Key}/invalidate`;
+        const headers = {
+            'X-Pepperi-SecretKey' :  this.addonSecretKey,      
+        }
+        const res = await this.papiClient.post(encodeURI(url),body, headers );
+        return res;
     }
 }
 
