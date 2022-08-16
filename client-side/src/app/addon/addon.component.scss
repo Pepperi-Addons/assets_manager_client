@@ -121,9 +121,29 @@
             }
 
             .url-section{
-                display: flex;
-                flex-direction: column;
-                justify-content: end;
+                //display: flex;
+                //flex-direction: column;
+                //justify-content: end;
+                span{
+                    display: block;
+                    clear: left;
+                }
+
+                .url-inner-div{
+                    height: 6rem;
+                    display: flex;
+                    justify-content: space-between;
+                    flex-direction: column;
+                    margin-top: 0.5rem;
+
+                    pep-textbox{
+                        height: 2.5rem;
+                    }
+                    
+                    ::ng-deep pep-field-title{
+                        display: none !important;
+                    }
+                }
 
                 .validationMsg{
                     background: rgb(230, 38, 0);
