@@ -322,7 +322,7 @@ export class AssetsComponent implements OnInit {
                 this.assetsList.forEach( (asset, index) =>  {
                             asset.Name = asset.MIME === 'pepperi/folder' && asset.Key !== '/' ? this.cleanFolderName(asset.Name) : asset.Name;
 
-                            const assetURL = asset.URL + (this.hostObject ?  '' : '?versionId=' + asset.FileVersion);
+                            const assetURL = asset.URL + (asset.FileVersion ?  '?versionId=' + asset.FileVersion : '');
 
                             asset.Thumbnail = asset.MIME === 'pepperi/folder' ?  this.imagesPath + 'system-folder.svg' : 
                                               asset.MIME.toLowerCase().indexOf('application/') > -1 ? this.imagesPath + 'system-doc.svg'  : assetURL; 
