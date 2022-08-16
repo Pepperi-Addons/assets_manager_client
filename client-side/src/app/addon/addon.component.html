@@ -1,4 +1,4 @@
-<pep-page-layout class="assets-container add-padding">
+<pep-page-layout class="add-padding">
     <ng-container pep-top-area>
         <pep-top-bar [title]="('TITLE' | translate)">
             <div header-start-content>
@@ -28,13 +28,10 @@
                     </div>
                     <div *ngIf="validateMsg !== ''" class="body-xs validationMsg">{{validateMsg}}</div>
                 </div>
+                
                 <div class="url-section">
-                    <label class="body-md ellipsis pull-left">&nbsp;</label>
-                    <span class="body-xs ellipsis">{{'UPLOAD_ASSET.UPLOAD_URL' | translate}}</span>
-                    <div class="url-inner-div">
-                        <pep-textbox class="pep-field-no-spacing" type="link" [(value)]="linkURL" sizeType="xs"></pep-textbox>
-                        <pep-button [value]="'UPLOAD_ASSET.INSERT_URL' | translate" [styleType]="'regular'" [sizeType]="'md'"  (buttonClick)="assetURLChange(linkURL);"></pep-button>
-                    </div>
+                    <pep-textbox [label]="'UPLOAD_ASSET.UPLOAD_URL' | translate" type="link" [(value)]="linkURL" sizeType="xs"></pep-textbox>
+                    <pep-button [value]="'UPLOAD_ASSET.INSERT_URL' | translate" [styleType]="'regular'" [sizeType]="'md'"  (buttonClick)="assetURLChange(linkURL);"></pep-button>
                     <div *ngIf="urlValidateMsg !== ''" class="body-xs validationMsg">{{urlValidateMsg}}</div>
                 </div>
             </div>
@@ -67,7 +64,7 @@
 
 <ng-template #topBarEnd>
     <pep-button class="pep-spacing-element" value="{{'TOP_BAR.ADD_FOLDER' | translate}}" [styleType]="'weak'"
-    styleStateType="system" [sizeType]="'sm'" iconName="system_folder" iconPosition="end"
+        styleStateType="system" [sizeType]="'sm'" iconName="system_folder" iconPosition="end"
         (buttonClick)="onAddFolderClick($event)"></pep-button>
     <pep-menu text="{{'TOP_BAR.FILTERS' | translate }}" [type]="'action-select'" [class]="'pep-spacing-element'" [items]="mimeFilterItems"
               styleType="weak" styleStateType="system" sizeType="sm" classNames="mat-button" 
