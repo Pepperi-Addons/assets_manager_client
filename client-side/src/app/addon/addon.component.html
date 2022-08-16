@@ -28,10 +28,13 @@
                     </div>
                     <div *ngIf="validateMsg !== ''" class="body-xs validationMsg">{{validateMsg}}</div>
                 </div>
-                
                 <div class="url-section">
-                    <pep-textbox [label]="'UPLOAD_ASSET.UPLOAD_URL' | translate" type="link" [(value)]="linkURL" sizeType="xs"></pep-textbox>
-                    <pep-button [value]="'UPLOAD_ASSET.INSERT_URL' | translate" [styleType]="'regular'" [sizeType]="'md'"  (buttonClick)="assetURLChange(linkURL);"></pep-button>
+                    <label class="body-md ellipsis pull-left">&nbsp;</label>
+                    <span class="body-xs ellipsis">{{'UPLOAD_ASSET.UPLOAD_URL' | translate}}</span>
+                    <div class="url-inner-div">
+                        <pep-textbox class="pep-field-no-spacing" type="link" [(value)]="linkURL" sizeType="xs"></pep-textbox>
+                        <pep-button [value]="'UPLOAD_ASSET.INSERT_URL' | translate" [styleType]="'regular'" [sizeType]="'md'"  (buttonClick)="assetURLChange(linkURL);"></pep-button>
+                    </div>
                     <div *ngIf="urlValidateMsg !== ''" class="body-xs validationMsg">{{urlValidateMsg}}</div>
                 </div>
             </div>
