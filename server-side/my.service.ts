@@ -68,12 +68,13 @@ class MyService {
     private async addDimxImportRelation() {
         const importRelation: Relation = {
             RelationName: 'DataImportResource',
-            Name: assetsBlockName,
-            Description: `${assetsBlockName} import`,
+            Name: `${assetsBlockName}Import`,
+            Description: `${assetsBlockName} Import Relation`,
             Type: 'AddonAPI',
             AddonUUID: this.addonUUID,
             AddonRelativeURL: '/api/import_fix_object',
             MappingRelativeURL: ''
+            //FixRelativeURL: '/api/dimx_import',
         }; 
 
         this.upsertRelation(importRelation);
@@ -81,11 +82,11 @@ class MyService {
 
     private async addDimxExportRelation() {
         const exportRelation: Relation = {
-            RelationName: 'DataExportResource',
-            Name: assetsBlockName,
-            Description: `${assetsBlockName} export`,
-            Type: 'AddonAPI',
             AddonUUID: this.addonUUID,
+            RelationName: 'DataExportResource',
+            Name: `${assetsBlockName}Export`,
+            Description: `${assetsBlockName} Export Relation`,
+            Type: 'AddonAPI',
             AddonRelativeURL: ''
         };
 
@@ -101,8 +102,8 @@ class MyService {
 
         this.upsertAddonBlockRelation();
         this.upsertSettingsRelation();
-        // this.addDimxImportRelation();
-        // this.addDimxExportRelation();
+        this.addDimxImportRelation();
+        this.addDimxExportRelation();
     }
 
     updateRelationsAndScheme(): void {
@@ -110,8 +111,8 @@ class MyService {
 
         this.upsertAddonBlockRelation();
         this.upsertSettingsRelation();
-        // this.addDimxImportRelation();
-        // this.addDimxExportRelation();
+        this.addDimxImportRelation();
+        this.addDimxExportRelation();
     }
 
     getAddons(): Promise<InstalledAddon[]> {

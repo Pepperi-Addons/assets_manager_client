@@ -123,34 +123,33 @@ export class AssetsComponent implements OnInit {
         //Check mime types is allowed
         this.validateMsg = '';
         let tmpMsg = '';
-
-        if(type?.indexOf('image/') > -1){
-            if(!['images', 'all'].includes(this.allowedAssetsTypes)){
-                tmpMsg = this.translate.instant('EDIT_FILE.NOT_ALLOWED_MIME_TYPE');
+        const fileType = type.indexOf('/') > -1 ? type.substring(0,type.indexOf('/')) : '';
+        if(this.allowedAssetsTypes !== 'all'){
+            if(fileType === 'image' && this.allowedAssetsTypes === 'documents'){ // upload image file 
+                tmpMsg = this.translate.instant('EDIT_FILE.DOCMENT_MIME_TYPE_ALLOWED');      
+            } // document (application/text/doc...) file upload
+            else if(['application','text'].includes(fileType) && this.allowedAssetsTypes === 'images'){
+                tmpMsg = this.translate.instant('EDIT_FILE.IMAGES_MIME_TYPE_ALLOWED');
             }
-        }
-        else if(!['documents', 'all'].includes(this.allowedAssetsTypes)){
-            tmpMsg = this.translate.instant('EDIT_FILE.NOT_ALLOWED_MIME_TYPE');
-        }
-        
-        if(!showMsgOnModal){
-            this.validateMsg = tmpMsg;
-            return this.validateMsg === '';
-        }
-        else{
-            if(tmpMsg !== ''){
-                const dialogData = new PepDialogData({
-                    content: tmpMsg,
-                    showHeader: false,
-                    actionsType: 'close',
-                    showClose: false
-                });
-        
-                this.dialogService.openDefaultDialog(dialogData);
+            if(!showMsgOnModal){
+                this.validateMsg = tmpMsg;
+                return this.validateMsg === '';
             }
+            else{
+                if(tmpMsg !== ''){
+                    const dialogData = new PepDialogData({
+                        content: tmpMsg,
+                        showHeader: false,
+                        actionsType: 'close',
+                        showClose: false
+                    });
+            
+                    this.dialogService.openDefaultDialog(dialogData);
+                }
 
-            return tmpMsg === '';
-        
+                return tmpMsg === '';
+            
+            }
         }
 
     }
@@ -396,11 +395,12 @@ export class AssetsComponent implements OnInit {
     
     async assetURLChange(url: string = '') {
         this.urlValidateMsg = '';
-       
+
         if(url !== '') {
             try {
                 let filename = new URL(url).pathname.split('/').pop();
-                let blob = await fetch(url).then(r => r.blob());
+                let blob = await fetch(url)
+                                 .then(r => r.blob());
 
                 let asset: Asset = new Asset();
 

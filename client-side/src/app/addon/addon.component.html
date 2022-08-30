@@ -26,7 +26,7 @@
                                     <span class="body-sm ellipsis">{{'UPLOAD_ASSET.UPLOAD_FILE' | translate}}</span> 
                                     <input type="file" multiple="multiple" name="avatars" #fileField (change)="upload($event.target.files)">   
                     </div>
-                    <div *ngIf="validateMsg !== ''" class="body-xs validationMsg">{{validateMsg}}</div>
+                    <div *ngIf="validateMsg !== ''" title="{{validateMsg}}" class="body-xs validationMsg ellipsis">{{validateMsg}}</div>
                 </div>
                 
                 <div class="url-section">
@@ -36,7 +36,7 @@
                         <pep-textbox class="pep-field-no-spacing" type="link" [(value)]="linkURL" sizeType="xs"></pep-textbox>
                         <pep-button [value]="'UPLOAD_ASSET.INSERT_URL' | translate" [styleType]="'regular'" [sizeType]="'md'"  (buttonClick)="assetURLChange(linkURL);"></pep-button>
                     </div>
-                    <div *ngIf="urlValidateMsg !== ''" class="body-xs validationMsg">{{urlValidateMsg}}</div>
+                    <div *ngIf="urlValidateMsg !== ''" class="body-xs validationMsg ellipsis">{{urlValidateMsg}}</div>
                 </div>
             </div>
             <div *ngIf="inDialog" class="link-asset">
@@ -70,7 +70,7 @@
     <pep-button class="pep-spacing-element" value="{{'TOP_BAR.ADD_FOLDER' | translate}}" [styleType]="'weak'"
         styleStateType="system" [sizeType]="'sm'" iconName="system_folder" iconPosition="end"
         (buttonClick)="onAddFolderClick($event)"></pep-button>
-    <pep-menu text="{{'TOP_BAR.FILTERS' | translate }}" [type]="'action-select'" [class]="'pep-spacing-element'" [items]="mimeFilterItems"
+    <pep-menu *ngIf="allowedAssetsTypes === 'all'" text="{{'TOP_BAR.FILTERS' | translate }}" [type]="'action-select'" [class]="'pep-spacing-element'" [items]="mimeFilterItems"
               styleType="weak" styleStateType="system" sizeType="sm" classNames="mat-button" 
               (menuItemClick)="onMenuItemClicked($event)">
     </pep-menu>

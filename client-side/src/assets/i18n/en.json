@@ -57,6 +57,8 @@
         "DESCRIPTION": "Description",
         "PREVIEW": "Preview",
         "NOT_ALLOWED_MIME_TYPE": "This file format is not supported",
+        "IMAGES_MIME_TYPE_ALLOWED": "Only Image file formats are supported",
+        "DOCMENT_MIME_TYPE_ALLOWED": "Only Document file formats are supported",
         "MAXIMUM_FILE_SIZE":"Maximum 10MB per file",
         "PLEASE_CHOOSE_ASSET": "Please choose asset"
     },
