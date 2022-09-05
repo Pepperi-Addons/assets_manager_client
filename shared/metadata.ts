@@ -5,5 +5,5 @@ export const AssetsSchemeName = 'Assets';
 
 export const AssetsScheme: AddonDataScheme = {
     Name: `${AssetsSchemeName}`,
-    Type: 'pfs' as any
+    Type: 'pfs'
 };

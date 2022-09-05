@@ -67,11 +67,12 @@ class MyService {
 
     private async addDimxImportRelation() {
         const importRelation: Relation = {
+            AddonUUID: this.addonUUID,
             RelationName: 'DataImportResource',
+            Source: 'pfs',
             Name: `${assetsBlockName}Import`,
             Description: `${assetsBlockName} Import Relation`,
             Type: 'AddonAPI',
-            AddonUUID: this.addonUUID,
             AddonRelativeURL: '/api/import_fix_object',
             MappingRelativeURL: ''
             //FixRelativeURL: '/api/dimx_import',
@@ -84,6 +85,7 @@ class MyService {
         const exportRelation: Relation = {
             AddonUUID: this.addonUUID,
             RelationName: 'DataExportResource',
+            Source: 'pfs',
             Name: `${assetsBlockName}Export`,
             Description: `${assetsBlockName} Export Relation`,
             Type: 'AddonAPI',
@@ -98,8 +100,8 @@ class MyService {
     }
 
     createRelationsAndScheme(): void {
+        
         this.upsertScheme(AssetsScheme);
-
         this.upsertAddonBlockRelation();
         this.upsertSettingsRelation();
         this.addDimxImportRelation();
