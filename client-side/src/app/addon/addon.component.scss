@@ -2,13 +2,12 @@
 @use '@pepperi-addons/ngx-lib/src/core/style/abstracts/functions' as ngx-functions;
 @use '@pepperi-addons/ngx-lib/src/core/style/abstracts/mixins' as ngx-mixins;
 
-.add-padding {
+.assets-manager-cont {
     padding-inline: ngx-variables.$content-padding;
 
     @media (max-width: ngx-variables.$screen-max-size-xs) {
         padding-inline: 0;
     }
-}
 
 ::ng-deep {
     .right-container{
@@ -192,4 +191,6 @@
             }
         }
     }
+}
+
 }
