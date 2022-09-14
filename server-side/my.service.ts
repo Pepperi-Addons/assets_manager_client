@@ -70,10 +70,10 @@ class MyService {
             AddonUUID: this.addonUUID,
             RelationName: 'DataImportResource',
             Source: 'pfs',
-            Name: `${assetsBlockName}Import`,
+            Name: `${assetsBlockName}`,
             Description: `${assetsBlockName} Import Relation`,
             Type: 'AddonAPI',
-            AddonRelativeURL: '/api/import_fix_object',
+            AddonRelativeURL: '',//'/api/import_fix_object',
             MappingRelativeURL: ''
             //FixRelativeURL: '/api/dimx_import',
         }; 
@@ -86,7 +86,7 @@ class MyService {
             AddonUUID: this.addonUUID,
             RelationName: 'DataExportResource',
             Source: 'pfs',
-            Name: `${assetsBlockName}Export`,
+            Name: `${assetsBlockName}`,
             Description: `${assetsBlockName} Export Relation`,
             Type: 'AddonAPI',
             AddonRelativeURL: ''
