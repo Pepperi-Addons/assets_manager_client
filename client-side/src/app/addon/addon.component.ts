@@ -316,7 +316,8 @@ export class AssetsComponent implements OnInit {
 
         this.dataSource = {
             init: async (state) => {
-                this.assetsList = await this.addonService.getAssets("?folder=" + folder + this.setWhereClauseSTR(state));
+                const searchFolder = state?.searchString == undefined ? "?folder=" + folder : '?';
+                this.assetsList = await this.addonService.getAssets( searchFolder + this.setWhereClauseSTR(state));
                 
                 this.assetsList.forEach( (asset, index) =>  {
                             asset.Name = asset.MIME === 'pepperi/folder' && asset.Key !== '/' ? this.cleanFolderName(asset.Name) : asset.Name;

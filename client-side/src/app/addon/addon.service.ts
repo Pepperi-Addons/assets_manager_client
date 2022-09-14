@@ -74,6 +74,10 @@ export class AddonService {
         this.papiBaseURL = this.parsedToken["pepperi.baseurl"];
 
     }
+    getUserDetailsByUUID(uuid: string){
+        const endpoint = `/users/UUID/${uuid}`;
+        return this.papiClient.get(endpoint);
+    }
 
     getAssets(query?: string) {
         let url =  query ? this.addonURL + query : this.addonURL;
@@ -295,11 +299,12 @@ export class AddonService {
                         for (let index = 0; index < data.workerOptions.files.length; index++) {
                             const file = data.workerOptions.files[index];
                             const reader = new FileReader();
-
+                            
                             if(file.size <= 150000){ //this.smallFileLimit){
                                 reader.readAsDataURL(file);
                                 reader.onload = (event) => {
                                     if (event.target.result) {
+
                                         const asset = getAsset(data, file, event.target.result.toString());
                                         helperObject['filesToUploadLength'] = data.workerOptions.files.length;
                                         helperObject['filesStatus'].push({ key: index, name: asset.Key, status: data.workerOptions.status || 'uploading' });
