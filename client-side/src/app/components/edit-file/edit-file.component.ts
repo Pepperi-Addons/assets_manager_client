@@ -29,11 +29,8 @@ export class EditFileComponent implements OnInit {
                     
     }
 
-    async ngOnInit(): Promise<void> {
-        //const details = await this.addonService.getUserDetailsByUUID(this.data.asset.UploadedBy);
-        //this.uploadedBy = details?.FirstName != null ? `${details.FirstName} ${details.LastName}` : ''; 
-
-        this.uploadedBy = this.data?.asset?.UploadedBy || '';
+    ngOnInit(): void  {
+        this.uploadedBy = '';
         this.breadCrumbsItems = this.data?.breadCrumbs || [];
         this.isImageFile = this.data?.asset?.MIME.toLowerCase().indexOf('image') > -1 ? true : false;
         this.assetNmae = this.data?.asset?.Key || '';
@@ -43,6 +40,11 @@ export class EditFileComponent implements OnInit {
         if (this.data?.asset?.FileSize > 0) {
             this.fileSize = this.addonService.formatFileSize(this.data?.asset?.FileSize, 2);
         }
+    }
+
+    async ngAfterViewInit(): Promise<void> {
+        const details = await this.addonService.getUserDetailsByUUID(this.data.asset.UploadedBy);
+        this.uploadedBy = details?.FirstName != null ? `${details.FirstName} ${details.LastName}` : ''; 
     }
 
     close(event) {

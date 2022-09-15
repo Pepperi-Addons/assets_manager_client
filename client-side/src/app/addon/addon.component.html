@@ -29,7 +29,7 @@
                     <div *ngIf="validateMsg !== ''" title="{{validateMsg}}" class="body-xs validationMsg ellipsis">{{validateMsg}}</div>
                 </div>
                 
-                <div class="url-section">
+                <!-- <div class="url-section">
                     <label class="body-md ellipsis pull-left">&nbsp;</label>
                     <span class="body-xs ellipsis">{{'UPLOAD_ASSET.UPLOAD_URL' | translate}}</span>
                     <div class="url-inner-div">
@@ -37,7 +37,7 @@
                         <pep-button [value]="'UPLOAD_ASSET.INSERT_URL' | translate" [styleType]="'regular'" [sizeType]="'md'"  (buttonClick)="assetURLChange(linkURL);"></pep-button>
                     </div>
                     <div *ngIf="urlValidateMsg !== ''" class="body-xs validationMsg ellipsis">{{urlValidateMsg}}</div>
-                </div>
+                </div> -->
             </div>
             <div *ngIf="inDialog" class="link-asset">
                     <label class="body-md">{{'UPLOAD_ASSET.LINK_TITLE' | translate}}</label>
@@ -80,8 +80,8 @@
     </pep-search> -->
     <!-- <pep-button class="pep-spacing-element" styleType="weak" styleStateType="system" sizeType="sm" 
         iconName="arrow_two_ways_ver_t" iconPosition="start" (buttonClick)="sortToggle($event)">
-    </pep-button>
+    </pep-button> -->
     <pep-button *ngIf="currentView !== 'list'" class="pep-spacing-element" styleType="weak" styleStateType="system" sizeType="sm" 
         iconName="view_table" iconPosition="start" (buttonClick)="viewsToggle($event)">
-    </pep-button> -->
+    </pep-button>
 </ng-template>

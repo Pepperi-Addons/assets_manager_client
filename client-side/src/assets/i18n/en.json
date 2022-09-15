@@ -25,11 +25,12 @@
     },
 
     "GRID": {
-        "DEFAULT_TITLE": "Main",
+        "DEFAULT_FOLDER": "Main",
         "COLUMN": {
             "THUMBNAIL": "Thumbnail",
             "FILENAME": "File Name",
             "TYPE": "Type",
+            "FOLDER": "Folder",
             "DESCRIPTION": "Description"
         },
         "FILE_NOT_FOUND": "File not found",
