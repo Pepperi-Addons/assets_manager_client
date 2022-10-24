@@ -2,7 +2,7 @@ import { PapiClient, InstalledAddon } from '@pepperi-addons/papi-sdk'
 import { Client } from '@pepperi-addons/debug-server';
 import { AssetsScheme, AssetsSchemeName } from '../shared/metadata';
 import { Relation } from '@pepperi-addons/papi-sdk';
-import { assetsBlockName } from '../shared/metadata';
+import { assetsBlockName, assetsPickerkName } from '../shared/metadata';
 
 class MyService {
     papiClient: PapiClient
@@ -38,6 +38,24 @@ class MyService {
             AddonRelativeURL: this.bundleFileName,
             ComponentName: `${assetsBlockName}Component`,
             ModuleName: `${assetsBlockName}Module`,
+            ElementsModule: 'WebComponents',
+            ElementName: `assets-element-${this.addonUUID}`,
+        }; 
+        
+        this.upsertRelation(addonBlockRelation);
+    }
+
+    private upsertAddonPickerBlockRelation() {
+        const addonBlockRelation: Relation = {
+            RelationName: "AddonBlock",
+            Name: assetsPickerkName,
+            Description: `${assetsPickerkName} addon block`,
+            Type: "NgComponent",
+            SubType: "NG14",
+            AddonUUID: this.addonUUID,
+            AddonRelativeURL: this.bundleFileName,
+            ComponentName: `${assetsPickerkName}Component`,
+            ModuleName: `${assetsPickerkName}Module`,
             ElementsModule: 'WebComponents',
             ElementName: `assets-element-${this.addonUUID}`,
         }; 
@@ -103,6 +121,7 @@ class MyService {
         
         this.upsertScheme(AssetsScheme);
         this.upsertAddonBlockRelation();
+        this.upsertAddonPickerBlockRelation();
         this.upsertSettingsRelation();
         this.addDimxImportRelation();
         this.addDimxExportRelation();
@@ -110,8 +129,8 @@ class MyService {
 
     updateRelationsAndScheme(): void {
         this.upsertScheme(AssetsScheme);
-
         this.upsertAddonBlockRelation();
+        this.upsertAddonPickerBlockRelation();
         this.upsertSettingsRelation();
         this.addDimxImportRelation();
         this.addDimxExportRelation();
