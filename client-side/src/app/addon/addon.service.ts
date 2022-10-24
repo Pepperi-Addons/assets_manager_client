@@ -15,6 +15,8 @@ import { InlineWorker } from '../inline-worker';
 import { FileStatusType, FileStatusPanelComponent, FileStatus } from '@pepperi-addons/ngx-composite-lib/file-status-panel';
 import { TranslateService } from '@ngx-translate/core';
 import { file } from 'jszip';
+import { PepDialogData, PepDialogService } from '@pepperi-addons/ngx-lib/dialog';
+import { ThisReceiver } from '@angular/compiler';
 
 export interface IUploadFilesWorkerOptions {
     status?: FileStatusType;
@@ -66,6 +68,7 @@ export class AddonService {
         private httpService: PepHttpService,
         private pepSnackBarService: PepSnackBarService,
         private translate: TranslateService,
+        private dialogService: PepDialogService
     ) {
         this.addonUUID = config.AddonUUID;
         this.addonURL = `/addons/pfs/${this.addonUUID}/${AssetsSchemeName}`;
@@ -73,6 +76,10 @@ export class AddonService {
         this.parsedToken = jwt(this.accessToken);
         this.papiBaseURL = this.parsedToken["pepperi.baseurl"];
 
+    }
+    getUserDetailsByUUID(uuid: string){
+        const endpoint = `/users/UUID/${uuid}`;
+        return this.papiClient.get(endpoint);
     }
 
     getAssets(query?: string) {
@@ -207,6 +214,15 @@ export class AddonService {
                         }
                     } else if (xhr.status !== 200) {
                         requestFailed(xhr, file);
+                        // @ts-ignore   
+                        if(xhr.status === 400){
+                            fileStatus.statusText = JSON.parse(xhr.responseText).fault.faultstring || xhr.statusText;
+                        // @ts-ignore   
+                        this.postMessage({
+                            filesStatus: helperObject['filesStatus'],
+                            isFinish: true
+                          });
+                        }
                     }
                 }
 
@@ -263,6 +279,17 @@ export class AddonService {
                     } else if (xhr.status !== 200) {
                         fileStatus.status = 'failed';
                         fileStatus.statusMessage = xhr.statusText;
+
+                        if(xhr.status === 400){
+                            fileStatus.statusMessage = JSON.parse(xhr.responseText).fault.faultstring || xhr.statusText;
+                        // @ts-ignore   
+                        this.postMessage({
+                            filesStatus: helperObject['filesStatus'],
+                            isFinish: true
+                          });
+                        }
+                        //this.showErrorMsg('',JSON.parse(xhr.responseText).fault.faultstring);
+                        //JSON.parse(xhr.responseText).fault.faultstring
                     }
                 }
 
@@ -295,11 +322,12 @@ export class AddonService {
                         for (let index = 0; index < data.workerOptions.files.length; index++) {
                             const file = data.workerOptions.files[index];
                             const reader = new FileReader();
-
+                            
                             if(file.size <= 150000){ //this.smallFileLimit){
                                 reader.readAsDataURL(file);
                                 reader.onload = (event) => {
                                     if (event.target.result) {
+
                                         const asset = getAsset(data, file, event.target.result.toString());
                                         helperObject['filesToUploadLength'] = data.workerOptions.files.length;
                                         helperObject['filesStatus'].push({ key: index, name: asset.Key, status: data.workerOptions.status || 'uploading' });
@@ -348,11 +376,16 @@ export class AddonService {
         });
       
         worker.onmessage().subscribe((workerRes) => {
+           
             const res: IUploadFilesWorkerResult = workerRes.data;
             console.log(res.isFinish ? 'Upload done: ' : 'Upload updated: ', new Date() + ' ' + res);
             let assetsStack: Array<FileStatus> = res.filesStatus;
             this.showSnackBar(this.translate.instant('ASSETS_PANEL.TITLE'), assetsStack);
-            
+           
+            if(res.filesStatus[0].status === 'failed' && res.isFinish){
+                this.showErrorMsg(res.filesStatus[0].status,res.filesStatus[0].statusMessage);
+            }
+
             if (res.isFinish) {
                 worker.terminate();
             }
@@ -364,4 +397,22 @@ export class AddonService {
             console.log(data);
         });
     }
+
+    showErrorMsg(header: string = '',msg: string = '') {
+            const dialogData = new PepDialogData({
+                content: msg,
+                showHeader: true,
+                title: header,
+                // actionsType: 'cancel-delete',
+                showClose: false
+            });
+    
+            this.dialogService.openDefaultDialog(dialogData);
+            // .afterClosed()
+            //     .subscribe((isDeletePressed) => {
+            //         if (isDeletePressed) {
+            //             this.deleteAssets(asset)
+            //         }
+            // });
+        }
 }

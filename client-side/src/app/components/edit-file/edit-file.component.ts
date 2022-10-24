@@ -19,6 +19,7 @@ export class EditFileComponent implements OnInit {
     creationDate: string = '';
     isImageFile = false;
     fileSize = '';
+    uploadedBy = '';
 
     constructor(
         private addonService: AddonService,
@@ -28,15 +29,22 @@ export class EditFileComponent implements OnInit {
                     
     }
 
-    ngOnInit(): void {
+    ngOnInit(): void  {
+        this.uploadedBy = '';
         this.breadCrumbsItems = this.data?.breadCrumbs || [];
         this.isImageFile = this.data?.asset?.MIME.toLowerCase().indexOf('image') > -1 ? true : false;
         this.assetNmae = this.data?.asset?.Key || '';
         this.creationDate = new Date(this.data.asset.ModificationDateTime).toUTCString() || '';
-
-        if (this.data?.asset?.fileSize > 0) {
-            this.fileSize = this.addonService.formatFileSize(this.data?.asset?.fileSize, 2);
+        
+        
+        if (this.data?.asset?.FileSize > 0) {
+            this.fileSize = this.addonService.formatFileSize(this.data?.asset?.FileSize, 2);
         }
+    }
+
+    async ngAfterViewInit(): Promise<void> {
+        const details = await this.addonService.getUserDetailsByUUID(this.data.asset.UploadedBy);
+        this.uploadedBy = details?.FirstName != null ? `${details.FirstName} ${details.LastName}` : ''; 
     }
 
     close(event) {

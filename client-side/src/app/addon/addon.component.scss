@@ -64,7 +64,7 @@
                     background: rgb(247, 247, 247);
                     border: 1px solid rgb(204, 204, 204);
                     box-shadow: 0px 4px 16px 0px rgba(0, 0, 0, 0.08);
-                    border-radius: .25rem;
+                    border-radius: ngx-variables.$border-radius-md;
                     padding: 1rem;
                 }
     
@@ -94,7 +94,7 @@
                     .fileupload {
                         height: 6rem;
                         border: 1px dashed rgb(153, 153, 153);
-                        border-radius: .25rem;
+                        border-radius: ngx-variables.$border-radius-md;
                         background-color: ngx-functions.get-pep-color(color-system-primary, color-tran-30);
                         cursor: pointer;
                         display: flex;
@@ -116,14 +116,14 @@
                             border-color: rgb(230, 38, 0);
                             background-color: #fff;
                             height: 4.5rem;
-                            border-radius: .25rem .25rem 0 0;
+                            border-radius: ngx-variables.$border-radius-md ngx-variables.$border-radius-md 0 0;
                             border-bottom: none;
                         }
                     }
     
                     .validationMsg{
                         background: rgb(230, 38, 0);
-                        border-radius: 0 0 4px 4px;
+                        border-radius: 0 0 ngx-variables.$border-radius-md ngx-variables.$border-radius-md;
                         color: #fff;
                         padding: .25rem .5rem;
                         line-height: 1.5rem;
@@ -158,7 +158,7 @@
                     .validationMsg{
                         margin-top: -5px;
                         background: rgb(230, 38, 0);
-                        border-radius: 0 0 8px 8px;
+                        border-radius: 0 0 ngx-variables.$border-radius-lg ngx-variables.$border-radius-lg;
                         color: #fff;
                         padding: 0.45rem 0.5rem 0.25rem 0.5rem;
                     }
@@ -189,6 +189,36 @@
                     background-color: rgba(21, 24, 26, 0.15);
                 }
             }
+        }
+    }
+
+    .card-view{
+        min-width: 9rem !important;
+        min-height: 7rem !important;
+        fieldset {
+            background: unset !important;
+            box-shadow: unset !important;
+            background-color: ngx-functions.get-pep-color(color-system-primary, color-tran-20) !important;
+       
+            //background-color: hsla(var(--pep-color-system-primary-h, 0), var(--pep-color-system-primary-s, 0%), var(--pep-color-system-primary-l, 10%), 0.08) !important;
+            border-radius: ngx-variables.$border-radius-md;
+            .card-spacing {
+                margin: 0.25rem !important;
+            }
+
+            .img-wrapper{
+                height: 100%;
+
+                img{
+                    background-color: unset !important;
+                    max-width: 100%;
+                }
+
+            }
+        }
+
+        pep-textbox{
+            justify-content: center;
         }
     }
 }

@@ -29,16 +29,15 @@ export class AssetsComponent implements OnInit {
     @Input() currentFolder: PepBreadCrumbItem;
     @Input() maxFileSize: number = 10000000;
     @Input() inDialog: boolean = false;
-    @Input() allowedAssetsTypes: allowedAssetsTypes = 'images';
+    @Input() allowedAssetsTypes: allowedAssetsTypes = 'all';
     @Input() selectionType: selectionType = 'multiple';
 
     @Output() hostEvents: EventEmitter<any> = new EventEmitter<any>();
 
     screenSize: PepScreenSizeType;
-    
     dataSource: IPepGenericListDataSource = null;
     public pager: IPepGenericListPager;
-
+    public currentView = 'Card';
     imagesPath = '';
     breadCrumbsItems = new Array<PepBreadCrumbItem>();
 
@@ -99,9 +98,10 @@ export class AssetsComponent implements OnInit {
                                { key: 'image', text: this.translate.instant('TOP_BAR.FILTER_TYPE.IMG')},
                                { key: 'application', text: this.translate.instant('TOP_BAR.FILTER_TYPE.DOC')}];
 
-        
+        const main = this.translate.instant('GRID.DEFAULT_FOLDER');
+
         this.breadCrumbsItems = new Array<PepBreadCrumbItem>();
-        this.currentFolder = new PepBreadCrumbItem({key: '/', text: 'Main', title: 'Main'});
+        this.currentFolder = new PepBreadCrumbItem({key: '/', text: main, title: main});
         this.breadCrumbsItems.push(this.currentFolder); 
 
         this.setDataSource();
@@ -146,11 +146,10 @@ export class AssetsComponent implements OnInit {
             
                     this.dialogService.openDefaultDialog(dialogData);
                 }
-
-                return tmpMsg === '';
-            
             }
         }
+
+        return tmpMsg === '';
 
     }
 
@@ -254,7 +253,10 @@ export class AssetsComponent implements OnInit {
         // + " AND MIME LIKE '%folder%'"
         // "&where="
         let whereCluse = state.searchString  ? "Name LIKE '%" + state.searchString + "%'" : '';
-            whereCluse +=  this.mimeFilter != 'all' ? ((whereCluse == '' ? '' : " AND ") + "MIME LIKE '%" + this.mimeFilter + "%'") : '';
+            // whereCluse +=  this.mimeFilter != 'all' ? ((whereCluse == '' ? '' : " AND ") + "MIME LIKE '%" + this.mimeFilter + "%'") : '';
+            whereCluse +=  this.mimeFilter == 'all' ? '' : 
+                           this.mimeFilter == 'image' ? ((whereCluse == '' ? '' : " AND ") + "MIME LIKE '%" + this.mimeFilter + "%'") : 
+                           ((whereCluse == '' ? '' : " AND ") + "MIME LIKE '%application%' OR MIME LIKE '%text%'");
             whereCluse = whereCluse !== '' ? "&where=" + whereCluse : '';
 
             // todo - sort is not supportoted on this version
@@ -316,7 +318,8 @@ export class AssetsComponent implements OnInit {
 
         this.dataSource = {
             init: async (state) => {
-                this.assetsList = await this.addonService.getAssets("?folder=" + folder + this.setWhereClauseSTR(state));
+                const searchFolder = state?.searchString == undefined ? "?folder=" + folder : '?';
+                this.assetsList = await this.addonService.getAssets( searchFolder + this.setWhereClauseSTR(state));
                 
                 this.assetsList.forEach( (asset, index) =>  {
                             asset.Name = asset.MIME === 'pepperi/folder' && asset.Key !== '/' ? this.cleanFolderName(asset.Name) : asset.Name;
@@ -324,7 +327,11 @@ export class AssetsComponent implements OnInit {
                             const assetURL = asset.URL + (asset.FileVersion ?  '?versionId=' + asset.FileVersion : '');
 
                             asset.Thumbnail = asset.MIME === 'pepperi/folder' ?  this.imagesPath + 'system-folder.svg' : 
-                                              asset.MIME.toLowerCase().indexOf('application/') > -1 ? this.imagesPath + 'system-doc.svg'  : assetURL; 
+                                              asset.MIME.toLowerCase().indexOf('image') > -1 ? assetURL : this.imagesPath + 'system-doc.svg';
+                                              //asset.MIME.toLowerCase().indexOf('application/') > -1 ||
+                                              //asset.MIME.toLowerCase().indexOf('text') > -1 ? this.imagesPath + 'system-doc.svg'  : assetURL; 
+                            
+                            asset.Folder = asset.Folder === '/' ? this.translate.instant('GRID.DEFAULT_FOLDER') : asset.Folder;
                 });
 
                 if (state.searchString != "") {
@@ -339,45 +346,10 @@ export class AssetsComponent implements OnInit {
                             Profile: { InternalID: 0 },
                             ScreenSize: 'Landscape'
                         },
-                        Type: 'Grid',
+                        Type: this.currentView,
                         Title: '',
-                        Fields: [
-                            {
-                                FieldID: 'Name',
-                                Type: 'Link',
-                                Title: this.translate.instant('GRID.COLUMN.FILENAME'),
-                                Mandatory: false,
-                                ReadOnly: true,
-                                
-                            },
-                            {
-                                FieldID: 'Thumbnail',
-                                Type: "Image",
-                                Title: this.translate.instant('GRID.COLUMN.THUMBNAIL'),
-                                Mandatory: false,
-                                ReadOnly: true
-                            },
-                            {
-                                FieldID: 'MIME',
-                                Type: 'TextBox',
-                                Title: this.translate.instant('GRID.COLUMN.TYPE'),
-                                Mandatory: false,
-                                ReadOnly: true
-                            },
-                            {
-                                FieldID: 'Description',
-                                Type: 'TextBox',
-                                Title: this.translate.instant('GRID.COLUMN.DESCRIPTION'),
-                                Mandatory: false,
-                                ReadOnly: true
-                            }
-                        ],
-                        Columns: [
-                            { Width: 15 },
-                            { Width: 10 },
-                            { Width: 15 },
-                            { Width: 60 }
-                        ],
+                        Fields: this.getDataSourceFields(state),
+                        Columns: this.getDataSourceColWidth(state),
                         FrozenColumnsCount: 0,
                         MinimumColumnWidth: 0
                     }
@@ -483,10 +455,11 @@ export class AssetsComponent implements OnInit {
     //     // TODO -  SORTING IMPLEMENTATION
     // }
      
-    // viewsToggle(event){
-    //     this.currentView = this.currentView === 'list' ? 'thumbnail' : 'list';
-    //     // TODO - REPLACE BETWEEN THE VIEWS IMPLEMENTATION
-    // }
+    viewsToggle(event){
+        this.currentView = this.currentView === 'Grid' ? 'Card' : 'Grid';
+        this.setDataSource();  
+    }
+
     toggleContentView(event){
 
         let btnElem = (this.toggleBtn['element']).nativeElement;
@@ -543,7 +516,7 @@ export class AssetsComponent implements OnInit {
        
         const asset: any = this.getSelectedAsset(fieldClickEvent.id);
 
-        if(asset.MIME?.indexOf('application/') > -1 && fieldClickEvent.fieldType !== 26) {
+        if((asset.MIME?.indexOf('application/') > -1 || asset.MIME?.indexOf('text/') > -1) && fieldClickEvent.fieldType !== 26) {
             return false;
         }   
         else if(asset?.MIME && asset.MIME === 'pepperi/folder') {
@@ -635,6 +608,143 @@ export class AssetsComponent implements OnInit {
         folder.Key = this.getCurrentURL() + data + "/";
 
         this.addonService.runUploadWorker({ assets: [folder] });
+    }
+
+    getDataSourceFields(state){
+        if(this.currentView === 'Grid'){
+            return state?.searchString == undefined ?  
+            [
+                {
+                    FieldID: 'Name',
+                    Type: 'Link',
+                    Title: this.translate.instant('GRID.COLUMN.FILENAME'),
+                    Mandatory: false,
+                    ReadOnly: true,
+                    
+                },
+                {
+                    FieldID: 'Thumbnail',
+                    Type: "Image",
+                    Title: this.translate.instant('GRID.COLUMN.THUMBNAIL'),
+                    Mandatory: false,
+                    ReadOnly: true
+                },
+                {
+                    FieldID: 'MIME',
+                    Type: 'TextBox',
+                    Title: this.translate.instant('GRID.COLUMN.TYPE'),
+                    Mandatory: false,
+                    ReadOnly: true
+                },
+                {
+                    FieldID: 'Description',
+                    Type: 'TextBox',
+                    Title: this.translate.instant('GRID.COLUMN.DESCRIPTION'),
+                    Mandatory: false,
+                    ReadOnly: true
+                }
+            ] : [
+                {
+                    FieldID: 'Name',
+                    Type: 'Link',
+                    Title: this.translate.instant('GRID.COLUMN.FILENAME'),
+                    Mandatory: false,
+                    ReadOnly: true,
+                    
+                },
+                {
+                    FieldID: 'Thumbnail',
+                    Type: "Image",
+                    Title: this.translate.instant('GRID.COLUMN.THUMBNAIL'),
+                    Mandatory: false,
+                    ReadOnly: true
+                },
+                {
+                    FieldID: 'MIME',
+                    Type: 'TextBox',
+                    Title: this.translate.instant('GRID.COLUMN.TYPE'),
+                    Mandatory: false,
+                    ReadOnly: true
+                },
+                {
+                    FieldID: 'Folder',
+                    Type: 'TextBox',
+                    Title: this.translate.instant('GRID.COLUMN.FOLDER'),
+                    Mandatory: false,
+                    ReadOnly: true,
+                },
+                {
+                    FieldID: 'Description',
+                    Type: 'TextBox',
+                    Title: this.translate.instant('GRID.COLUMN.DESCRIPTION'),
+                    Mandatory: false,
+                    ReadOnly: true
+                }
+            ]
+        }
+        else{
+            return [
+                {
+                    FieldID: 'Thumbnail',
+                    Type: "Image",
+                    Title: this.translate.instant('GRID.COLUMN.THUMBNAIL'),
+                    Mandatory: false,
+                    ReadOnly: true,
+                    Layout:{
+                        Size: {
+                            Width: 1,
+                            Height: 3
+                        }
+                    },
+                    Style:{
+                        Alignment: {
+                            Horizontal: 'Center',
+                            Vertical: 'Center'
+                        }
+                    }
+                },
+                {
+                    FieldID: 'Name',
+                    Type: 'TextBox',
+                    //Title: this.translate.instant('GRID.COLUMN.FILENAME'),
+                    Mandatory: false,
+                    ReadOnly: true,
+                    Layout:{
+                        Size: {
+                            Width: 1,
+                            Height: 1
+                        }
+                    },
+                    Style:{
+                        Alignment: {
+                            Horizontal: 'Left',
+                            Vertical: 'Center'
+                        }
+                    }
+                    
+                }
+            ]
+        }
+    }
+
+    getDataSourceColWidth(state){
+        if(this.currentView === 'Grid'){
+            return state?.searchString == undefined ?[
+                { Width: 15 },
+                { Width: 10 },
+                { Width: 15 },
+                { Width: 60 }
+            ] : [
+                { Width: 15 },
+                { Width: 10 },
+                { Width: 15 },
+                { Width: 20 },
+                { Width: 40 }
+            ]
+        }
+        else{
+            return []
+        }
     }
 
 }
