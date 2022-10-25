@@ -393,7 +393,7 @@ export class AssetsComponent implements OnInit {
     assetLinkURLChange(event) {
         // emit the new url - the addon/component user need to get the url and use it like a URL ( without upload a file)
         this.hostEvents.emit({
-            action: 'link-url',
+            action: 'on-save',
             url: event
         });
     }
@@ -404,7 +404,7 @@ export class AssetsComponent implements OnInit {
             let isValid = this.checkFileType(selectedAssets.MIME,true);
             if(isValid){
                     this.hostEvents.emit({
-                    action: 'link-url',
+                    action: 'on-save',
                     url: selectedAssets.URL,
                     key: selectedAssets.Key
                 });
@@ -423,7 +423,7 @@ export class AssetsComponent implements OnInit {
 
     closeDialogClick(event){
         this.hostEvents.emit({
-            action: 'close-dialog'
+            action: 'on-cancel'
         });
     }
 
