@@ -554,7 +554,7 @@ export class AssetsComponent implements OnInit {
                 this.getSelectedAsset(this.genericList.getSelectedItems().rows[0]);
         if(asset){
             asset.Hidden = true;
-
+            asset.isUpdateAsset = true;
             this.addonService.runUploadWorker({ status: 'deleting', assets: [asset] });
         }
     }
