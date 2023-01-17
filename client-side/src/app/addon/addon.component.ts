@@ -72,6 +72,7 @@ export class AssetsComponent implements OnInit {
         this.addonService.workerResultChange$.subscribe((workerResult: IUploadFilesWorkerResult) => {
             if (workerResult?.isFinish) {
                 this.linkURL = this.popUplinkURL = '';
+                //setTimeout(() => this.setDataSource(), 2000);
                 this.setDataSource();   
             }
         });
@@ -554,7 +555,7 @@ export class AssetsComponent implements OnInit {
                 this.getSelectedAsset(this.genericList.getSelectedItems().rows[0]);
         if(asset){
             asset.Hidden = true;
-            asset.isUpdateAsset = true;
+
             this.addonService.runUploadWorker({ status: 'deleting', assets: [asset] });
         }
     }
