@@ -17,6 +17,13 @@ export async function upsert_asset(client: Client, request: Request) {
     return res
 };
 
+export async function temporary_file(client: Client, request: Request) {
+    const service = new MyService(client)
+    const res = await service.temporaryFile(request.body);
+    
+    return res
+};
+
 export async function invalidate_asset(client: Client, request: Request) {
     const service = new MyService(client)
     const res = await service.invalidateAsset(request.body)

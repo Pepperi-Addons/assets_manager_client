@@ -72,14 +72,13 @@ export class AssetsComponent implements OnInit {
         this.addonService.workerResultChange$.subscribe((workerResult: IUploadFilesWorkerResult) => {
             if (workerResult?.isFinish) {
                 this.linkURL = this.popUplinkURL = '';
-                //setTimeout(() => this.setDataSource(), 2000);
-                this.setDataSource();   
+                setTimeout(() => this.setDataSource(), 1500);
+                //this.setDataSource();   
             }
         });
     }
 
     async ngOnInit() {
-
         if(this.hostObject){
             this.inDialog = this.hostObject.inDialog || this.inDialog;
             this.maxFileSize = this.hostObject.maxFileSize || this.maxFileSize;

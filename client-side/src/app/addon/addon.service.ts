@@ -84,9 +84,9 @@ export class AddonService {
 
     getAssets(query?: string) {
         let url =  query ? this.addonURL + query : this.addonURL;
-       
         return this.papiClient.get(encodeURI(url));
         //return this.pepGet(encodeURI(url)).toPromise();
+       
     }
 
     async invalidateAsset(asset: Asset){
@@ -159,20 +159,21 @@ export class AddonService {
 
             const getAssetBody = (asset: Asset): string => {
                 return JSON.stringify({
-                    Key: asset.Key,
+                    Key:  asset.Key,
                     Description: asset.Description,
                     MIME: asset.MIME,
                     Sync: asset.Sync,
-                    //Thumbnails: asset.Thumbnails,
-                    URI: asset.URI || '',
+                    URI: asset.TemporaryFileURL?.length ? undefined : (asset.URI || ''),
                     Hidden: asset.Hidden,
-                    isUpdateAsset: asset.isUpdateAsset || false
+                    isUpdateAsset: asset.isUpdateAsset || false,
+                    TemporaryFileURLs: asset.TemporaryFileURL?.length ? [asset.TemporaryFileURL] : undefined
+
                 });
             };
 
-            const sendPresignedURLRequest= (baseServerUrl: string, token: string, asset: Asset, helperObject: any, bufferFile: any) => {
+            const getTemporaryFilesURLRequest= (baseServerUrl: string, token: string, asset: Asset, helperObject: any, bufferFile: any) => {
                 let xhr = new XMLHttpRequest();
-                xhr.open('POST', `${baseServerUrl}/upsert_asset`, true);
+                xhr.open('POST', `${baseServerUrl}/temporary_file`, true);
                 xhr.setRequestHeader("Authorization", 'Bearer ' + token);
                 xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
                 xhr.onreadystatechange = () => {
@@ -180,23 +181,24 @@ export class AddonService {
                     //console.log('XHR: ' + xhr.status + ' ' + xhr.readyState);
                     if (xhr.readyState === 4 && xhr.status === 200) {
                         const res = JSON.parse(xhr.responseText);
-                        //console.log('PresignedURL: ' + res.PresignedURL);
-                        if(res && res.PresignedURL){
+
+                        if(res?.PutURL){
+                            asset['TemporaryFileURL'] = res.TemporaryFileURL;
                             var buffer = new Uint8Array(bufferFile as ArrayBuffer);
 
                             var requestOptions = {
                                 method: 'PUT',
                                 body: buffer,
                                 headers: {
-                                    "Content-Type": asset.MIME,
                                     "Content-Length": buffer.length.toString()
                                 }
                             };
                            
-                            fetch( res.PresignedURL, requestOptions)
+                            fetch( res.PutURL, requestOptions)
                                 .then(response => {
                                     if(response.status === 200)
-                                        requestSuccess(helperObject,asset,xhr);
+                                    sendXMLHttpRequest(baseServerUrl, token, asset, helperObject);
+                                        //requestSuccess(helperObject,asset,xhr);
                                     else{
                                         requestFailed(xhr, file);
                                     }
@@ -226,8 +228,9 @@ export class AddonService {
                     }
                 }
 
-                const body = getAssetBody(asset);
-                xhr.send(body);
+                //const body = getAssetBody(asset);
+                const body = { 'TempFileName': asset.Key};
+                xhr.send(JSON.stringify(body));
             };
 
             const requestSuccess = (helperObject: any, asset: Asset, xhr: XMLHttpRequest ) => {
@@ -255,6 +258,7 @@ export class AddonService {
 
             const sendXMLHttpRequest = (baseServerUrl: string, token: string, asset: Asset, helperObject: any) => {
                 // Declare the XMLHttpRequest for upload the files.
+
                 let xhr = new XMLHttpRequest();
                 xhr.open('POST', `${baseServerUrl}/upsert_asset`, true);
                 xhr.setRequestHeader("Authorization", 'Bearer ' + token);
@@ -280,16 +284,15 @@ export class AddonService {
                         fileStatus.status = 'failed';
                         fileStatus.statusMessage = xhr.statusText;
 
-                        if(xhr.status === 400){
+                        if(xhr.status === 400 || xhr.status === 500){
                             fileStatus.statusMessage = JSON.parse(xhr.responseText).fault.faultstring || xhr.statusText;
-                        // @ts-ignore   
-                        this.postMessage({
-                            filesStatus: helperObject['filesStatus'],
-                            isFinish: true
-                          });
+                            // @ts-ignore   
+                            this.postMessage({
+                                filesStatus: helperObject['filesStatus'],
+                                isFinish: true
+                            });
+                            this.showErrorMsg('',JSON.parse(xhr.response).message);
                         }
-                        //this.showErrorMsg('',JSON.parse(xhr.responseText).fault.faultstring);
-                        //JSON.parse(xhr.responseText).fault.faultstring
                     }
                 }
 
@@ -347,10 +350,11 @@ export class AddonService {
                                         helperObject['filesToUploadLength'] = data.workerOptions.files.length;
                                         helperObject['filesStatus'].push({ key: index, name: asset.Key, status: data.workerOptions.status || 'uploading' });
                                         helperObject['fileIndex'] = index;
-                                        
+
                                         // @ts-ignore
                                         this.postMessage({ filesStatus: helperObject['filesStatus'], isFinish: false });
-                                        sendPresignedURLRequest(data.baseServerUrl, data.token, asset, helperObject, event.target.result);
+
+                                        getTemporaryFilesURLRequest(data.baseServerUrl, data.token, asset, helperObject, event.target.result);
                                     }
                                 }
                             }
@@ -414,5 +418,5 @@ export class AddonService {
             //             this.deleteAssets(asset)
             //         }
             // });
-        }
+    }
 }

@@ -29,7 +29,7 @@ export class Asset {
             URL: '', // readonly "http://cdn.pepperi.com/private_pfs/dakhdakhd_200x200.jpg"
         }
     ];
-    Sync: syncOption = 'None'; // optional
+    Sync: syncOption = 'Always'; // optional
     URL: string = ""; // Read only. the CDN URL
     URI: string = ""; // mandatory on create/update , empty "URI" means a creation of a folder , Can be a http URL or base64 data URI
     Hidden: boolean = false;
@@ -39,6 +39,7 @@ export class Asset {
     // fileSize: string = '0';
     fileSize: number = 0;
     isUpdateAsset: boolean = false;
+    TemporaryFileURL: string = '';
 
     constructor(mimeType = null){
         //this.mimeType = mimeType;

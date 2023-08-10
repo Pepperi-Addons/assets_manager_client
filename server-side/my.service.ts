@@ -143,7 +143,8 @@ class MyService {
     async upsertAsset(body: Object) {
         let url = `/addons/pfs/${this.addonUUID}/${AssetsScheme.Name}`
         const headers = {
-            'X-Pepperi-SecretKey' :  this.addonSecretKey,      
+            'X-Pepperi-SecretKey' :  this.addonSecretKey,   
+            'x-pepperi-await-indexing': true   
         }
         
         let res = await this.papiClient.post(encodeURI(url),body, headers );
@@ -152,6 +153,17 @@ class MyService {
              res = await this.invalidateAsset(body);
         }
 
+        return res;
+    }
+
+    async temporaryFile(body: Object){
+        //let url = `/addons/pfs/temporary_file`;
+        let url = `/addons/pfs/temporary_file`
+        const headers = {
+            'X-Pepperi-SecretKey' :  this.addonSecretKey,      
+        }
+        
+        const res =  await this.papiClient.post(encodeURI(url), body, headers );
         return res;
     }
 
