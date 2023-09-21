@@ -4,7 +4,7 @@
     "UPLOAD_ASSET": {
         "TITLE": "Upload an asset",
         "SEC_TITLE": "Add Assets",
-        "SUB_TITLE": "By clicking or darging & droping",
+        "SUB_TITLE": "By clicking or dargging & droping",
         "UPLOAD_FILE": "Upload File or Files",
         "UPLOAD_URL": "Or by typing a URL",
         "INSERT_URL": "Insert URL",
