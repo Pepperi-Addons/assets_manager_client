@@ -1,4 +1,4 @@
-<pep-page-layout class="assets-manager-cont">
+<pep-page-layout class="assets-manager-cont" [ngClass]="inDialog === true ? 'onDialog' : ''">
     <ng-container pep-top-area>
         <pep-top-bar [title]="('TITLE' | translate)">
             <div header-start-content>
