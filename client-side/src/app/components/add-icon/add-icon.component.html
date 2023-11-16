@@ -1,0 +1,18 @@
+<pep-dialog [title]="dlgTitle" (close)="close($event)">
+    <ng-container pep-dialog-content>
+        <div  id="varIcons">
+            <pep-skeleton-loader *ngIf="!varIcons" [rowHeightType]="'sm'" [rowsNumber]="16" [lastRowOffset]="true"></pep-skeleton-loader>
+            <div *ngFor="let icon of varIcons; let i = index" 
+                 class="pull-left flip" 
+                 [ngClass]="selectedIcons[icon.Name] !== undefined ? 'selected' : ''">
+                    <img [src]="icon.URL" 
+                         (click)="selectImage(icon)">
+            </div>
+    </div>
+        <!-- <pep-textbox [label]="'ADD_FOLDER.FOLDER_NAME' | translate" type="link" [(value)]="folderName" sizeType="md"></pep-textbox> -->
+    </ng-container>
+    <ng-container pep-dialog-actions>
+        <pep-button [value]="'ACTIONS.CANCEL' | translate" [styleType]="'regular'" [sizeType]="'sm'" class="pep-spacing-element" (buttonClick)="close($event);"></pep-button>
+        <pep-button [value]="'ACTIONS.ADD' | translate" [styleType]="'strong'" [sizeType]="'sm'"  (buttonClick)="uploadIcons($event);"></pep-button>
+    </ng-container>
+</pep-dialog>

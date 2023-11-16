@@ -10,6 +10,18 @@ export async function foo(client: Client, request: Request) {
     return res
 };
 
+export async function getAssets(client: Client, request: Request) {
+    const service = new MyService(client)
+    const res = await service.getAssets(request?.query?.url || '');
+    return res
+};
+
+export async function getVarIcons(client: Client, request: Request) {
+    const service = new MyService(client);
+    const res = await service.getVarIcons(request?.query?.url || '');
+    return res
+};
+
 export async function upsert_asset(client: Client, request: Request) {
     const service = new MyService(client)
     const res = await service.upsertAsset(request.body);

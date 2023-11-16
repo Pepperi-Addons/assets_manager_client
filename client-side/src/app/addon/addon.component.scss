@@ -22,8 +22,13 @@
 
     .pep-main-area{
         display: grid !important;
-        grid-template-rows: auto auto 1fr auto;
-       
+        grid-template-rows: min-content min-content auto;
+       .mat-tab-label-content{
+            height: 1.25rem;
+            pep-icon{
+                margin-inline-end: .25rem;
+            }
+       }
         .inDialogCollapseHeader{
             height: 3rem;
             line-height: 3rem;
@@ -56,7 +61,7 @@
                 
             }
 
-            &.popUpView{
+           /* &.popUpView{*/
     
                 .upload-asset,
                 .link-asset{
@@ -69,12 +74,16 @@
                 }
     
               
-            }
+           /* }*/
     
             .upload-asset,
             .link-asset{
-                height: 153px;
                 display: flex;
+            }
+
+            .add-icon{
+                display: grid;
+                grid-template-rows: min-content 1fr min-content;
             }
             
             .upload-asset{

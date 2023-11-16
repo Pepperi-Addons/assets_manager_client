@@ -4,7 +4,7 @@ import { RouterModule, Routes } from '@angular/router';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 
 import { MatSnackBarModule } from '@angular/material/snack-bar';
-
+import { MatTabsModule } from '@angular/material/tabs';
 import { PepNgxLibModule, PepAddonService, PepFileService } from '@pepperi-addons/ngx-lib';
 import { PepTopBarModule } from '@pepperi-addons/ngx-lib/top-bar';
 import { PepSizeDetectorModule } from '@pepperi-addons/ngx-lib/size-detector';
@@ -19,7 +19,7 @@ import { PepListModule } from '@pepperi-addons/ngx-lib/list';
 import { PepBreadCrumbsModule } from '@pepperi-addons/ngx-lib/bread-crumbs';
 import { PepSearchModule } from '@pepperi-addons/ngx-lib/search';
 import { PepSnackBarModule } from '@pepperi-addons/ngx-lib/snack-bar';
-import { pepIconSystemClose, pepIconArrowDownAlt, pepIconSystemBin,PepIconModule, pepIconArrowTwoWaysVerT, PepIconRegistry, pepIconSystemDoc, pepIconSystemFolder, pepIconViewCardSm, pepIconViewLine, pepIconViewTable } from '@pepperi-addons/ngx-lib/icon';
+import { pepIconSystemClose, pepIconArrowDownAlt, pepIconSystemBin,PepIconModule, pepIconArrowTwoWaysVerT, PepIconRegistry, pepIconSystemDoc, pepIconSystemFolder, pepIconViewCardSm, pepIconViewLine, pepIconViewTable, pepIconSystemImage } from '@pepperi-addons/ngx-lib/icon';
 
 import { PepGenericListModule } from '@pepperi-addons/ngx-composite-lib/generic-list';
 import { PepFileStatusPanelModule }  from '@pepperi-addons/ngx-composite-lib/file-status-panel';
@@ -31,12 +31,14 @@ import { AssetsComponent } from './index';
 import { config } from './addon.config';
 
 import { AddFolderModule } from '../components/add-folder/add-folder.module';
+import { AddIconModule } from '../components/add-icon/add-icon.module';
 import { EditFileModule } from '../components/edit-file/edit-file.module';
 
 
 const pepIcons = [
     pepIconViewTable,
     pepIconViewCardSm,
+    pepIconSystemImage,
     pepIconArrowTwoWaysVerT,
     pepIconSystemFolder,
     pepIconSystemDoc,
@@ -60,6 +62,7 @@ export const routes: Routes = [
         CommonModule,
         HttpClientModule,
         MatSnackBarModule,
+        MatTabsModule,
         PepNgxLibModule,
         PepListModule,
         PepBreadCrumbsModule,
@@ -74,6 +77,7 @@ export const routes: Routes = [
         PepTextboxModule,
         PepSelectModule,
         AddFolderModule,
+        AddIconModule,
         PepFileStatusPanelModule,
         EditFileModule,
         PepIconModule,

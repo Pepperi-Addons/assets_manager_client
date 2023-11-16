@@ -9,43 +9,51 @@
     </ng-container>
 
     <ng-container pep-main-area>
-        <div class="inDialogCollapseHeader pep-border-bottom">
-            <pep-button #toggleBtn class="pep-spacing-element toggleBtn pull-left flip" [styleType]="'weak'" [styleStateType]="'system'" [sizeType]="'xs'"
-                    (buttonClick)="toggleContentView($event)" iconName="arrow_down" [ngClass]="inDialog === true ? 'rotate' : ''"></pep-button>
-                    <label class="body-md ellipsis pull-left flip pep-spacing-element">{{'UPLOAD_ASSET.SEC_TITLE' | translate}}</label>
-        </div>
-        <div #uploaderCont class="uploader-content expand" [ngClass]="inDialog === true ? 'popUpView collapse' : ''">
-            <div class="upload-asset">
-                <div class="file-section"> 
-                    <label class="body-md ellipsis pull-left flip">{{'UPLOAD_ASSET.TITLE' | translate}}</label>
-                    <span class="body-xs ellipsis">{{'UPLOAD_ASSET.SUB_TITLE' | translate}}</span>
-    
-                    <div class="fileupload" (click)="fileField.click()" (dragover)="onDragOver($event)" 
-                        (drop)="onDropSuccess($event)" [ngClass]="validateMsg !== '' ? 'validationErrMsg' : ''">
-                                    <pep-icon name="system_file_upload_cloud"></pep-icon>
-                                    <span class="body-sm ellipsis">{{'UPLOAD_ASSET.UPLOAD_FILE' | translate}}</span> 
-                                    <input type="file" multiple="multiple" name="avatars" #fileField (change)="upload($event.target.files)">   
-                    </div>
-                    <div *ngIf="validateMsg !== ''" title="{{validateMsg}}" class="body-xs validationMsg ellipsis">{{validateMsg}}</div>
+                <ng-template mat-tab-label>
+                    <pep-icon name="system_image"></pep-icon>
+                    <span>{{'TABS.ASSETS' | translate}}</span>
+                </ng-template>
+                <div class="inDialogCollapseHeader pep-border-bottom">
+                    <pep-button #toggleBtn class="pep-spacing-element toggleBtn pull-left flip" [styleType]="'weak'" [styleStateType]="'system'" [sizeType]="'xs'"
+                            (buttonClick)="toggleContentView($event)" iconName="arrow_down" [ngClass]="inDialog === true ? 'rotate' : ''"></pep-button>
+                            <label class="body-md ellipsis pull-left flip pep-spacing-element">{{'UPLOAD_ASSET.SEC_TITLE' | translate}}</label>
                 </div>
-                
-                <!-- <div class="url-section">
-                    <label class="body-md ellipsis pull-left">&nbsp;</label>
-                    <span class="body-xs ellipsis">{{'UPLOAD_ASSET.UPLOAD_URL' | translate}}</span>
-                    <div class="url-inner-div">
-                        <pep-textbox class="pep-field-no-spacing" type="link" [(value)]="linkURL" sizeType="xs"></pep-textbox>
-                        <pep-button [value]="'UPLOAD_ASSET.INSERT_URL' | translate" [styleType]="'regular'" [sizeType]="'md'"  (buttonClick)="assetURLChange(linkURL);"></pep-button>
+                <div #uploaderCont class="uploader-content expand" [ngClass]="inDialog === true ? 'popUpView collapse' : ''">
+                    <div class="upload-asset">
+                        <div class="file-section"> 
+                            <label class="body-md ellipsis pull-left flip">{{'UPLOAD_ASSET.TITLE' | translate}}</label>
+                            <span class="body-xs ellipsis">{{'UPLOAD_ASSET.SUB_TITLE' | translate}}</span>
+            
+                            <div class="fileupload" (click)="fileField.click()" (dragover)="onDragOver($event)" 
+                                (drop)="onDropSuccess($event)" [ngClass]="validateMsg !== '' ? 'validationErrMsg' : ''">
+                                            <pep-icon name="system_file_upload_cloud"></pep-icon>
+                                            <span class="body-sm ellipsis">{{'UPLOAD_ASSET.UPLOAD_FILE' | translate}}</span> 
+                                            <input type="file" multiple="multiple" name="avatars" #fileField (change)="upload($event.target.files)">   
+                            </div>
+                            <div *ngIf="validateMsg !== ''" title="{{validateMsg}}" class="body-xs validationMsg ellipsis">{{validateMsg}}</div>
+                        </div>
+                        
+                        <!-- <div class="url-section">
+                            <label class="body-md ellipsis pull-left">&nbsp;</label>
+                            <span class="body-xs ellipsis">{{'UPLOAD_ASSET.UPLOAD_URL' | translate}}</span>
+                            <div class="url-inner-div">
+                                <pep-textbox class="pep-field-no-spacing" type="link" [(value)]="linkURL" sizeType="xs"></pep-textbox>
+                                <pep-button [value]="'UPLOAD_ASSET.INSERT_URL' | translate" [styleType]="'regular'" [sizeType]="'md'"  (buttonClick)="assetURLChange(linkURL);"></pep-button>
+                            </div>
+                            <div *ngIf="urlValidateMsg !== ''" class="body-xs validationMsg ellipsis">{{urlValidateMsg}}</div>
+                        </div> -->
                     </div>
-                    <div *ngIf="urlValidateMsg !== ''" class="body-xs validationMsg ellipsis">{{urlValidateMsg}}</div>
-                </div> -->
-            </div>
-            <div *ngIf="inDialog" class="link-asset">
-                    <label class="body-md">{{'UPLOAD_ASSET.LINK_TITLE' | translate}}</label>
-                    <pep-textbox [label]="'UPLOAD_ASSET.LINK_SUB_TITLE' | translate" type="link" [(value)]="popUplinkURL" sizeType="md"></pep-textbox>
-                    <pep-button [value]="'UPLOAD_ASSET.LINK_URL' | translate" [styleType]="'regular'" [sizeType]="'md'"  (buttonClick)="assetLinkURLChange(popUplinkURL);"></pep-button>
-            </div>
-        </div>
-
+                    <div *ngIf="inDialog" class="link-asset">
+                            <label class="body-md">{{'UPLOAD_ASSET.LINK_TITLE' | translate}}</label>
+                            <pep-textbox [label]="'UPLOAD_ASSET.LINK_SUB_TITLE' | translate" type="link" [(value)]="popUplinkURL" sizeType="md"></pep-textbox>
+                            <pep-button [value]="'UPLOAD_ASSET.LINK_URL' | translate" [styleType]="'regular'" [sizeType]="'md'"  (buttonClick)="assetLinkURLChange(popUplinkURL);"></pep-button>
+                    </div>
+                    <div class="link-asset add-icon">
+                        <label class="body-md ellipsis pull-left flip">{{'UPLOAD_ASSET.ADD_ICON' | translate}}</label>
+                        <span class="body-xs">{{'UPLOAD_ASSET.ADD_ICON_DESCRIPTION' | translate}}</span>
+                        <pep-button [value]="'UPLOAD_ASSET.CHOOSE_ICON' | translate" [styleType]="'regular'" [sizeType]="'md'"  (buttonClick)="openAddIconDialog();"></pep-button>
+                    </div>
+                </div>
         <pep-generic-list #genericList [dataSource]="dataSource" [actions]="actions" (onSelectedRowChange)="onSelectedRowChange($event)" 
             [uuidMapping]="'Key'"  [breadCrumbsItems]="breadCrumbsItems" (breadCrumbItemClick)="onBreadCrumbItemClick($event)"
             [inline]="true" [selectionType]="'single'" [supportSorting]="false" [showSearch]="true"

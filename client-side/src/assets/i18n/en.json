@@ -1,9 +1,15 @@
 {
     "TITLE": "Assets Manager",
-    
+    "TABS": {
+        "ICONS": "Icons",
+        "ASSETS": "Assets"
+    },
     "UPLOAD_ASSET": {
         "TITLE": "Upload an asset",
         "SEC_TITLE": "Add Assets",
+        "ADD_ICON": "Add icon",
+        "CHOOSE_ICON": "Choose an icon",
+        "ADD_ICON_DESCRIPTION": "Here you can select an icon from Pepperi’s predefined icon list. It will be added to your assets list and can be used app wide.",
         "SUB_TITLE": "By clicking or dargging & droping",
         "UPLOAD_FILE": "Upload File or Files",
         "UPLOAD_URL": "Or by typing a URL",
@@ -41,6 +47,10 @@
         "FOLDER": "Folder",
         "ADD_FOLDER": "Add Folder",
         "FOLDER_NAME": "Folder name"
+    },
+
+    "ADD_ICON": {
+        "TITLE": "Icon selector"
     },
 
     "EDIT_FILE": {

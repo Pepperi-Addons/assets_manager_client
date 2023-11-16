@@ -136,6 +136,21 @@ class MyService {
         this.addDimxExportRelation();
     }
 
+    async getAssets(query?: string): Promise<any>{
+        const addonURL = `/addons/pfs/${this.addonUUID}/Assets`;
+        let url =  query ? `${addonURL}?${query}`  : addonURL;
+        const res = await this.papiClient.get(encodeURI(url));
+        return res;
+    }
+
+    async getVarIcons(url: string) {
+        const functionName = 'getAssets';
+        const queryParams = 'folder=Icons';
+
+        let res = await this.papiClient.get(`/pjobs/master_tenant/${this.addonUUID}/master-tenant-api/${functionName}?${queryParams}`);
+        return res;
+    }
+
     getAddons(): Promise<InstalledAddon[]> {
         return this.papiClient.addons.installedAddons.find({});
     }

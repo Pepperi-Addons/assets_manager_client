@@ -85,8 +85,7 @@ export class AddonService {
     getAssets(query?: string) {
         let url =  query ? this.addonURL + query : this.addonURL;
         return this.papiClient.get(encodeURI(url));
-        //return this.pepGet(encodeURI(url)).toPromise();
-       
+        //return this.pepGet(encodeURI(url)).toPromise();  
     }
 
     async invalidateAsset(asset: Asset){
@@ -418,5 +417,15 @@ export class AddonService {
             //             this.deleteAssets(asset)
             //         }
             // });
+    }
+
+    getPeperiIcons(query?: null) {
+        const body = {
+            
+        };
+
+        return this.addonService.postAddonApiCall(this.addonUUID, 'api', 'getVarIcons', body).toPromise();
+        //let url =  query ? this.addonURL + query : this.addonURL;
+        //return this.papiClient.get(encodeURI(url));
     }
 }

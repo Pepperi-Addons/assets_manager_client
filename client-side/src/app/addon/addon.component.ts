@@ -3,6 +3,7 @@ import { FIELD_TYPE, PepAddonService, PepLayoutService, PepScreenSizeType, PepSe
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { IPepGenericListDataSource, IPepGenericListPager, IPepGenericListActions, IPepGenericListInitData, GenericListComponent } from "@pepperi-addons/ngx-composite-lib/generic-list";
 import { AddFolderComponent } from '../components/add-folder/add-folder.component';
+import { AddIconComponent } from "../components/add-icon/add-icon.component";
 import { EditFileComponent } from '../components/edit-file/edit-file.component';
 import { AddonService, IUploadFilesWorkerResult } from "./addon.service";
 import { PepBreadCrumbItem } from "@pepperi-addons/ngx-lib/bread-crumbs";
@@ -18,7 +19,7 @@ import { PepImageService } from "@pepperi-addons/ngx-lib/image";
     selector: 'assets-manager-addon',
     templateUrl: './addon.component.html',
     styleUrls: ['./addon.component.scss'],
-    providers: [TranslatePipe,AddFolderComponent,EditFileComponent]
+    providers: [TranslatePipe,AddFolderComponent,AddIconComponent,EditFileComponent]
 })
 export class AssetsComponent implements OnInit {
     @ViewChild('genericList') genericList: GenericListComponent | undefined;
@@ -53,6 +54,7 @@ export class AssetsComponent implements OnInit {
     mimeFilterItems = new Array<PepMenuItem>();
     mimeFilter = "all";
     softFilesCountLimit = 10;
+    varIcons: Array<any>;
 
     constructor(
         public addonService: AddonService,
@@ -73,7 +75,6 @@ export class AssetsComponent implements OnInit {
             if (workerResult?.isFinish) {
                 this.linkURL = this.popUplinkURL = '';
                 setTimeout(() => this.setDataSource(), 1500);
-                //this.setDataSource();   
             }
         });
     }
@@ -183,6 +184,7 @@ export class AssetsComponent implements OnInit {
     
     private getEditDialogConfig() {
         const config = this.dialogService.getDialogConfig({}, 'inline');
+
         config.disableClose = true;
         config.minWidth = '29rem'; // THE EDIT MODAL WIDTH
 
@@ -214,21 +216,6 @@ export class AssetsComponent implements OnInit {
             this.addonService.runUploadWorker({ assets: [asset] });
         }
     }
-
-    // private getFileFromBase64(string64:string, fileName:string) {
-       
-    //     const trimmedString = string64.replace('data:image/jpeg;base64,', '');
-    //     const imageContent = atob(trimmedString);
-    //     const buffer = new ArrayBuffer(imageContent.length);
-    //     const view = new Uint8Array(buffer);
-      
-    //     for (let n = 0; n < imageContent.length; n++) {
-    //       view[n] = imageContent.charCodeAt(n);
-    //     }
-    //     const type = 'image/jpeg';
-    //     const blob = new Blob([buffer], { type });
-    //     return new File([blob], fileName, { lastModified: new Date().getTime(), type });
-    //   }
 
     private setBreadCrumbs() {
         if(this.currentFolder.key === 'new') {
@@ -279,6 +266,7 @@ export class AssetsComponent implements OnInit {
     actions: IPepGenericListActions = {   
         get: async (data: PepSelectionData) => {
             const actions = [];
+
             this.selectedAssets = data.rows.length > 0 ? data.rows  : [];
 
             if (data?.selectionType === 0) {
@@ -287,7 +275,7 @@ export class AssetsComponent implements OnInit {
                 //     return actions;
                 // }                
             }
-            if (data?.rows.length === 1 && data?.selectionType !== 0) {
+            if (data?.rows.length === 1 && data?.selectionType !== 0 && data.rows[0] !== 'Icons/') {
                 actions.push({
                         title: this.translate.instant("ACTIONS.EDIT"),
                         handler: async (objs) => {
@@ -300,7 +288,7 @@ export class AssetsComponent implements OnInit {
                         }
                     });
             } 
-            if (data?.rows.length >= 1 || data?.selectionType === 0) {
+            if ((data?.rows.length >= 1 || data?.selectionType === 0) && data.rows[0] !== 'Icons/') {
                 actions.push({
                         title: this.translate.instant("ACTIONS.DELETE"),
                         handler: async (objs) => {
@@ -367,7 +355,7 @@ export class AssetsComponent implements OnInit {
     
     async assetURLChange(url: string = '') {
         this.urlValidateMsg = '';
-
+      
         if(url !== '') {
             try {
                 let filename = new URL(url).pathname.split('/').pop();
@@ -444,16 +432,6 @@ export class AssetsComponent implements OnInit {
     onSearchAutocompleteChanged(value) {
         console.log(value);
     }
-
-    // onSearchStateChanged(searchStateChangeEvent: IPepSearchStateChangeEvent) {
-
-    // }
-  
-
-    // sortToggle(event){
-    //     this.sortBy = this.sortBy === 'ascending' ? 'ascending' : 'descending';
-    //     // TODO -  SORTING IMPLEMENTATION
-    // }
      
     viewsToggle(event){
         this.currentView = this.currentView === 'Grid' ? 'Card' : 'Grid';
@@ -506,6 +484,38 @@ export class AssetsComponent implements OnInit {
                 }
             });
         }
+    }
+
+    async openAddIconDialog(){
+        const config = this.dialogService.getDialogConfig({}, 'regular');
+        config.minWidth = '36rem';
+        config.minHeight = '32rem';
+        config.disableClose = true;
+   
+        const data = { 
+            'icons': this.varIcons ,
+            'breadCrumbs': this.breadCrumbsItems
+        };
+        this.dialogService.openDialog(AddIconComponent, data, config).afterClosed().subscribe((result) => {
+            if (result?.varIcons) {
+                this.varIcons = result.varIcons;
+            }
+            if (result.selectedIcons) {
+                this.uploadVarIcons(result.selectedIcons);
+            }
+        });
+    }
+
+    async uploadVarIcons(iconsList){
+        let assets: Array<Asset> = [];
+        for (const [key, value] of Object.entries(iconsList)) {
+            let asset = new Asset();
+            asset.MIME = value['MIME'];
+            asset.URI = value['URL'];
+            asset.Key = this.getCurrentURL() + value['Name'];
+            assets.push(asset)
+        }
+        this.addonService.runUploadWorker({ assets: assets});
     }
 
     getSelectedAsset(key?: string) {      
@@ -574,14 +584,6 @@ export class AssetsComponent implements OnInit {
     upload(e: FileList) {
         this.uploadMultiFiles(Array.from(e));
     }
-
-    // convertFileToBase64(file : File) : Observable<string> {
-    //     const result = new ReplaySubject<string>(1);
-    //     const reader = new FileReader();
-    //     reader.readAsDataURL(file);
-    //     reader.onload = (event) => result.next(event.target.result.toString());
-    //     return result;
-    // }
     
     getThumbnails(url) : Array<Thumbnails> {
         let Thumbnails = [];
@@ -746,27 +748,6 @@ export class AssetsComponent implements OnInit {
             return []
         }
     }
-
 }
-// async function uploadTest(bufferFile: String | ArrayBuffer, preSignedURL: string, mimeType: string) {
-//     var buffer = new Uint8Array(bufferFile as ArrayBuffer);
 
-//         var requestOptions = {
-//             method: 'PUT',
-//             body: buffer,
-//             headers: {
-//                 "Content-Type": mimeType,
-//                 "Content-Length": buffer.length.toString()
-//             }
-//         };
-       
-//         await fetch( preSignedURL, requestOptions)
-//             .then(response => {
-//                 console.log(response);
-//                 alert(JSON.stringify(response));
-//             })
-//             .catch(error => {
-//                 console.log('error', error)
-//             });
-// }
 
