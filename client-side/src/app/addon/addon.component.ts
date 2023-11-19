@@ -275,7 +275,7 @@ export class AssetsComponent implements OnInit {
                 //     return actions;
                 // }                
             }
-            if (data?.rows.length === 1 && data?.selectionType !== 0 && data.rows[0] !== 'Icons/') {
+            if (data?.rows.length === 1 && data?.selectionType !== 0) {
                 actions.push({
                         title: this.translate.instant("ACTIONS.EDIT"),
                         handler: async (objs) => {
@@ -288,7 +288,7 @@ export class AssetsComponent implements OnInit {
                         }
                     });
             } 
-            if ((data?.rows.length >= 1 || data?.selectionType === 0) && data.rows[0] !== 'Icons/') {
+            if (data?.rows.length >= 1 || data?.selectionType === 0 ) {
                 actions.push({
                         title: this.translate.instant("ACTIONS.DELETE"),
                         handler: async (objs) => {
