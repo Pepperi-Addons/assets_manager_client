@@ -84,6 +84,7 @@ export class AddonService {
 
     getAssets(query?: string) {
         let url =  query ? this.addonURL + query : this.addonURL;
+
         return this.papiClient.get(encodeURI(url));
         //return this.pepGet(encodeURI(url)).toPromise();  
     }

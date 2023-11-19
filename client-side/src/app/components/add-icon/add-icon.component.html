@@ -2,11 +2,11 @@
     <ng-container pep-dialog-content>
         <div  id="varIcons">
             <pep-skeleton-loader *ngIf="!varIcons" [rowHeightType]="'sm'" [rowsNumber]="16" [lastRowOffset]="true"></pep-skeleton-loader>
-            <div *ngFor="let icon of varIcons; let i = index" 
+            <div *ngFor="let icon of varIcons" 
                  class="pull-left flip" 
-                 [ngClass]="selectedIcons[icon.Name] !== undefined ? 'selected' : ''">
-                    <img [src]="icon.URL" 
-                         (click)="selectImage(icon)">
+                 [ngClass]="selectedIcons[icon.Name] !== undefined ? 'pep-button weak system selected' : ''"
+                 (click)="selectImage(icon)">
+                    <img [src]="icon.URL">
             </div>
     </div>
         <!-- <pep-textbox [label]="'ADD_FOLDER.FOLDER_NAME' | translate" type="link" [(value)]="folderName" sizeType="md"></pep-textbox> -->

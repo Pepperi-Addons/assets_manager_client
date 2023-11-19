@@ -201,11 +201,6 @@
         }
     }
 
-    &.onDialog{
-        .pep-main-area{
-            grid-template-rows: min-content min-content 1fr min-content;
-        }
-    }
     .card-view{
         min-width: 9rem !important;
         min-height: 7rem !important;
@@ -237,4 +232,11 @@
     }
 }
 
+&.inDialog{
+    ::ng-deep {
+        .pep-main-area{
+             grid-template-rows: min-content min-content 1fr min-content !important;
+        }
+    }
+}
 }
