@@ -22,8 +22,7 @@
       }
     ],
     "Dependencies": {
-      "pfs": "1.3.38",
-      "pepperi_pack": "1.0.1"
+      "pfs": "1.3.38"
     },
     "CPISide": []
   },
