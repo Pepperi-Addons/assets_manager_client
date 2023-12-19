@@ -7,11 +7,11 @@
     </pep-bread-crumbs>
     <pep-separator class="pep-field-no-spacing"></pep-separator>
     <ul class="body-xs">
-        <li><span>{{'EDIT_FILE.CREATED_ON' | translate}}:</span><label>&nbsp;{{creationDate}}</label></li>
-        <li><span>{{'EDIT_FILE.UPLOADED_BY' | translate}}:</span><label>&nbsp;{{uploadedBy}}</label></li>
-        <li><span>{{'EDIT_FILE.FILE_TYPE' | translate}}:</span><label>&nbsp;{{data?.asset?.MIME}}</label></li>
-        <li><span>{{'EDIT_FILE.FILE_SIZE' | translate}}:</span><label>&nbsp;{{fileSize}}</label></li>
-        <li><span>{{'EDIT_FILE.DIMENSIONS' | translate}}:</span><label>&nbsp;{{data?.asset?.Thumbnails?.Size}}</label></li>
+        <li *ngIf="creationDate"><span>{{'EDIT_FILE.CREATED_ON' | translate}}:</span><label>&nbsp;{{creationDate}}</label></li>
+        <li *ngIf="uploadedBy"><span>{{'EDIT_FILE.UPLOADED_BY' | translate}}:</span><label>&nbsp;{{uploadedBy}}</label></li>
+        <li *ngIf="data?.asset?.MIME"><span>{{'EDIT_FILE.FILE_TYPE' | translate}}:</span><label>&nbsp;{{data?.asset?.MIME}}</label></li>
+        <li *ngIf="fileSize"><span>{{'EDIT_FILE.FILE_SIZE' | translate}}:</span><label>&nbsp;{{fileSize}}</label></li>
+        <li *ngIf="data?.asset?.Thumbnails?.Size"><span>{{'EDIT_FILE.DIMENSIONS' | translate}}:</span><label>&nbsp;{{data?.asset?.Thumbnails?.Size}}</label></li>
     </ul>
     <pep-textbox [label]="'EDIT_FILE.ASSET_URL' | translate" type="link" [(value)]="data.asset.URL" sizeType="xs"></pep-textbox>
     <label class="body-xs normal ellipsis">{{'EDIT_FILE.SYNCABLE' | translate}}</label>
@@ -22,13 +22,17 @@
         <pep-textarea [(value)]="data.asset.Description" [label]="'EDIT_FILE.DESCRIPTION' | translate" [disabled]="false" 
                   rowSpan="1.5">
         </pep-textarea>
-        <pep-image *ngIf="isImageFile"
-            [src]="data?.asset?.URL" [label]="'EDIT_FILE.PREVIEW' | translate" xAlignment="left" [rowSpan]="2.5" 
-            (fileChange)="assetsFileChange($event)" (elementClick)="assetsElementClick($event)">
-        </pep-image>
-        <pep-attachment *ngIf="!isImageFile" [label]="'EDIT_FILE.PREVIEW' | translate" [src]="data?.asset?.URL" [mandatory]="false" [disabled]="false" [xAlignment]="'left'" [rowSpan]="2.5"
-        [showTitle]="true" (elementClick)="assetsElementClick($event)" (fileChange)="assetsFileChange($event)">
-    </pep-attachment>
+        <div class="imageCont">
+            <pep-button [value]="'ACTIONS.REPLACE' | translate" [styleType]="'regular'" [sizeType]="'xs'" (buttonClick)="fileImageField.click()"></pep-button>
+            <pep-image *ngIf="isImageFile"
+                [src]="data?.asset?.URL" [label]="'EDIT_FILE.PREVIEW' | translate" xAlignment="left" [rowSpan]="2.75" [disabled]="false"
+                (fileChange)="assetsFileChange($event)">
+            </pep-image>
+            <input type="file" multiple="multiple" name="avatars" #fileImageField (change)="assetsFileChanged($event.target.files)" class="hide-button">
+            <pep-attachment *ngIf="!isImageFile" [label]="'EDIT_FILE.PREVIEW' | translate" [src]="data?.asset?.URL" [mandatory]="false" [disabled]="false" [xAlignment]="'left'" [rowSpan]="2.75"
+            [showTitle]="true" (elementClick)="assetsElementClick($event)" (fileChange)="assetsFileChange($event)">
+        </pep-attachment>
+    </div>
     </div>
 </ng-container>
     <ng-container pep-dialog-actions>

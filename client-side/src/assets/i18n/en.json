@@ -77,6 +77,7 @@
     "ACTIONS": {
         "ADD": "Add",
         "CANCEL": "Cancel",
+        "REPLACE": "Replace",
         "EDIT": "Edit Asset info",
         "DELETE": "Delete",
         "UPDATE_ASSET": "Update Asset Info",

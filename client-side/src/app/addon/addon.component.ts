@@ -183,7 +183,7 @@ export class AssetsComponent implements OnInit {
     }
     
     private getEditDialogConfig() {
-        const config = this.dialogService.getDialogConfig({}, 'inline');
+        const config = this.dialogService.getDialogConfig({}, 'regular');
 
         config.disableClose = true;
         config.minWidth = '29rem'; // THE EDIT MODAL WIDTH

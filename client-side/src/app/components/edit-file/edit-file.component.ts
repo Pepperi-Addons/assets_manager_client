@@ -52,9 +52,33 @@ export class EditFileComponent implements OnInit {
     }
 
     assetsElementClick(event) {
+       
+    }
+    assetsFileChanged(event) {
+        const file = event[0];
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = (event) => {
+                if (event.target.result) {
+                    this.data.asset.URI = this.data.asset.URL = event.target.result;
+                }
+        }
+        // var xhr = new XMLHttpRequest();       
+        // xhr.open("GET", "/path/to/local/image/file", true); 
+        // xhr.responseType = "blob";
+        // xhr.onload = function (e) {
+        //         console.log(this.response);
+        //         var reader = new FileReader();
+        //         reader.onload = function(event) {
+        //         var res = event.target.result;
+        //         console.log(res)
+        //         }
+        //         var file = this.response;
+        //         reader.readAsDataURL(file)
+        // };
+        // xhr.send()
 
     }
-
     assetsFileChange(event) {
         this.data.asset.URI = event?.fileStr || '';
         //we dont change the file name , this is the key by now
