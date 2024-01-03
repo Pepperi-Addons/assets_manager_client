@@ -27,6 +27,13 @@
             "ALL" : "All",
             "IMG": "Images",
             "DOC": "Documents"
+        },
+        "SORT_BY":{
+            "NAME": "Name",
+            "MIME": "Kind",
+            "SIZE": "Size",
+            "DATE_ADDED": "Date added",
+            "DATE_MODIFIED": "Date modified"
         }
     },
 

@@ -81,13 +81,10 @@
               styleType="weak" styleStateType="system" sizeType="sm" classNames="mat-button" 
               (menuItemClick)="onMenuItemClicked($event)">
     </pep-menu>
-    <!-- <pep-search sizeType="sm" [triggerOn]="'click'" class="pep-spacing-element" [autoCompleteValues]="searchAutoCompleteValues" [value]="searchString"
-        (search)="onSearchChanged($event)" (autocompleteChange)="onSearchAutocompleteChanged($event)"
-        (stateChange)="onSearchStateChanged($event)">
-    </pep-search> -->
-    <!-- <pep-button class="pep-spacing-element" styleType="weak" styleStateType="system" sizeType="sm" 
-        iconName="arrow_two_ways_ver_t" iconPosition="start" (buttonClick)="sortToggle($event)">
-    </pep-button> -->
+    <pep-menu [classNames]="'sortByMenu'" [selectedItem]="selectedSortByItem" [type]="'action-select'" [iconName]="'arrow_two_ways_ver_t'" [class]="'pep-spacing-element'" [items]="sortByFields"
+              styleType="weak" styleStateType="system" sizeType="sm" classNames="mat-button" 
+              (menuItemClick)="onSortByClicked($event)">
+    </pep-menu>
     <pep-button *ngIf="currentView !== 'list'" class="pep-spacing-element" styleType="weak" styleStateType="system" sizeType="sm" 
         iconName="view_table" iconPosition="start" (buttonClick)="viewsToggle($event)">
     </pep-button>

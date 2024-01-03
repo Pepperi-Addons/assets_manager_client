@@ -12,7 +12,7 @@ export async function foo(client: Client, request: Request) {
 
 export async function getAssets(client: Client, request: Request) {
     const service = new MyService(client)
-    const res = await service.getAssets(request?.query?.url || '');
+    const res = await service.getAssets(request?.query || '');
     return res
 };
 

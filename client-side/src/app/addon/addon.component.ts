@@ -52,7 +52,11 @@ export class AssetsComponent implements OnInit {
     selectedAssets: Array<Asset> = [];
     assetsList: Array<any>;
     mimeFilterItems = new Array<PepMenuItem>();
+    sortByFields = new Array<PepMenuItem>();
+    selectedSortByItem: PepMenuItem;
     mimeFilter = "all";
+    sortBy = 'Name';
+    isAscSort = true;
     softFilesCountLimit = 10;
     varIcons: Array<any>;
 
@@ -80,6 +84,21 @@ export class AssetsComponent implements OnInit {
     }
 
     async ngOnInit() {
+
+        const folder = await this.translate.get('ADD_FOLDER.FOLDER').toPromise();
+        const main = this.translate.instant('GRID.DEFAULT_FOLDER');
+        this.breadCrumbsItems = new Array<PepBreadCrumbItem>();
+        const breadCrumbs = JSON.parse(sessionStorage.getItem('pepAssetsBreadCrumbs'));
+
+        if(breadCrumbs){
+            this.breadCrumbsItems = JSON.parse(breadCrumbs.breadCrumbsItems) || [];
+            this.currentFolder = (this.breadCrumbsItems.filter(item => item['key'] === breadCrumbs.currentFolderKey))[0];
+        }
+        else{
+            this.currentFolder = new PepBreadCrumbItem({key: '/', text: main, title: main});
+            this.setBreadCrumbsItemsArr(this.currentFolder);
+        }
+        
         if(this.hostObject){
             this.inDialog = this.hostObject.inDialog || this.inDialog;
             this.maxFileSize = this.hostObject.maxFileSize || this.maxFileSize;
@@ -87,26 +106,36 @@ export class AssetsComponent implements OnInit {
             this.selectionType = this.hostObject.selectionType || this.selectionType;
             this.currentFolder = this.hostObject.currentFolder || this.currentFolder;
         }
-
+  
         this.pager = {
             type: 'pages',
             size: 10,
             index: 0
         };
-        const folder = await this.translate.get('ADD_FOLDER.FOLDER').toPromise();
-
-        this.mimeFilterItems= [{ key: 'all', text: this.translate.instant('TOP_BAR.FILTER_TYPE.ALL') },
+        
+        this.mimeFilterItems = [{ key: 'all', text: this.translate.instant('TOP_BAR.FILTER_TYPE.ALL') },
                                { key: 'image', text: this.translate.instant('TOP_BAR.FILTER_TYPE.IMG')},
                                { key: 'application', text: this.translate.instant('TOP_BAR.FILTER_TYPE.DOC')}];
 
-        const main = this.translate.instant('GRID.DEFAULT_FOLDER');
-
-        this.breadCrumbsItems = new Array<PepBreadCrumbItem>();
-        this.currentFolder = new PepBreadCrumbItem({key: '/', text: main, title: main});
-        this.breadCrumbsItems.push(this.currentFolder); 
-
+        this.sortByFields = [{ key: 'Name', text: this.translate.instant('TOP_BAR.SORT_BY.NAME'), iconName: 'arrow_down_alt' },
+                             { key: 'MIME', text: this.translate.instant('TOP_BAR.SORT_BY.MIME')},
+                             { key: 'CreationDateTime', text: this.translate.instant('TOP_BAR.SORT_BY.DATE_ADDED')},
+                             { key: 'ModificationDateTime', text: this.translate.instant('TOP_BAR.SORT_BY.DATE_MODIFIED')}];
+                             
+        this.selectedSortByItem = this.sortByFields[0];
         this.setDataSource();
         
+    }
+    private setBreadCrumbsItemsArr(breadCrumb: PepBreadCrumbItem = null){
+        if(breadCrumb){
+            this.breadCrumbsItems.push(breadCrumb); 
+        }
+        
+        const assetBreadCrumbs = {
+            breadCrumbsItems : JSON.stringify(this.breadCrumbsItems),
+            currentFolderKey: this.currentFolder.key
+        }
+        sessionStorage.setItem('pepAssetsBreadCrumbs',JSON.stringify(assetBreadCrumbs));
     }
 
     private checkFileSize(size: number) {
@@ -220,15 +249,17 @@ export class AssetsComponent implements OnInit {
     private setBreadCrumbs() {
         if(this.currentFolder.key === 'new') {
             this.currentFolder.key = (this.breadCrumbsItems.length).toString();
-            this.breadCrumbsItems.push( new PepBreadCrumbItem({key: this.currentFolder.key, 
-                                                                text: this.cleanFolderName(this.currentFolder.text), 
-                                                                title: this.cleanFolderName(this.currentFolder.title)}));
+            this.setBreadCrumbsItemsArr(new PepBreadCrumbItem({key: this.currentFolder.key, 
+                                                               text: this.cleanFolderName(this.currentFolder.text), 
+                                                               title: this.cleanFolderName(this.currentFolder.title)}));
         }
         else {
             const folderIndex = this.currentFolder.key === '/' ? 0 : parseInt(this.currentFolder.key);
             this.breadCrumbsItems.length = (folderIndex + 1);
+            this.setBreadCrumbsItemsArr();
         }
-        
+
+       
         this.setDataSource();
     }
 
@@ -247,7 +278,7 @@ export class AssetsComponent implements OnInit {
             whereCluse = whereCluse !== '' ? "&where=" + whereCluse : '';
 
             // todo - sort is not supportoted on this version
-            whereCluse += state.sorting ? ("&order_by=" + state.sorting.sortBy + " " + state.sorting.isAsc ? 'ASC' : 'DESC') : '';
+            whereCluse += this.sortBy ? ("&order_by=" + this.sortBy + " " + (this.isAscSort ? 'ASC' : 'DESC') ) : '';
         return whereCluse;
     }
 
@@ -306,7 +337,9 @@ export class AssetsComponent implements OnInit {
 
         this.dataSource = {
             init: async (state) => {
-                const searchFolder = state?.searchString == undefined ? "?folder=" + folder : '?';
+
+                const searchFolder = "?folder=" + folder;
+          
                 this.assetsList = await this.addonService.getAssets( searchFolder + this.setWhereClauseSTR(state));
                 
                 this.assetsList.forEach( (asset, index) =>  {
@@ -417,6 +450,29 @@ export class AssetsComponent implements OnInit {
 
     onMenuItemClicked(action: IPepMenuItemClickEvent) {
         this.mimeFilter = action.source.key;
+        this.setDataSource();
+    }
+
+    onSortByClicked(action: IPepMenuItemClickEvent) {
+        // change from asc to desc
+        if(action.source.key === this.sortBy){
+            this.isAscSort = !this.isAscSort;
+        }
+        else{
+            this.isAscSort = true;
+            this.sortBy = action.source.key;
+        }
+        
+        this.sortByFields.forEach(menuItem => {
+            if(menuItem.key ===  action.source.key ){
+                menuItem.iconName = (this.isAscSort ? "arrow_down_alt" : "arrow_up_alt") ;
+            } else{
+                if(menuItem.iconName){
+                    delete menuItem.iconName;
+                }
+            }
+         });
+         this.selectedSortByItem = action.source;
         this.setDataSource();
     }
 

@@ -19,7 +19,7 @@ import { PepListModule } from '@pepperi-addons/ngx-lib/list';
 import { PepBreadCrumbsModule } from '@pepperi-addons/ngx-lib/bread-crumbs';
 import { PepSearchModule } from '@pepperi-addons/ngx-lib/search';
 import { PepSnackBarModule } from '@pepperi-addons/ngx-lib/snack-bar';
-import { pepIconSystemClose, pepIconArrowDownAlt, pepIconSystemBin,PepIconModule, pepIconArrowTwoWaysVerT, PepIconRegistry, pepIconSystemDoc, pepIconSystemFolder, pepIconViewCardSm, pepIconViewLine, pepIconViewTable, pepIconSystemImage } from '@pepperi-addons/ngx-lib/icon';
+import { pepIconSystemClose, pepIconArrowDownAlt,pepIconArrowUpAlt, pepIconSystemBin,PepIconModule, pepIconArrowTwoWaysVerT,pepIconArrowTwoWaysVerB, PepIconRegistry, pepIconSystemDoc, pepIconSystemFolder, pepIconViewCardSm, pepIconViewLine, pepIconViewTable, pepIconSystemImage } from '@pepperi-addons/ngx-lib/icon';
 
 import { PepGenericListModule } from '@pepperi-addons/ngx-composite-lib/generic-list';
 import { PepFileStatusPanelModule }  from '@pepperi-addons/ngx-composite-lib/file-status-panel';
@@ -40,10 +40,12 @@ const pepIcons = [
     pepIconViewCardSm,
     pepIconSystemImage,
     pepIconArrowTwoWaysVerT,
+    pepIconArrowTwoWaysVerB,
     pepIconSystemFolder,
     pepIconSystemDoc,
     pepIconSystemClose, 
     pepIconArrowDownAlt, 
+    pepIconArrowUpAlt,
     pepIconSystemBin
 ];
 

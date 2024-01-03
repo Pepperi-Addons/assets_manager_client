@@ -9,234 +9,258 @@
         padding-inline: 0;
     }
 
-::ng-deep {
-    .right-container{
-        align-items: center !important;
-    }
+   
 
-    .pep-top-area{
-        .pep-button{
-            height: 1.75rem !important;
+    ::ng-deep {
+        
+        .right-container{
+            align-items: center !important;
         }
-    }
 
-    .pep-main-area{
-        display: grid !important;
-        grid-template-rows: min-content min-content auto;
-       .mat-tab-label-content{
-            height: 1.25rem;
-            pep-icon{
-                margin-inline-end: .25rem;
-            }
-       }
-        .inDialogCollapseHeader{
-            height: 3rem;
-            line-height: 3rem;
-            padding-top: 0.75rem;
-            margin-bottom: 0.75rem;
-        }
-    
-        .toggleBtn{
-            &.rotate{
-                transform: rotate(-90deg);
+        .pep-top-area{
+            .pep-button{
+                height: 1.75rem !important;
             }
         }
-    
-        .uploader-content{
-            margin: 1rem 0;
-            display: flex;
-            flex-direction: row;
-            gap: 1rem;
-            transition: max-height 2000ms ease-in;
-    
-            // &.expand{
-            //     max-height:fit-content;
-    
-            // }
-    
-            &.collapse{
-                max-height: 0;
-                overflow: hidden;
-                margin: 0;
+
+        .pep-main-area{
+            display: grid !important;
+            grid-template-rows: min-content min-content auto;
+        .mat-tab-label-content{
+                height: 1.25rem;
+                pep-icon{
+                    margin-inline-end: .25rem;
+                }
+        }
+            .inDialogCollapseHeader{
+                height: 3rem;
+                line-height: 3rem;
+                padding-top: 0.75rem;
+                margin-bottom: 0.75rem;
+            }
+        
+            .toggleBtn{
+                &.rotate{
+                    transform: rotate(-90deg);
+                }
+            }
+        
+            .uploader-content{
+                margin: 1rem 0;
+                display: flex;
+                flex-direction: row;
+                gap: 1rem;
+                transition: max-height 2000ms ease-in;
+        
+                // &.expand{
+                //     max-height:fit-content;
+        
+                // }
+        
+                &.collapse{
+                    max-height: 0;
+                    overflow: hidden;
+                    margin: 0;
+                    
+                }
+
+            /* &.popUpView{*/
+        
+                    .upload-asset,
+                    .link-asset{
+                        height: 11.5rem;
+                        background: rgb(247, 247, 247);
+                        border: 1px solid rgb(204, 204, 204);
+                        box-shadow: 0px 4px 16px 0px rgba(0, 0, 0, 0.08);
+                        border-radius: ngx-variables.$border-radius-md;
+                        padding: 1rem;
+                    }
+        
                 
-            }
-
-           /* &.popUpView{*/
-    
+            /* }*/
+        
                 .upload-asset,
                 .link-asset{
-                    height: 11.5rem;
-                    background: rgb(247, 247, 247);
-                    border: 1px solid rgb(204, 204, 204);
-                    box-shadow: 0px 4px 16px 0px rgba(0, 0, 0, 0.08);
-                    border-radius: ngx-variables.$border-radius-md;
-                    padding: 1rem;
+                    display: flex;
                 }
-    
-              
-           /* }*/
-    
-            .upload-asset,
-            .link-asset{
-                display: flex;
-            }
 
-            .add-icon{
-                display: grid;
-                grid-template-rows: min-content 1fr min-content;
-            }
+                .add-icon{
+                    display: grid;
+                    grid-template-rows: min-content 1fr min-content;
+                }
+                
+                .upload-asset{
+                    column-gap: 1rem;
+        
+                    .file-section{
+                        width: 240px;
+                    
+                        label {
+                            display: block;
+                        }
+        
+                        span{
+                            display: block;
+                            clear: left;
+                        }
+                        .fileupload {
+                            height: 6rem;
+                            border: 1px dashed rgb(153, 153, 153);
+                            border-radius: ngx-variables.$border-radius-md;
+                            background-color: ngx-functions.get-pep-color(color-system-primary, color-tran-30);
+                            cursor: pointer;
+                            display: flex;
+                            justify-content: center;
+                            align-items: center;
+                            flex-direction: column;
+                            margin-top: .5rem;
+                    
+                            pep-icon{
+                                height: 1.5rem;
+                                width: 1.5rem;
+                            }
+                    
+                            input[type="file"]{
+                                display: none;
+                            }
+        
+                            &.validationErrMsg{
+                                border-color: rgb(230, 38, 0);
+                                background-color: #fff;
+                                height: 4.5rem;
+                                border-radius: ngx-variables.$border-radius-md ngx-variables.$border-radius-md 0 0;
+                                border-bottom: none;
+                            }
+                        }
+        
+                        .validationMsg{
+                            background: rgb(230, 38, 0);
+                            border-radius: 0 0 ngx-variables.$border-radius-md ngx-variables.$border-radius-md;
+                            color: #fff;
+                            padding: .25rem .5rem;
+                            line-height: 1.5rem;
+                        }
+                    }
+                    
+                    .url-section{
+                        //display: flex;
+                        //flex-direction: column;
+                        //justify-content: end;
+                        span{
+                            display: block;
+                            clear: left;
+                        }
+        
+                        .url-inner-div{
+                            height: 6rem;
+                            display: flex;
+                            justify-content: space-between;
+                            flex-direction: column;
+                            margin-top: 0.5rem;
+        
+                            pep-textbox{
+                                height: 2.5rem;
+                            }
+                            
+                            ::ng-deep pep-field-title{
+                                display: none !important;
+                            }
+                        }
+        
+                        .validationMsg{
+                            margin-top: -5px;
+                            background: rgb(230, 38, 0);
+                            border-radius: 0 0 ngx-variables.$border-radius-lg ngx-variables.$border-radius-lg;
+                            color: #fff;
+                            padding: 0.45rem 0.5rem 0.25rem 0.5rem;
+                        }
+                    }
+                }
             
-            .upload-asset{
-                column-gap: 1rem;
-    
-                .file-section{
-                    width: 240px;
-                  
-                    label {
-                        display: block;
-                    }
-    
-                    span{
-                        display: block;
-                        clear: left;
-                    }
-                    .fileupload {
-                        height: 6rem;
-                        border: 1px dashed rgb(153, 153, 153);
-                        border-radius: ngx-variables.$border-radius-md;
-                        background-color: ngx-functions.get-pep-color(color-system-primary, color-tran-30);
-                        cursor: pointer;
-                        display: flex;
-                        justify-content: center;
-                        align-items: center;
-                        flex-direction: column;
-                        margin-top: .5rem;
-                
-                        pep-icon{
-                            height: 1.5rem;
-                            width: 1.5rem;
-                        }
-                
-                        input[type="file"]{
-                            display: none;
-                        }
-    
-                        &.validationErrMsg{
-                            border-color: rgb(230, 38, 0);
-                            background-color: #fff;
-                            height: 4.5rem;
-                            border-radius: ngx-variables.$border-radius-md ngx-variables.$border-radius-md 0 0;
-                            border-bottom: none;
-                        }
-                    }
-    
-                    .validationMsg{
-                        background: rgb(230, 38, 0);
-                        border-radius: 0 0 ngx-variables.$border-radius-md ngx-variables.$border-radius-md;
-                        color: #fff;
-                        padding: .25rem .5rem;
-                        line-height: 1.5rem;
-                    }
-                }
-                
-                .url-section{
-                    //display: flex;
-                    //flex-direction: column;
-                    //justify-content: end;
-                    span{
-                        display: block;
-                        clear: left;
-                    }
-    
-                    .url-inner-div{
-                        height: 6rem;
-                        display: flex;
-                        justify-content: space-between;
-                        flex-direction: column;
-                        margin-top: 0.5rem;
-    
-                        pep-textbox{
-                            height: 2.5rem;
-                        }
-                        
-                        ::ng-deep pep-field-title{
-                            display: none !important;
-                        }
-                    }
-    
-                    .validationMsg{
-                        margin-top: -5px;
-                        background: rgb(230, 38, 0);
-                        border-radius: 0 0 ngx-variables.$border-radius-lg ngx-variables.$border-radius-lg;
-                        color: #fff;
-                        padding: 0.45rem 0.5rem 0.25rem 0.5rem;
-                    }
+                .link-asset{
+                    flex-direction: column;
+                    width: 17rem;
                 }
             }
-           
-            .link-asset{
-                flex-direction: column;
-                width: 17rem;
-            }
-        }
-    
-        pep-generic-list {
-            padding: 0 ngx-variables.$spacing-xs;
-            overflow: auto;
-            height: 100%;
-    
-            pep-menu{
-                ::ng-deep{
-                    button{
-                        font-weight:  500;
-                    }
-                }
-            }
-            
-            ::ng-deep{
-                img{
-                    background-color: rgba(21, 24, 26, 0.15);
-                }
-            }
-        }
-    }
-
-    .card-view{
-        min-width: 9rem !important;
-        min-height: 7rem !important;
-        fieldset {
-            background: unset !important;
-            box-shadow: unset !important;
-            background-color: ngx-functions.get-pep-color(color-system-primary, color-tran-20) !important;
-       
-            //background-color: hsla(var(--pep-color-system-primary-h, 0), var(--pep-color-system-primary-s, 0%), var(--pep-color-system-primary-l, 10%), 0.08) !important;
-            border-radius: ngx-variables.$border-radius-md;
-            .card-spacing {
-                margin: 0.25rem !important;
-            }
-
-            .img-wrapper{
+        
+            pep-generic-list {
+                padding: 0 ngx-variables.$spacing-xs;
+                overflow: auto;
                 height: 100%;
-
-                img{
-                    background-color: unset !important;
-                    max-width: 100%;
+        
+                pep-menu{
+                    ::ng-deep{
+                        button{
+                            font-weight:  500;
+                        }
+                    }
                 }
-
+                
+                ::ng-deep{
+                    img{
+                        background-color: rgba(21, 24, 26, 0.15);
+                    }
+                }
             }
         }
 
-        pep-textbox{
-            justify-content: center;
+        .card-view{
+            min-width: 9rem !important;
+            min-height: 7rem !important;
+            fieldset {
+                background: unset !important;
+                box-shadow: unset !important;
+                background-color: ngx-functions.get-pep-color(color-system-primary, color-tran-20) !important;
+        
+                //background-color: hsla(var(--pep-color-system-primary-h, 0), var(--pep-color-system-primary-s, 0%), var(--pep-color-system-primary-l, 10%), 0.08) !important;
+                border-radius: ngx-variables.$border-radius-md;
+                .card-spacing {
+                    margin: 0.25rem !important;
+                }
+
+                .img-wrapper{
+                    height: 100%;
+
+                    img{
+                        background-color: unset !important;
+                        max-width: 100%;
+                    }
+
+                }
+            }
+
+            pep-textbox{
+                justify-content: center;
+            }
+        }
+    }
+
+    &.inDialog{
+        ::ng-deep {
+            .pep-main-area{
+                grid-template-rows: min-content min-content 1fr min-content !important;
+            }
         }
     }
 }
 
-&.inDialog{
-    ::ng-deep {
-        .pep-main-area{
-             grid-template-rows: min-content min-content 1fr min-content !important;
+::ng-deep {
+    .mat-menu-item{
+        &.selected{
+            flex-direction: row-reverse !important;
+            justify-content: flex-end;
+            padding: 0 !important;
+
+            .mat-icon{
+                height: 1rem;
+            }
         }
     }
+
+    .sortByMenu{
+       span{
+        display: none;
+       }
+    }
 }
-}
+
