@@ -287,9 +287,9 @@ export class AddonService {
                             // @ts-ignore   
                             this.postMessage({
                                 filesStatus: helperObject['filesStatus'],
-                                isFinish: true
+                                isFinish: false // change to false for multi files upload
                             });
-                            this.showErrorMsg('',JSON.parse(xhr.response).message);
+                            //this.showErrorMsg('',JSON.parse(xhr.response).message);
                         }
                     }
                 }

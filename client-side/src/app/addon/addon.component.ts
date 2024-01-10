@@ -202,7 +202,7 @@ export class AssetsComponent implements OnInit {
         } else {
             // Show limit error msg.
             const dialogData = new PepDialogData({
-                content: this.translate.instant('ASSETS_PANEL.FILES_COUNT_LIMIT_MESSAGE', { files_limit: this.softFilesCountLimit}),
+                content: this.translate.instant('MESSAGES.FILES_COUNT_LIMIT_MESSAGE', { files_limit: this.softFilesCountLimit}),
                 showHeader: false,
                 showClose: false,
             });
