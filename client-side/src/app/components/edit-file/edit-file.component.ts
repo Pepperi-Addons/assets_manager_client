@@ -60,6 +60,7 @@ export class EditFileComponent implements OnInit {
         reader.readAsDataURL(file);
         reader.onload = (event) => {
                 if (event.target.result) {
+                    this.data.asset.MIME = file.type;
                     this.data.asset.URI = this.data.asset.URL = event.target.result;
                 }
         }
