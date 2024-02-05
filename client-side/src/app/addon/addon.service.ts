@@ -281,15 +281,21 @@ export class AddonService {
                     } else if (xhr.status !== 200) {
                         fileStatus.status = 'failed';
                         fileStatus.statusMessage = xhr.statusText;
-
+                        
+                        
                         if(xhr.status === 400 || xhr.status === 500){
                             fileStatus.statusMessage = JSON.parse(xhr.responseText).fault.faultstring || xhr.statusText;
+                            
                             // @ts-ignore   
                             this.postMessage({
                                 filesStatus: helperObject['filesStatus'],
                                 isFinish: false // change to false for multi files upload
                             });
-                            //this.showErrorMsg('',JSON.parse(xhr.response).message);
+    
+                            if(!helperObject['failedFiles'].includes(fileStatus.name)){
+                                helperObject['failedFiles'].push(fileStatus.name);
+                                helperObject.filesToUploadLength--;
+                            }
                         }
                     }
                 }
@@ -300,6 +306,7 @@ export class AddonService {
 
             const uploadFiles = (data: IUploadFilesWorkerData) => {
                 const helperObject = {};
+                helperObject['failedFiles'] = [];
                 helperObject['filesStatus'] = [];
                 helperObject['filesUploadedCount'] = 0;
                 
