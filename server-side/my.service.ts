@@ -138,7 +138,14 @@ class MyService {
 
     async getAssets(query?: string): Promise<any>{
         const addonURL = `/addons/pfs/${this.addonUUID}/Assets`;
-        let url =  query ? `${addonURL}?${query}`  : addonURL;
+        let queryStr = '';
+        if(query && Object.keys(query).length){
+            const keys = Object.keys(query);
+            keys.forEach(key => {
+                queryStr += `${key}=${query[key]}`;
+            });
+        }
+        let url =  queryStr ? `${addonURL}?${queryStr}`  : addonURL;
         const res = await this.papiClient.get(encodeURI(url));
         return res;
     }

@@ -4,11 +4,25 @@ import { Client, Request } from '@pepperi-addons/debug-server'
 // add functions here
 // this function will run on the 'api/foo' endpoint
 // the real function is runnning on another typescript file
-export async function foo(client: Client, request: Request) {
+export async function assets(client: Client, request: Request) {
+    
     const service = new MyService(client)
-    const res = await service.getAddons()
-    return res
-};
+
+    if (request.method === 'GET') {
+        return await service.getAssets(request?.query || '');
+    }
+    else if (request.method === 'POST') {
+        try {
+            return await service.upsertAsset(request.body);
+            
+        } catch (err) {
+            throw new Error(`Failed with error - ${err}`);
+        }
+    }
+    else {
+        throw new Error(`Method ${request.method} not supportded`);
+    }
+}
 
 export async function getAssets(client: Client, request: Request) {
     const service = new MyService(client)
