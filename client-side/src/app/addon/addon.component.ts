@@ -297,6 +297,7 @@ export class AssetsComponent implements OnInit {
     actions: IPepGenericListActions = {   
         get: async (data: PepSelectionData) => {
             const actions = [];
+            data = this.fixFileNameWithComma(data);
 
             this.selectedAssets = data.rows.length > 0 ? data.rows  : [];
 
@@ -314,6 +315,7 @@ export class AssetsComponent implements OnInit {
                                 this.onAddFolderClick(null);
                             }
                             else{
+                                objs = this.fixFileNameWithComma(objs);
                                 this.editAsset(objs.rows[0]);
                             }
                         }
@@ -330,6 +332,14 @@ export class AssetsComponent implements OnInit {
             
             return actions;
         }
+    }
+
+    fixFileNameWithComma(data){
+        if(data?.rowTypes?.length == 1 && data.rowTypes[0] != '0'){
+            data.rows = [(data.rows[0] + ',' + data.rowTypes[0])];
+        }
+
+        return data;
     }
 
     setDataSource() {
@@ -526,7 +536,6 @@ export class AssetsComponent implements OnInit {
 
     editAsset(key) {
         let asset = this.getSelectedAsset(key);
-        
         if(asset) {
             let config = this.getEditDialogConfig();
             const data = { 
@@ -579,7 +588,6 @@ export class AssetsComponent implements OnInit {
     }
     
     onCustomizeFieldClick(fieldClickEvent: IPepFormFieldClickEvent) {
-       
         const asset: any = this.getSelectedAsset(fieldClickEvent.id);
 
         if((asset.MIME?.indexOf('application/') > -1 || asset.MIME?.indexOf('text/') > -1) && fieldClickEvent.fieldType !== 26) {
