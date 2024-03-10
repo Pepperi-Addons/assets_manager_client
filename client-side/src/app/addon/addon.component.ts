@@ -430,7 +430,11 @@ export class AssetsComponent implements OnInit {
     }
     
     doneAssetsClick(event){
-        const selectedAssets = this.getSelectedAsset(this.genericList.getSelectedItems().rows[0]);
+
+        let data = this.genericList.getSelectedItems();
+            data = this.fixFileNameWithComma(data);
+            
+        const selectedAssets = this.getSelectedAsset(data.rows[0]);
         if(selectedAssets){
             let isValid = this.checkFileType(selectedAssets.MIME,true);
             if(isValid){
@@ -624,14 +628,18 @@ export class AssetsComponent implements OnInit {
 
     deleteAssets(asset: Asset = null) {
         // TODO - NEED FIX THIS WHEN CHANGING TO MULTIPLE SELECTION MODE 
-        asset = asset !== null ? asset : 
-                this.getSelectedAsset(this.genericList.getSelectedItems().rows[0]);
-        if(asset){
-            asset.Hidden = true;
+        if(asset == null){
+            let data = this.genericList.getSelectedItems();
+            data = this.fixFileNameWithComma(data);
 
-            this.addonService.runUploadWorker({ status: 'deleting', assets: [asset] });
+            asset = this.getSelectedAsset(data.rows[0]);
         }
-    }
+        
+        if(asset){
+                asset.Hidden = true;
+                this.addonService.runUploadWorker({ status: 'deleting', assets: [asset] });
+            }
+        }
 
     onDragOver(event) {
         event.preventDefault();
