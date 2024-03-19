@@ -57,7 +57,7 @@
         <pep-generic-list #genericList [dataSource]="dataSource" [actions]="actions" (onSelectedRowChange)="onSelectedRowChange($event)" 
             [uuidMapping]="'Key'"  [breadCrumbsItems]="breadCrumbsItems" (breadCrumbItemClick)="onBreadCrumbItemClick($event)"
             [inline]="true" [selectionType]="'single'" [supportSorting]="false" [showSearch]="true"
-            [showTopBar]="true" [title]="assetsHeaderTitle" [noDataFoundMsg]="'GRID.FILE_NOT_FOUND' | translate"
+            [showTopBar]="true" [title]="assetsHeaderTitle" [noDataFoundMsg]="'GRID.FILE_NOT_FOUND' | translate" [separator]="'$%&'"
             (fieldClick)="onCustomizeFieldClick($event)">
             <ng-container right-buttons>
                 <ng-container *ngTemplateOutlet="topBarEnd"></ng-container>
