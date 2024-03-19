@@ -297,7 +297,6 @@ export class AssetsComponent implements OnInit {
     actions: IPepGenericListActions = {   
         get: async (data: PepSelectionData) => {
             const actions = [];
-            data = this.fixFileNameWithComma(data);
 
             this.selectedAssets = data.rows.length > 0 ? data.rows  : [];
 
@@ -315,7 +314,6 @@ export class AssetsComponent implements OnInit {
                                 this.onAddFolderClick(null);
                             }
                             else{
-                                objs = this.fixFileNameWithComma(objs);
                                 this.editAsset(objs.rows[0]);
                             }
                         }
@@ -332,14 +330,6 @@ export class AssetsComponent implements OnInit {
             
             return actions;
         }
-    }
-
-    fixFileNameWithComma(data){
-        if(data?.rowTypes?.length == 1 && data.rowTypes[0] != '0'){
-            data.rows = [(data.rows[0] + ',' + data.rowTypes[0])];
-        }
-
-        return data;
     }
 
     setDataSource() {
@@ -430,11 +420,9 @@ export class AssetsComponent implements OnInit {
     }
     
     doneAssetsClick(event){
+        
+        const selectedAssets = this.getSelectedAsset(this.genericList.getSelectedItems().rows[0]);
 
-        let data = this.genericList.getSelectedItems();
-            data = this.fixFileNameWithComma(data);
-            
-        const selectedAssets = this.getSelectedAsset(data.rows[0]);
         if(selectedAssets){
             let isValid = this.checkFileType(selectedAssets.MIME,true);
             if(isValid){
@@ -522,11 +510,6 @@ export class AssetsComponent implements OnInit {
             this.renderer.addClass( btnElem,'rotate');
             this.renderer.removeClass(this.uploaderCont.nativeElement,'expand');
         }
-       
-       
-        //this.renderer.removeClass(this.uploaderCont.nativeElement,'collapse');
-
-
     }
 
     onAddFolderClick(event) {
@@ -628,19 +611,14 @@ export class AssetsComponent implements OnInit {
 
     deleteAssets(asset: Asset = null) {
         // TODO - NEED FIX THIS WHEN CHANGING TO MULTIPLE SELECTION MODE 
-        if(asset == null){
-            let data = this.genericList.getSelectedItems();
-            data = this.fixFileNameWithComma(data);
-
-            asset = this.getSelectedAsset(data.rows[0]);
-        }
-        
+        asset = asset !== null ? asset : 
+        this.getSelectedAsset(this.genericList.getSelectedItems().rows[0]);
         if(asset){
-                asset.Hidden = true;
-                this.addonService.runUploadWorker({ status: 'deleting', assets: [asset] });
-            }
+            asset.Hidden = true;
+            this.addonService.runUploadWorker({ status: 'deleting', assets: [asset] });
         }
-
+    }
+      
     onDragOver(event) {
         event.preventDefault();
     }
